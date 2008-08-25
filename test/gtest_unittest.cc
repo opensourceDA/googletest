@@ -101,6 +101,7 @@ namespace {
 // NULL testing does not work with Symbian compilers.
 
 // Tests that GTEST_IS_NULL_LITERAL(x) is true when x is a null
+// pointer liteCodePointToUtf8x is a null
 // pointer literal.
 TEST(NullLiteralTest, IsTrueForNullLiterals) {
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL(NULL));
@@ -112,7 +113,8 @@ TEST(NullLiteralTest, IsTrueForNullLiterals) {
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL(true && false));
 }
 
-// Tests that GTEST_IS_NULL_LITERAL(x) is false when x is not a null
+// TestsUnitTestImpl;
+using testing::internal::WideStringToUtf8ot a null
 // pointer literal.
 TEST(NullLiteralTest, IsFalseForNonNullLiterals) {
   EXPECT_FALSE(GTEST_IS_NULL_LITERAL(1));
@@ -141,72 +143,185 @@ TEST(ToUtf8StringTest, CanEncodeAscii) {
 // as 110xxxxx 10xxxxxx.
 TEST(ToUtf8StringTest, CanEncode8To11Bits) {
   // 000 1101 0011 => 110-00011 10-010011
-  EXPECT_STREQ("\xC3\x93", ToUtf8String(L'\xD3').c_str());
+  EXPECT_ST
+// Tests CodePointToUtf8().
 
-  // 101 0111 0110 => 110-10101 10-110110
-  EXPECT_STREQ("\xD5\xB6", ToUtf8String(L'\x576').c_str());
+// Tests that the NUL character L'\0' is encoded correctly.
+TEST(CodePointToUtf8Test, CanEncodeNul) {
+  char buffer[32];
+  EXPECT_STREQ("", CodePointToUtf8(L'\0', buffer));
 }
 
-// Tests that Unicode code-points that have 12 to 16 bits are encoded
-// as 1110xxxx 10xxxxxx 10xxxxxx.
-TEST(ToUtf8StringTest, CanEncode12To16Bits) {
-  // 0000 1000 1101 0011 => 1110-0000 10-100011 10-010011
-  EXPECT_STREQ("\xE0\xA3\x93", ToUtf8String(L'\x8D3').c_str());
-
-  // 1100 0111 0100 1101 => 1110-1100 10-011101 10-001101
-  EXPECT_STREQ("\xEC\x9D\x8D", ToUtf8String(L'\xC74D').c_str());
+// Tests that ASCII characters are encoded correctly.
+TEST(CodePointToUtf8Test, CanEncodeAscii) {
+  char buffer[32];
+  EXPECT_STREQ("a", CodePointToUtf8(L'a', buffer));
+  EXPECT_STREQ("Z", CodePointToUtf8(L'Z', buffer));
+  EXPECT_STREQ("&", CodePointToUtf8(L'&', buffer));
+  EXPECT_STREQ("\x7F", CodePointToUtf8(L'\x7F', buffer));
 }
 
-#if !defined(GTEST_OS_WINDOWS) && !defined(GTEST_OS_CYGWIN) && \
-    !defined(__SYMBIAN32__)
-
-// Tests in this group require a wchar_t to hold > 16 bits, and thus
+// Tests that Unicode code-points that have 8 to 11 bits are encoded
+// as 110xxxxx 10xxxxxx.
+TEST(CodePointToUtf8Test, CanEncode8To11Bits) {
+  char buffer[32];
+  // 000 1101 0011 => 110-00011 10-010011
+  EXPECT_STREQ("\xC3\x93", CodePointToUtf8(L'\xD3', bufferthus
 // are skipped on Windows, Cygwin, and Symbian, where a wchar_t is
-// 16-bit wide.
-
-// Tests that Unicode code-points that have 17 to 21 bits are encoded
+//CodePointToUtf8(L'\x576', bufferUnicode code-points that have 17 to 21 bits are encoded
 // as 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx.
-TEST(ToUtf8StringTest, CanEncode17To21Bits) {
-  // 0 0001 0000 1000 1101 0011 => 11110-000 10-010000 10-100011 10-010011
-  EXPECT_STREQ("\xF0\x90\xA3\x93", ToUtf8String(L'\x108D3').c_str());
+TEST(ToUtf8StringCodePointToUtf8Test, CanEncode12To16Bits) {
+  char buffer[32]; 0000 1000 1101 0011 => 11110-000 10-010000 10-100011 10-010011
+  EXPECT_STREQ("\xF0\x90\xCodePointToUtf8(L'\x8D3', bufferD3').c_str());
 
   // 1 0111 1000 0110 0011 0100 => 11110-101 10-111000 10-011000 10-110100
-  EXPECT_STREQ("\xF5\xB8\x98\xB4", ToUtf8String(L'\x178634').c_str());
+  ECodePointToUtf8(L'\xC74D', buffer));
 }
 
-// Tests that encoding an invalid code-point generates the expected result.
+#ifndef GTEST_WIDE_STRING_USES_UTF16_expected result.
 TEST(ToUtf8StringTest, CanEncodeInvalidCodePoint) {
   EXPECT_STREQ("(Invalid Unicode 0x1234ABCD)",
-               ToUtf8String(L'\x1234ABCD').c_str());
+               ToUtf8String(L'\x1234 This code may not compile on those systems4ABCD').c_str());
 }
 
 #endif  // Windows, Cygwin, or Symbian
 
 // Tests the List template class.
 
-// Tests List::PushFront().
-TEST(ListTest, PushFront) {
+// Tests List::PushFront(CodePointToUtf8Test, CanEncode17To21Bits) {
+  char buffer[32];
+  // 0 0001 0000 1000 1101 0011 => 11110-000 10-010000 10-100011 10-010011
+  EXPECT_STREQ("\xF0\x90\xA3\x93", CodePointToUtf8(L'\x108D3', buffer));
+
+  // 0 0001 0000 0100 0000 0000 => 11110-000 10-010000 10-010000 10-000000
+  EXPECT_STREQ("\xF0\x90\x90\x80", CodePointToUtf8(L'\x10400', buffer));
+
+  // 1 0000 1000 0110 0011 0100 => 11110-100 10-001000 10-011000 10-110100
+  EXPECT_STREQ("\xF4\x88\x98\xB4", CodePointToUtf8(L'\x108634', bufferEQ(2, a.Head()->element());
+  EXPECT_EQ(1, a.Last()->element());
+
+  // Calls PushFront()CodePointToUtf8Test, CanEncodeInvalidCodePoint) {
+  char buffer[32];
+  EXPECT_STREQ("(Invalid Unicode 0x1234ABCD)",
+               CodePointToUtf8(L'\x1234ABCD', buffer));
+}
+
+#endif  // GTEST_WIDE_STRING_USES_UTF16_
+
+// Tests WideStringToUtf8().
+
+// Tests that the NUL character L'\0' is encoded correctly.
+TEST(WideStringToUtf8Test, CanEncodeNul) {
+  EXPECT_STREQ("", WideStringToUtf8(L"", 0).c_str());
+  EXPECT_STREQ("", WideStringToUtf8(L"", -1).c_str());
+}
+
+// Tests that ASCII strings are encoded correctly.
+TEST(WideStringToUtf8Test, CanEncodeAscii) {
+  EXPECT_STREQ("a", WideStringToUtf8(L"a", 1).c_str());
+  EXPECT_STREQ("ab", WideStringToUtf8(L"ab", 2).c_str());
+  EXPECT_STREQ("a", WideStringToUtf8(L"a", -1).c_str());
+  EXPECT_STREQ("ab", WideStringToUtf8(L"ab", -11100 10-011101 10-001101
+  EXPECT_STREQ("\xEC\x9D\x8D", ToUtf8String(L'\xC74D').c_str());
+}
+
+#if !defined(GTEST_OSWideStringToUtf8 !defined(GTEST_OS_CYGWIN) && \
+    !defined(__SYMBIAN32__)
+
+// Tests in this group require a wchWideStringToUtf8(L"\xD3", 1).c_str());
+  EXPECT_STREQ("\xC3\x93", WideStringToUtf8(L"\xD3", -1ts, and thus
+// are skipped on Windows, Cygwin, and Symbian, where a wchar_t is
+//WideStringToUtf8(L"\x576", 1).c_str());
+  EXPECT_STREQ("\xD5\xB6", WideStringToUtf8(L"\x576", -1ts that Unicode code-points that have 17 to 21 bits are encoded
+// as 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx.
+TEST(ToUtf8StringWideStringToUtf8ode17To21Bits) {
+  // 0 0001 0000 1000 1101 0011 => 11110-000 10-010000 10-100011 10-010011
+  EXPECT_STREQ("\xF0\x90\xWideStringToUtf8(L"\x8D3", 1).c_str());
+  EXPECT_STREQ("\xE0\xA3\x93", WideStringToUtf8(L"\x8D3", -1(L'\x108D3').c_str());
+
+  // 1 0111 1000 0110 0011 0100 => 11110-101 10-111000 10-011000 10-110100
+  EWideStringToUtf8(L"\xC74D", 1).c_str());
+  EXPECT_STREQ("\xEC\x9D\x8D", WideStringToUtf8(L"\xC74D", -1).c_str());
+}
+
+// Tests that the conversion stops when the function encounters \0 character.
+TEST(WideStringToUtf8Test, StopsOnNulCharacter) {
+  EXPECT_STREQ("ABC", WideStringToUtf8(L"ABC\0XYZ", 100).c_str());
+}
+
+// Tests that the conversion stops when the function reaches the limit
+// specified by the 'length' parameter.
+TEST(WideStringToUtf8Test, StopsWhenLengthLimitReached) {
+  EXPECT_STREQ("ABC", WideStringToUtf8(L"ABCDEF", 3).c_str());
+}
+
+
+#ifndef GTEST_WIDE_STRING_USES_UTF16_BCD').c_str());
+}
+
+#endif  // Windows, Cygwin, or Symbian
+
+// Tests the List template class.
+
+// Tests List::Push This code may not compile
+// on the systems using UTF-16 encoding.
+TEST(WideStringToUtf8Test, PushFront) {
   List<int> a;
   ASSERT_EQ(0u, a.size());
 
   // Calls PushFront() on an empty list.
   a.PushFront(1);
-  ASSERT_EQ(1u, a.size());
-  EXPECT_EQ(1, a.Head()->element());
-  ASSERT_EQ(a.Head(), a.Last());
+  ASSERT_EQ(1u, a.WideStringToUtf8(L"\x108D3", 1).c_str());
+  EXPECT_STREQ("\xF0\x90\xA3\x93", WideStringToUtf8(L"\x108D3", -1).c_str());
 
-  // Calls PushFront() on a singleton list.
-  a.PushFront(2);
-  ASSERT_EQ(2u, a.size());
-  EXPECT_EQ(2, a.Head()->element());
+  // 1 0000 1000 0110 0011 0100 => 11110-100 10-001000 10-011000 10-110100
+  EXPECT_STREQ("\xF4\x88\x98\xB4", WideStringToUtf8(L"\x108634", 1).c_str());
+  EXPECT_STREQ("\xF4\x88\x98\xB4", WideStringToUtf8(L"\x108634", -1 EXPECT_EQ(2, a.Head()->element());
   EXPECT_EQ(1, a.Last()->element());
 
-  // Calls PushFront() on a list with more than one elements.
-  a.PushFront(3);
-  ASSERT_EQ(3u, a.size());
-  EXPECT_EQ(3, a.Head()->element());
-  EXPECT_EQ(2, a.Head()->next()->element());
-  EXPECT_EQ(1, a.Last()->element());
+  // Calls PushFront()WideStringToUtf8Test, CanEncodeInvalidCodePoint) {
+  EXPECT_STREQ("(Invalid Unicode 0xABCDFF)",
+               WideStringToUtf8(L"\xABCDFF", -1).c_str());
+}
+#else
+// Tests that surrogate pairs are encoded correctly on the systems using
+// UTF-16 encoding in the wide strings.
+TEST(WideStringToUtf8Test, CanEncodeValidUtf16SUrrogatePairs) {
+  EXPECT_STREQ("\xF0\x90\x90\x80",
+               WideStringToUtf8(L"\xD801\xDC00", -1).c_str());
+}
+
+// Tests that encoding an invalid UTF-16 surrogate pair
+// generates the expected result.
+TEST(WideStringToUtf8Test, CanEncodeInvalidUtf16SurrogatePair) {
+  // Leading surrogate is at the end of the string.
+  EXPECT_STREQ("\xED\xA0\x80", WideStringToUtf8(L"\xD800", -1).c_str());
+  // Leading surrogate is not followed by the trailing surrogate.
+  EXPECT_STREQ("\xED\xA0\x80$", WideStringToUtf8(L"\xD800$", -1).c_str());
+  // Trailing surrogate appearas without a leading surrogate.
+  EXPECT_STREQ("\xED\xB0\x80PQR", WideStringToUtf8(L"\xDC00PQR", -1).c_str());
+}
+#endif  // GTEST_WIDE_STRING_USES_UTF16_
+
+// Tests that codepoint concatenation works correctly.
+#ifndef GTEST_WIDE_STRING_USES_UTF16_
+TEST(WideStringToUtf8Test, ConcatenatesCodepointsCorrectly) {
+  EXPECT_STREQ(
+      "\xF4\x88\x98\xB4"
+          "\xEC\x9D\x8D"
+          "\n"
+          "\xD5\xB6"
+          "\xE0\xA3\x93"
+          "\xF4\x88\x98\xB4",
+      WideStringToUtf8(L"\x108634\xC74D\n\x576\x8D3\x108634", -1).c_str());
+}
+#else
+TEST(WideStringToUtf8Test, ConcatenatesCodepointsCorrectly) {
+  EXPECT_STREQ(
+      "\xEC\x9D\x8D" "\n" "\xD5\xB6" "\xE0\xA3\x93",
+      WideStringToUtf8(L"\xC74D\n\x576\x8D3", -1).c_str());
+}
+#endif  // GTEST_WIDE_STRING_USES_UTF16_()->element());
 }
 
 // Tests List::PopFront().
@@ -3069,53 +3184,7 @@ TEST(EqAssertionTest, GlobalString) {
   // having a NUL character in the middle.
   ::string str3(str1);
   str3.at(2) = '\0';
-  EXPECT_NONFATAL_FAILURE(EXPECT_EQ(str1, str3),
-                          "str3");
-
-  // Compares a ::string to a char* that has different content.
-  EXPECT_FATAL_FAILURE({  // NOLINT
-    ASSERT_EQ(::string("bar"), const_cast<char*>("foo"));
-  }, "");
-}
-
-#endif  // GTEST_HAS_GLOBAL_STRING
-
-#if GTEST_HAS_GLOBAL_WSTRING
-
-// Tests using ::wstring values in {EXPECT|ASSERT}_EQ.
-TEST(EqAssertionTest, GlobalWideString) {
-  // Compares a const wchar_t* to a ::wstring that has identical content.
-  ASSERT_EQ(L"Test\x8119", ::wstring(L"Test\x8119"));
-
-  // Compares two identical ::wstrings.
-  static const ::wstring wstr1(L"A * in the middle");
-  static const ::wstring wstr2(wstr1);
-  EXPECT_EQ(wstr1, wstr2);
-
-  // Compares a const wchar_t* to a ::wstring that has different
-  // content.
-  EXPECT_NONFATAL_FAILURE({  // NOLINT
-    EXPECT_EQ(L"Test\x8120", ::wstring(L"Test\x8119"));
-  }, "Test\\x8119");
-
-  // Compares a wchar_t* to a ::wstring that has different content.
-  wchar_t* const p1 = const_cast<wchar_t*>(L"foo");
-  EXPECT_NONFATAL_FAILURE(EXPECT_EQ(p1, ::wstring(L"bar")),
-                          "bar");
-
-  // Compares two ::wstrings that have different contents, one of which
-  // having a NUL character in the middle.
-  static ::wstring wstr3;
-  wstr3 = wstr1;
-  wstr3.at(2) = L'\0';
-  EXPECT_FATAL_FAILURE(ASSERT_EQ(wstr1, wstr3),
-                       "wstr3");
-}
-
-#endif  // GTEST_HAS_GLOBAL_WSTRING
-
-// Tests using char pointers in {EXPECT|ASSERT}_EQ.
-TEST(EqAssertionTest, CharPointer) {
+  EXPECT_NONFATALCharPointer) {
   char* const p0 = NULL;
   // Only way to get the Nokia compiler to compile the cast
   // is to have a separate void* variable first. Putting
@@ -3194,7 +3263,7 @@ TEST(FRIEND_TEST_Test, TEST) {
 }
 
 // The fixture needed to test using FRIEND_TEST with TEST_F.
-class FRIEND_TEST_Test2 : public testing::Test {
+class FRIEND_TEST_Test2 : public Test {
  protected:
   Foo foo;
 };
@@ -3211,13 +3280,73 @@ TEST_F(FRIEND_TEST_Test2, TEST_F) {
 //
 // This class counts the number of live test objects that uses this
 // fixture.
-class TestLifeCycleTest : public testing::Test {
+class TestLifeCycleTest : public Test {
  protected:
   // Constructor.  Increments the number of test objects that uses
   // this fixture.
   TestLifeCycleTest() { count_++; }
 
   // Destructor.  Decrements the number of test objects that uses this
+  // fixture.
+  ~TestLifeCycleTest() { count_--; }
+
+  // Returns the number of live test objects that uses this fixture.
+  int count() const { return count_; }
+
+ private:
+  static int count_;
+};
+
+int TestLifeCycleTest::count_ = 0;
+
+// Tests the life cycle of test objects.
+TEST_F(TestLifeCycleTest, Test1) {
+  // There should be only one test object in this test case that's
+  // currently alive.
+  ASSERT_EQ(1, count());
+}
+
+// Tests the life cycle of test objects.
+TEST_F(TestLifeCycleTest, Test2) {
+  // After Test1 is done and Test2 is started, there should still be
+  // only one live test object, as the object for Test1 should've been
+  // deleted.
+  ASSERT_EQ(1, count());
+}
+
+}  // namespace
+
+// Tests streaming a user type whose definition and operator << are
+// both in the global namespace.
+class Base {
+ public:
+  explicit Base(int x) : x_(x) {}
+  int x() const { return x_; }
+ private:
+  int x_;
+};
+std::ostream& operator<<(std::ostream& os,
+                         const Basvate:
+  static int count_;
+};
+
+int TestLifeCycleTest::count_ = 0;
+
+// Tests the life cycle of test objects.
+TEBase* pointer) {
+  return os << "(" << pointer->x() << ")";
+}
+
+TEST(MessageTest, CanStreamUserTypeInGlobalNameSpace) {
+  Message msg;
+  Basepace>::operator<<.
+  EXPECT_STREQ("1(1)", msg.GetString().c_str());
+}
+
+// Tests streaming a user type whose definition aa user type whose definition and operator<< are
+// both in an unnamed namespace.
+namespace {
+class MyTypeInUnnamedt objects that uses this
   // fixture.
   ~TestLifeCycleTest() { count_--; }
 
@@ -4371,52 +4500,4 @@ TEST(ColoredOutputTest, UsesColorsWhenTermSupportsColors) {
   // On Windows, we ignore the TERM variable as it's usually not set.
 
   SetEnv("TERM", "dumb");
-  EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
-
-  SetEnv("TERM", "");
-  EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
-
-  SetEnv("TERM", "xterm");
-  EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
-#else
-  // On non-Windows platforms, we rely on TERM to determine if the
-  // terminal supports colors.
-
-  SetEnv("TERM", "dumb");  // TERM doesn't support colors.
-  EXPECT_FALSE(ShouldUseColor(true));  // Stdout is a TTY.
-
-  SetEnv("TERM", "emacs");  // TERM doesn't support colors.
-  EXPECT_FALSE(ShouldUseColor(true));  // Stdout is a TTY.
-
-  SetEnv("TERM", "vt100");  // TERM doesn't support colors.
-  EXPECT_FALSE(ShouldUseColor(true));  // Stdout is a TTY.
-
-  SetEnv("TERM", "xterm-mono");  // TERM doesn't support colors.
-  EXPECT_FALSE(ShouldUseColor(true));  // Stdout is a TTY.
-
-  SetEnv("TERM", "xterm");  // TERM supports colors.
-  EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
-
-  SetEnv("TERM", "xterm-color");  // TERM supports colors.
-  EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
-#endif  // GTEST_OS_WINDOWS
-}
-
-#ifndef __SYMBIAN32__
-// We will want to integrate running the unittests to a different
-// main application on Symbian.
-int main(int argc, char** argv) {
-  testing::InitGoogleTest(&argc, argv);
-
-#ifdef GTEST_HAS_DEATH_TEST
-  if (!testing::internal::GTEST_FLAG(internal_run_death_test).empty()) {
-    // Skip the usual output capturing if we're running as the child
-    // process of an threadsafe-style death test.
-    freopen("/dev/null", "w", stdout);
-  }
-#endif  // GTEST_HAS_DEATH_TEST
-
-  // Runs all tests using Google Test.
-  return RUN_ALL_TESTS();
-}
-#endif  // __SYMBIAN32_
+  EXPECT_TRUE(S
