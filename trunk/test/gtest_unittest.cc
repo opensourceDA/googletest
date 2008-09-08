@@ -533,6 +533,16 @@ TEST(StringTest, CanBeAssignedNonEmpty) {
 
 // Tests that a String can be assigned to itself.
 TEST(StringTest, CanBeAssignedSelf) {
+  String String::CaseInsensitiveWideCStringEquals
+TEST(StringTest, CaseInsensitiveWideCStringEquals) {
+  EXPECT_TRUE(String::CaseInsensitiveWideCStringEquals(NULL, NULL));
+  EXPECT_FALSE(String::CaseInsensitiveWideCStringEquals(NULL, L""));
+  EXPECT_FALSE(String::CaseInsensitiveWideCStringEquals(L"", NULL));
+  EXPECT_FALSE(String::CaseInsensitiveWideCStringEquals(NULL, L"foobar"));
+  EXPECT_FALSE(String::CaseInsensitiveWideCStringEquals(L"foobar", NULL));
+  EXPECT_TRUE(String::CaseInsensitiveWideCStringEquals(L"foobar", L"foobar"));
+  EXPECT_TRUE(String::CaseInsensitiveWideCStringEquals(L"foobar", L"FOOBAR"));
+  EXPECT_TRUE(String::CaseInsensitiveWideCStringEquals(L"FOOBAR", L"foobarSelf) {
   String dest("hello");
 
   dest = dest;
@@ -2107,7 +2117,68 @@ TEST_F(DoubleTest, DoubleLEFails) {
 // Verifies that a test or test case whose name starts with DISABLED_ is
 // not run.
 
-// A test whose name starts with DISABLED_.
+// A test whose name starts with DIS// Tests that disabled typed tests aren't run.
+
+#ifdef GTEST_HAS_TYPED_TEST
+
+template <typename T>
+class TypedTest : public Test {
+};
+
+typedef testing::Types<int, double> NumericTypes;
+TYPED_TEST_CASE(TypedTest, NumericTypes);
+
+TYPED_TEST(TypedTest, DISABLED_ShouldNotRun) {
+  FAIL() << "Unexpected failure: Disabled typed test should not run.";
+}
+
+template <typename T>
+class DISABLED_TypedTest : public Test {
+};
+
+TYPED_TEST_CASE(DISABLED_TypedTest, NumericTypes);
+
+TYPED_TEST(DISABLED_TypedTest, ShouldNotRun) {
+  FAIL() << "Unexpected failure: Disabled typed test should not run.";
+}
+
+#endif  // GTEST_HAS_TYPED_TEST
+
+// Tests that disabled type-parameterized tests aren't run.
+
+#ifdef GTEST_HAS_TYPED_TEST_P
+
+template <typename T>
+class TypedTestP : public Test {
+};
+
+TYPED_TEST_CASE_P(TypedTestP);
+
+TYPED_TEST_P(TypedTestP, DISABLED_ShouldNotRun) {
+  FAIL() << "Unexpected failure: "
+         << "Disabled type-parameterized test should not run.";
+}
+
+REGISTER_TYPED_TEST_CASE_P(TypedTestP, DISABLED_ShouldNotRun);
+
+INSTANTIATE_TYPED_TEST_CASE_P(My, TypedTestP, NumericTypes);
+
+template <typename T>
+class DISABLED_TypedTestP : public Test {
+};
+
+TYPED_TEST_CASE_P(DISABLED_TypedTestP);
+
+TYPED_TEST_P(DISABLED_TypedTestP, ShouldNotRun) {
+  FAIL() << "Unexpected failure: "
+         << "Disabled type-parameterized test should not run.";
+}
+
+REGISTER_TYPED_TEST_CASE_P(DISABLED_TypedTestP, ShouldNotRun);
+
+INSTANTIATE_TYPED_TEST_CASE_P(My, DISABLED_TypedTestP, NumericTypes);
+
+#endif  // GTEST_HAS_TYPED_TEST_PSABLED_.
 // Should not run.
 TEST(DisabledTest, DISABLED_TestShouldNotRun) {
   FAIL() << "Unexpected failure: Disabled test should not be run.";
@@ -3119,51 +3190,7 @@ TEST(EqAssertionTest, StdString) {
   EXPECT_NONFATAL_FAILURE(EXPECT_EQ(::std::string("bar"), p1),
                           "p1");
 
-  // Compares two std::strings that have different contents, one of
-  // which having a NUL character in the middle.  This should fail.
-  static ::std::string str3(str1);
-  str3.at(2) = '\0';
-  EXPECT_FATAL_FAILURE(ASSERT_EQ(str1, str3),
-                       "Value of: str3\n"
-                       "  Actual: \"A \\0 in the middle\"");
-}
-
-#endif  // GTEST_HAS_STD_STRING
-
-#if GTEST_HAS_STD_WSTRING
-
-// Tests using ::std::wstring values in {EXPECT|ASSERT}_EQ.
-TEST(EqAssertionTest, StdWideString) {
-  // Compares an std::wstring to a const wchar_t* that has identical
-  // content.
-  EXPECT_EQ(::std::wstring(L"Test\x8119"), L"Test\x8119");
-
-  // Compares two identical std::wstrings.
-  const ::std::wstring wstr1(L"A * in the middle");
-  const ::std::wstring wstr2(wstr1);
-  ASSERT_EQ(wstr1, wstr2);
-
-  // Compares an std::wstring to a const wchar_t* that has different
-  // content.
-  EXPECT_NONFATAL_FAILURE({  // NOLINT
-    EXPECT_EQ(::std::wstring(L"Test\x8119"), L"Test\x8120");
-  }, "L\"Test\\x8120\"");
-
-  // Compares two std::wstrings that have different contents, one of
-  // which having a NUL character in the middle.
-  ::std::wstring wstr3(wstr1);
-  wstr3.at(2) = L'\0';
-  EXPECT_NONFATAL_FAILURE(EXPECT_EQ(wstr1, wstr3),
-                          "wstr3");
-
-  // Compares a wchar_t* to an std::wstring that has different
-  // content.
-  EXPECT_FATAL_FAILURE({  // NOLINT
-    ASSERT_EQ(const_cast<wchar_t*>(L"foo"), ::std::wstring(L"bar"));
-  }, "");
-}
-
-#endif  // GTEST_HAS_STD_WSTRING
+  //TEST_HAS_STD_WSTRING
 
 #if GTEST_HAS_GLOBAL_STRING
 // Tests using ::string values in {EXPECT|ASSERT}_EQ.
@@ -3184,7 +3211,53 @@ TEST(EqAssertionTest, GlobalString) {
   // having a NUL character in the middle.
   ::string str3(str1);
   str3.at(2) = '\0';
-  EXPECT_NONFATALCharPointer) {
+  EXPECT_NONFATAL_FAILURE(EXPECT_EQ(str1, str3),
+                          "str3");
+
+  // Compares a ::string to a char* that has different content.
+  EXPECT_FATAL_FAILURE({  // NOLINT
+    ASSERT_EQ(::string("bar"), const_cast<char*>("foo"));
+  }, "");
+}
+
+#endif  // GTEST_HAS_GLOBAL_STRING
+
+#if GTEST_HAS_GLOBAL_WSTRING
+
+// Tests using ::wstring values in {EXPECT|ASSERT}_EQ.
+TEST(EqAssertionTest, GlobalWideString) {
+  // Compares a const wchar_t* to a ::wstring that has identical content.
+  ASSERT_EQ(L"Test\x8119", ::wstring(L"Test\x8119"));
+
+  // Compares two identical ::wstrings.
+  static const ::wstring wstr1(L"A * in the middle");
+  static const ::wstring wstr2(wstr1);
+  EXPECT_EQ(wstr1, wstr2);
+
+  // Compares a const wchar_t* to a ::wstring that has different
+  // content.
+  EXPECT_NONFATAL_FAILURE({  // NOLINT
+    EXPECT_EQ(L"Test\x8120", ::wstring(L"Test\x8119"));
+  }, "Test\\x8119");
+
+  // Compares a wchar_t* to a ::wstring that has different content.
+  wchar_t* const p1 = const_cast<wchar_t*>(L"foo");
+  EXPECT_NONFATAL_FAILURE(EXPECT_EQ(p1, ::wstring(L"bar")),
+                          "bar");
+
+  // Compares two ::wstrings that have different contents, one of which
+  // having a NUL character in the middle.
+  static ::wstring wstr3;
+  wstr3 = wstr1;
+  wstr3.at(2) = L'\0';
+  EXPECT_FATAL_FAILURE(ASSERT_EQ(wstr1, wstr3),
+                       "wstr3");
+}
+
+#endif  // GTEST_HAS_GLOBAL_WSTRING
+
+// Tests using char pointers in {EXPECT|ASSERT}_EQ.
+TEST(EqAssertionTest, CharPointer) {
   char* const p0 = NULL;
   // Only way to get the Nokia compiler to compile the cast
   // is to have a separate void* variable first. Putting
@@ -3473,7 +3546,7 @@ TEST(MessageTest, CanStreamUserTypeInUserNameSpaceWithStreamOperatorInGlobal) {
   testing::Message msg;
   namespace2::MyTypeInNameSpace2 a(1);
 
-  msg << a << &a;  // Uses ::operator<<.
+  ms" msg << a << &a;  // Uses ::operator<<.
   EXPECT_STREQ("1(1)", msg.GetString().c_str());
 }
 
