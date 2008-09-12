@@ -2271,7 +2271,53 @@ int SingleEvaluationTest::b_;
 // Tests that when ASSERT_STREQ fails, it evaluates its arguments
 // exactly once.
 TEST_F(SingleEvaluationTest, FailedASSERT_STREQ) {
-  EXPECT_FATAL_FAILURE(CompareAndIncrementCharPtrs(),
+  EXPECT_FATAL_FAILURE(CompareAndIncr#if GTEST_HAS_EXCEPTIONS
+
+void ThrowAnInteger() {
+  throw 1helper function is needed by the FailedASSERT_NE test below.
+  static void CompareAndIncrementInExceptionTests) {
+  // successful EXPECT_THROW
+  EXPECT_THROW({  // NOLINT
+    a_++;
+    ThrowAnInteger();
+  }, int);
+  EXPECT_EQ(1, a_);
+
+  // failed EXPECT_THROW, throws different
+  EXPECT_NONFATAL_FAILURE(EXPECT_THROW({  // NOLINT
+    a_++;
+    ThrowAnInteger();
+  }, bool), "throws a different type");
+  EXPECT_EQ(2, a_);
+
+  // failed EXPECT_THROW, throws nothing
+  EXPECT_NONFATAL_FAILURE(EXPECT_THROW(a_++, bool), "throws nothing");
+  EXPECT_EQ(3, a_);
+
+  // successful EXPECT_NO_THROW
+  EXPECT_NO_THROW(a_++);
+  EXPECT_EQ(4, a_);
+
+  // failed EXPECT_NO_THROW
+  EXPECT_NONFATAL_FAILURE(EXPECT_NO_THROW({  // NOLINT
+    a_++;
+    ThrowAnInteger();
+  }), "it throws");
+  EXPECT_EQ(5, a_);
+
+  // successful EXPECT_ANY_THROW
+  EXPECT_ANY_THROW({  // NOLINT
+    a_++;
+    ThrowAnInteger();
+  });
+  EXPECT_EQ(6, a_);
+
+  // failed EXPECT_ANY_THROW
+  EXPECT_NONFATAL_FAILURE(EXPECT_ANY_THROW(a_++), "it doesn't");
+  EXPECT_EQ(7, a_);
+}
+
+#endif  // GTEST_HAS_EXCEPTIONSrementCharPtrs(),
                        "p2_++");
   EXPECT_EQ(s1_ + 1, p1_);
   EXPECT_EQ(s2_ + 1, p2_);
@@ -2445,7 +2491,36 @@ TEST(AssertionTest, ASSERT_EQ_NULL) {
   // A failure.
   static int n = 0;
   EXPECT_FATAL_FAILURE(ASSERT_EQ(NULL, &n),
-                       "Value of: &n\n");
+                    #if GTEST_HAS_EXCEPTIONS
+
+// Tests ASSERT_THROW.
+TEST(AssertionTest, ASSERT_THROW) {
+  ASSERT_THROW(ThrowAnInteger(), int);
+  EXPECT_FATAL_FAILURE(ASSERT_THROW(ThrowAnInteger(), bool),
+                       "Expected: ThrowAnInteger() throws an exception of type"\
+                       " bool.\n  Actual: it throws a different type.");
+  EXPECT_FATAL_FAILURE(ASSERT_THROW(1, bool),
+                       "Expected: 1 throws an exception of type bool.\n"\
+                       "  Actual: it throws nothing.");
+}
+
+// Tests ASSERT_NO_THROW.
+TEST(AssertionTest, ASSERT_NO_THROW) {
+  ASSERT_NO_THROW(1);
+  EXPECT_FATAL_FAILURE(ASSERT_NO_THROW(ThrowAnInteger()),
+                       "Expected: ThrowAnInteger() doesn't throw an exception."\
+                       "\n  Actual: it throws.");
+}
+
+// Tests ASSERT_ANY_THROW.
+TEST(AssertionTest, ASSERT_ANY_THROW) {
+  ASSERT_ANY_THROW(ThrowAnInteger());
+  EXPECT_FATAL_FAILURE(ASSERT_ANY_THROW(1),
+                       "Expected: 1 throws an exception.\n  Actual: it "\
+                       "doesn't.");
+}
+
+#endif  // GTEST_HAS_EXCEPTIONS     "Value of: &n\n");
 }
 #endif  // __SYMBIAN32__
 
@@ -2726,7 +2801,32 @@ TEST(HRESULTAssertionTest, ASSERT_HRESULT_FAILED) {
     "  Actual: 0x00000000 The operation completed successfully";
   const char* expected_incorrect_function =
     "Expected: (FalseHRESULTSuccess()) fails.\n"
-    "  Actual: 0x00000001 Incorrect function.";
+    "  Actual: 0x00000001
+#if GTEST_HAS_EXCEPTIONS
+  if (false)
+    EXPECT_THROW(1, bool);
+
+  if (true)
+    EXPECT_THROW(ThrowAnInteger(), int);
+  else
+    ;
+
+  if (false)
+    EXPECT_NO_THROW(ThrowAnInteger());
+
+  if (true)
+    EXPECT_NO_THROW(1);
+  else
+    ;
+
+  if (false)
+    EXPECT_ANY_THROW(1);
+
+  if (true)
+    EXPECT_ANY_THROW(ThrowAnInteger());
+  else
+    ;
+#endif  // GTEST_HAS_EXCEPTIONS1 Incorrect function.";
 #endif  // _WIN32_WCE
 
   EXPECT_FATAL_FAILURE(ASSERT_HRESULT_FAILED(OkHRESULTSuccess()),
@@ -2742,7 +2842,21 @@ TEST(HRESULTAssertionTest, Streaming) {
   EXPECT_HRESULT_FAILED(E_UNEXPECTED) << "unexpected failure";
   ASSERT_HRESULT_FAILED(E_UNEXPECTED) << "unexpected failure";
 
-  EXPECT_NONFATAL_FAILURE(
+  EXPECT_NON#if GTEST_HAS_EXCEPTIONS
+
+void ThrowAString() {
+    throw "String";
+}
+
+// Test that the exception assertion macros compile and work with const
+// type qualifier.
+TEST(AssertionSyntaxTest, WorksWithConst) {
+    ASSERT_THROW(ThrowAString(), const char*);
+
+    EXPECT_THROW(ThrowAString(), const char*);
+}
+
+#endif  // GTEST_HAS_EXCEPTIONSONFATAL_FAILURE(
       EXPECT_HRESULT_SUCCEEDED(E_UNEXPECTED) << "expected failure",
       "expected failure");
 
@@ -2938,7 +3052,36 @@ TEST(ExpectTest, EXPECT_NE) {
   char* const p0 = NULL;
   EXPECT_NONFATAL_FAILURE(EXPECT_NE(p0, p0),
                           "p0");
-  // Only way to get the Nokia compiler to compile the cast
+  // Only way to #if GTEST_HAS_EXCEPTIONS
+
+// Tests EXPECT_THROW.
+TEST(ExpectTest, EXPECT_THROW) {
+  EXPECT_THROW(ThrowAnInteger(), int);
+  EXPECT_NONFATAL_FAILURE(EXPECT_THROW(ThrowAnInteger(), bool),
+                          "Expected: ThrowAnInteger() throws an exception of "\
+                          "type bool.\n  Actual: it throws a different type.");
+  EXPECT_NONFATAL_FAILURE(EXPECT_THROW(1, bool),
+                          "Expected: 1 throws an exception of type bool.\n"\
+                          "  Actual: it throws nothing.");
+}
+
+// Tests EXPECT_NO_THROW.
+TEST(ExpectTest, EXPECT_NO_THROW) {
+  EXPECT_NO_THROW(1);
+  EXPECT_NONFATAL_FAILURE(EXPECT_NO_THROW(ThrowAnInteger()),
+                          "Expected: ThrowAnInteger() doesn't throw an "\
+                          "exception.\n  Actual: it throws.");
+}
+
+// Tests EXPECT_ANY_THROW.
+TEST(ExpectTest, EXPECT_ANY_THROW) {
+  EXPECT_ANY_THROW(ThrowAnInteger());
+  EXPECT_NONFATAL_FAILURE(EXPECT_ANY_THROW(1),
+                          "Expected: 1 throws an exception.\n  Actual: it "\
+                          "doesn't.");
+}
+
+#endif  // GTEST_HAS_EXCEPTIONSo get the Nokia compiler to compile the cast
   // is to have a separate void* variable first. Putting
   // the two casts on the same line doesn't work, neither does
   // a direct C-style to char*.
@@ -3052,57 +3195,7 @@ TEST(StreamableTest, stringWithEmbeddedNUL) {
 
 // Tests that we can output a NUL char.
 TEST(StreamableTest, NULChar) {
-  EXPECT_FATAL_FAILURE({  // NOLINT
-    FAIL() << "A NUL" << '\0' << " and some more string";
-  }, "A NUL\\0 and some more string");
-}
-
-// Tests using int as an assertion message.
-TEST(StreamableTest, int) {
-  EXPECT_FATAL_FAILURE(FAIL() << 900913,
-                       "900913");
-}
-
-// Tests using NULL char pointer as an assertion message.
-//
-// In MSVC, streaming a NULL char * causes access violation.  Google Test
-// implemented a workaround (substituting "(null)" for NULL).  This
-// tests whether the workaround works.
-TEST(StreamableTest, NullCharPtr) {
-  EXPECT_FATAL_FAILURE(FAIL() << static_cast<const char*>(NULL),
-                       "(null)");
-}
-
-// Tests that basic IO manipulators (endl, ends, and flush) can be
-// streamed to testing::Message.
-TEST(StreamableTest, BasicIoManip) {
-  EXPECT_FATAL_FAILURE({  // NOLINT
-    FAIL() << "Line 1." << std::endl
-           << "A NUL char " << std::ends << std::flush << " in line 2.";
-  }, "Line 1.\nA NUL char \\0 in line 2.");
-}
-
-// Tests the macros that haven't been covered so far.
-
-void AddFailureHelper(bool* aborted) {
-  *aborted = true;
-  ADD_FAILURE() << "Failure";
-  *aborted = false;
-}
-
-// Tests ADD_FAILURE.
-TEST(MacroTest, ADD_FAILURE) {
-  bool aborted = true;
-  EXPECT_NONFATAL_FAILURE(AddFailureHelper(&aborted),
-                          "Failure");
-  EXPECT_FALSE(aborted);
-}
-
-// Tests FAIL.
-TEST(MacroTest, FAIL) {
-  EXPECT_FATAL_FAILURE(FAIL(),
-                       "Failed");
-  EXPECT_FATAL_FAILURE(FAIL() << "Intentional failure.",
+  EXPECT_F() << "Intentional failure.",
                        "Intentional failure.");
 }
 
@@ -3187,7 +3280,49 @@ TEST(EqAssertionTest, StdString) {
   // Compares a const char* to an std::string that has different
   // content
   EXPECT_NONFATAL_FAILURE(EXPECT_EQ("Test", ::std::string("test")),
-                          "::std::string(\"        "wstr3");
+                          "::std::string(\"test\")");
+
+  // Compares an std::string to a char* that has different content.
+  char* const p1 = const_cast<char*>("foo");
+  EXPECT_NONFATAL_FAILURE(EXPECT_EQ(::std::string("bar"), p1),
+                          "p1");
+
+  // Compares two std::strings that have different contents, one of
+  // which having a NUL character in the middle.  This should fail.
+  static ::std::string str3(str1);
+  str3.at(2) = '\0';
+  EXPECT_FATAL_FAILURE(ASSERT_EQ(str1, str3),
+                       "Value of: str3\n"
+                       "  Actual: \"A \\0 in the middle\"");
+}
+
+#endif  // GTEST_HAS_STD_STRING
+
+#if GTEST_HAS_STD_WSTRING
+
+// Tests using ::std::wstring values in {EXPECT|ASSERT}_EQ.
+TEST(EqAssertionTest, StdWideString) {
+  // Compares an std::wstring to a const wchar_t* that has identical
+  // content.
+  EXPECT_EQ(::std::wstring(L"Test\x8119"), L"Test\x8119");
+
+  // Compares two identical std::wstrings.
+  const ::std::wstring wstr1(L"A * in the middle");
+  const ::std::wstring wstr2(wstr1);
+  ASSERT_EQ(wstr1, wstr2);
+
+  // Compares an std::wstring to a const wchar_t* that has different
+  // content.
+  EXPECT_NONFATAL_FAILURE({  // NOLINT
+    EXPECT_EQ(::std::wstring(L"Test\x8119"), L"Test\x8120");
+  }, "L\"Test\\x8120\"");
+
+  // Compares two std::wstrings that have different contents, one of
+  // which having a NUL character in the middle.
+  ::std::wstring wstr3(wstr1);
+  wstr3.at(2) = L'\0';
+  EXPECT_NONFATAL_FAILURE(EXPECT_EQ(wstr1, wstr3),
+                          "wstr3");
 
   // Compares a wchar_t* to an std::wstring that has different
   // content.
@@ -4476,7 +4611,36 @@ TEST(StreamingAssertionsTest, StringsEqual) {
                        "expected failure");
 }
 
-TEST(StreamingAssertionsTest, StringsNotEqual) {
+TEST(Stream#if GTEST_HAS_EXCEPTIONS
+
+TEST(StreamingAssertionsTest, Throw) {
+  EXPECT_THROW(ThrowAnInteger(), int) << "unexpected failure";
+  ASSERT_THROW(ThrowAnInteger(), int) << "unexpected failure";
+  EXPECT_NONFATAL_FAILURE(EXPECT_THROW(ThrowAnInteger(), bool) <<
+                          "expected failure", "expected failure");
+  EXPECT_FATAL_FAILURE(ASSERT_THROW(ThrowAnInteger(), bool) <<
+                       "expected failure", "expected failure");
+}
+
+TEST(StreamingAssertionsTest, NoThrow) {
+  EXPECT_NO_THROW(1) << "unexpected failure";
+  ASSERT_NO_THROW(1) << "unexpected failure";
+  EXPECT_NONFATAL_FAILURE(EXPECT_NO_THROW(ThrowAnInteger()) <<
+                          "expected failure", "expected failure");
+  EXPECT_FATAL_FAILURE(ASSERT_NO_THROW(ThrowAnInteger()) <<
+                       "expected failure", "expected failure");
+}
+
+TEST(StreamingAssertionsTest, AnyThrow) {
+  EXPECT_ANY_THROW(ThrowAnInteger()) << "unexpected failure";
+  ASSERT_ANY_THROW(ThrowAnInteger()) << "unexpected failure";
+  EXPECT_NONFATAL_FAILURE(EXPECT_ANY_THROW(1) <<
+                          "expected failure", "expected failure");
+  EXPECT_FATAL_FAILURE(ASSERT_ANY_THROW(1) <<
+                       "expected failure", "expected failure");
+}
+
+#endif  // GTEST_HAS_EXCEPTIONSamingAssertionsTest, StringsNotEqual) {
   EXPECT_STRNE("foo", "bar") << "unexpected failure";
   ASSERT_STRNE("foo", "bar") << "unexpected failure";
   EXPECT_NONFATAL_FAILURE(EXPECT_STRNE("foo", "foo") << "expected failure",
