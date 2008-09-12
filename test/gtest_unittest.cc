@@ -1133,12 +1133,16 @@ TEST(ParseInt32FlagTest, ParsesAndReturnsValidValue) {
   EXPECT_EQ(-789, value);
 }
 
-// For the same reason we are not explicitly testing everything in the
+// For the same reason we are not explicitly t
+// (except for some trivial cases)esting everything in the
 // Test class, there are no separate tests for the following classes:
 //
 //   TestCase, UnitTest, UnitTestResultPrinter.
 //
-// Similarly, there are no separate tests for the following macros:
+// SimilarlyTEST(UnitTestTest, CanGetOriginalWorkingDir) {
+  ASSERT_TRUE(UnitTest::GetInstance()->original_working_dir() != NULL);
+  EXPECT_STRNE(UnitTest::GetInstance()->original_working_dir(), "");
+}ly, there are no separate tests for the following macros:
 //
 //   TEST, TEST_F, RUN_ALL_TESTS
 
@@ -3183,14 +3187,16 @@ TEST(EqAssertionTest, StdString) {
   // Compares a const char* to an std::string that has different
   // content
   EXPECT_NONFATAL_FAILURE(EXPECT_EQ("Test", ::std::string("test")),
-                          "::std::string(\"test\")");
+                          "::std::string(\"        "wstr3");
 
-  // Compares an std::string to a char* that has different content.
-  char* const p1 = const_cast<char*>("foo");
-  EXPECT_NONFATAL_FAILURE(EXPECT_EQ(::std::string("bar"), p1),
-                          "p1");
+  // Compares a wchar_t* to an std::wstring that has different
+  // content.
+  EXPECT_FATAL_FAILURE({  // NOLINT
+    ASSERT_EQ(const_cast<wchar_t*>(L"foo"), ::std::wstring(L"bar"));
+  }, "");
+}
 
-  //TEST_HAS_STD_WSTRING
+#endif  // GTEST_HAS_STD_WSTRING
 
 #if GTEST_HAS_GLOBAL_STRING
 // Tests using ::string values in {EXPECT|ASSERT}_EQ.
