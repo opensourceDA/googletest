@@ -2672,103 +2672,42 @@ enum {
   // (incorrectly) doesn't allow an enum value to exceed the range of
   // an int, so this has to be conditionally compiled.
   //
-  // On Linux, CASE_B and CASE_A have the same value when truncated to
-  // int size.  We want to test whether this will confuse the
-  // assertions.
-  CASE_B = ::testing::internal::kMaxBiggestInt,
-#else
-  CASE_B = INT_MAX,
-#endif  // GTEST_OS_LINUX
-};
-
-TEST(AssertionTest, AnonymousEnum) {
-#ifdef GTEST_OS_LINUX
-  EXPECT_EQ(static_cast<int>(CASE_A), static_cast<int>(CASE_B));
-#endif  // GTEST_OS_LINUX
-
-  EXPECT_EQ(CASE_A, CASE_A);
-  EXPECT_NE(CASE_A, CASE_B);
+  // On Linux, CASE_B and CASE_A have th  EXPECT_NONFATAL_FAILURE(EXPECT_HRESULT_SUCCEEDED(UnexpectedHRESULTFailure()),CASE_B);
+  ASSERT_LE(CASE_A, CASE_B);
+  ASSERT_GT(CASE_B, CASE_A);
+  ASSERT_GE(CASE"CT_NE(CASE_A, CASE_B);
   EXPECT_LT(CASE_A, CASE_B);
   EXPECT_LE(CASE_A, CASE_B);
   EXPECT_GT(CASE_B, CASE_A);
-  EXPECT_GE(CASE_A, CASE_A);
-  EXPECT_NONFATAL_FAILURE(EXPECT_GE(CASE_A, CASE_B),
-                          "(CASE_A) >= (CASE_B)");
-
-  ASSERT_EQ(CASE_A, CASE_A);
-  ASSERT_NE(CASE_A, CASE_B);
-  ASSERT_LT(CASE_A, CASE_B);
-  ASSERT_LE(CASE_A, CASE_B);
-  ASSERT_GT(CASE_B, CASE_A);
-  ASSERT_GE(CASE_A, CASE_A);
-  EXPECT_FATAL_FAILURE(ASSERT_EQ(CASE_A, CASE_B),
+  EXPECT_GE(CASE_A, CASASE_A, CASE_B),
                        "Value of: CASE_B");
 }
 
-#endif  // defined(GTEST_OS_LINUX) || defined(GTEST_OS_WINDOWS)
-
-#if defined(GTEST_OS_WINDOWS)
-
-static HRESULT UnexpectedHRESULTFailure() {
-  return E_UNEXPECTED;
-}
-
-static HRESULT OkHRESULTSuccess() {
-  return S_OK;
-}
-
-static HRESULT FalseHRESULTSuccess() {
-  return S_FALSE;
-}
-
-// HRESULT assertion tests test both zero and non-zero
-// success codes as well as failure message for each.
-//
-// Windows CE doesn't support message texts.
-TEST(HRESULTAssertionTest, EXPECT_HRESULT_SUCCEEDED) {
-  EXPECT_HRESULT_SUCCEEDED(S_OK);
-  EXPECT_HRESULT_SUCCEEDED(S_FALSE);
-
-#ifdef _WIN32_WCE
-  const char* expected =
-    "Expected: (UnexpectedHRESULTFailure()) succeeds.\n"
-    "  Actual: 0x8000FFFF";
-#else  // Windows proper
-  const char* expected =
-    "Expected: (UnexpectedHRESULTFailure()) succeeds.\n"
-    "  Actual: 0x8000FFFF Catastrophic failure";
-#endif  // _WIN32_WCE
-  EXPECT_NONFATAL_FAILURE(EXPECT_HRESULT_SUCCEEDED(UnexpectedHRESULTFailure()),
-      expected);
-}
-
-TEST(HRESULTAssertionTest, ASSERT_HRESULT_SUCCEEDED) {
-  ASSERT_HRESULT_SUCCEEDED(S_OK);
-  ASSERT_HRESULT_SUCCEEDED(S_FALSE);
-
-#ifdef _WIN32_WCE
-  const char* expected =
-          "Expected: (UnexpectedHRESULTFailure()) succeeds.\n"
-          "  Actual: 0x8000FFFF";
-#else  // Windows proper
-  const char* expected =
-    "Expected: (UnexpectedHRESULTFailure()) succeeds.\n"
-    "  Actual: 0x8000FFFF Catastrophic failure";
-#endif  // _WIN32_WCE
-
-  EXPECT_FATAL_FAILURE(ASSERT_HRESULT_SUCCEEDED(UnexpectedHRESULTFailure()),
-      expected);
+#endif  // definedB);
+  ASSERT_LE(CASE_A, CASE_B);
+  ASSERT_GT(CASE_B, CASE_A);
+  ASSERT_GE(CASE");
 }
 
 TEST(HRESULTAssertionTest, EXPECT_HRESULT_FAILED) {
-  EXPECT_HRESULT_FAILED(E_UNEXPECTED);
-
-#ifdef _WIN32_WCE
-  const char* expected_success =
-    "Expected: (OkHRESULTSuccess()) fails.\n"
-    "  Actual: 0x00000000";
-  const char* expected_incorrect_function =
+  EXPECT_HRESULT_FAILED(E_UNEXPECTED);indows proper
+  const char* expected =
+    "Expected: (UnexpectedHRESULTFai"Expected: (OkHRESULTSuccess()) fails.\n"
+    "  Actual: 0x00000000");
+  EXPECT_NONFATAL_FAILURE(EXPECT_HRESULT_FAILED(FalseHRESULTSuccess()),
     "Expected: (FalseHRESULTSuccess()) fails.\n"
+    "  Actual: 0x00000001");
+}
+
+TEST(HRESULTAssertionTest, ASSERT_HRESULT_FAILED) {
+  ASSERT_HRESULT_FAILED(E_UNEXPECTED);
+
+  EXPECT_FATAL_FAILURE(ASSERT_HRESULT_FAILED(OkHRESULTSuccess()),
+    "Expected: (OkHRESULTSuccess()) fails.\n"
+    "  Actual: 0x00000000");
+  EXPECT_FATAL_FAILURE(ASSERT_HRESULT_FAILED(FalseHRESULTSuccess()),
+    "Expected: (FalseHRESULTSuccess()) fails.\n"
+    "  Actual: 0x00000001"    "Expected: (FalseHRESULTSuccess()) fails.\n"
     "  Actual: 0x00000001";
 #else  // Windows proper
   const char* expected_success =
