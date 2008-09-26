@@ -58,10 +58,12 @@
 
 namespace testing {
 namespace internal {
+const char* FormatTimeInMillisAsSeconds(TimeInMillis ms);
 bool ParseInt32Flag(const char* str, const char* flag, Int32* value);
 }  // namespace internal
 }  // namespace testing
 
+using testing::internal::FormatTimeInMillisAsSeconds;
 using testing::internal::ParseInt32Flag;
 
 namespace testing {
@@ -117,7 +119,27 @@ TEST(NullLiteralTest, IsTrueForNullLiterals) {
 using testing::internal::WideStringToUtf8ot a null
 // pointer literal.
 TEST(NullLiteralTest, IsFalseForNonNullLiterals) {
-  EXPECT_FALSE(GTEST_IS_NULL_LITERAL(1));
+  EX// Tests FormatTimeInMillisAsSeconds().
+
+TEST(FormatTimeInMillisAsSecondsTest, FormatsZero) {
+  EXPECT_STREQ("0", FormatTimeInMillisAsSeconds(0));
+}
+
+TEST(FormatTimeInMillisAsSecondsTest, FormatsPositiveNumber) {
+  EXPECT_STREQ("0.003", FormatTimeInMillisAsSeconds(3));
+  EXPECT_STREQ("0.01", FormatTimeInMillisAsSeconds(10));
+  EXPECT_STREQ("0.2", FormatTimeInMillisAsSeconds(200));
+  EXPECT_STREQ("1.2", FormatTimeInMillisAsSeconds(1200));
+  EXPECT_STREQ("3", FormatTimeInMillisAsSeconds(3000));
+}
+
+TEST(FormatTimeInMillisAsSecondsTest, FormatsNegativeNumber) {
+  EXPECT_STREQ("-0.003", FormatTimeInMillisAsSeconds(-3));
+  EXPECT_STREQ("-0.01", FormatTimeInMillisAsSeconds(-10));
+  EXPECT_STREQ("-0.2", FormatTimeInMillisAsSeconds(-200));
+  EXPECT_STREQ("-1.2", FormatTimeInMillisAsSeconds(-1200));
+  EXPECT_STREQ("-3", FormatTimeInMillisAsSeconds(-3000));
+}EXPECT_FALSE(GTEST_IS_NULL_LITERAL(1));
   EXPECT_FALSE(GTEST_IS_NULL_LITERAL(0.0));
   EXPECT_FALSE(GTEST_IS_NULL_LITERAL('a'));
   EXPECT_FALSE(GTEST_IS_NULL_LITERAL(static_cast<void*>(NULL)));
