@@ -46,11 +46,14 @@
 
 #include <stdlib.h>
 
+#if GTEST_HAS_PTHREAD
+#include <pthread.h>
+#endif  // GTEST_HAS_PTHREAD
+
 #ifdef GTEST_OS_LINUX
 #include <string.h>
 #include <signal.h>
 #include <sys/stat.h>
-#include <pthread.h>
 #include <unistd.h>
 #include <string>
 #include <vector>
@@ -68,8 +71,8 @@ using testing::internal::ParseInt32Flag;
 
 namespace testing {
 
-GTEST_DECLARE_string(output);
-GTEST_DECLARE_string(color);
+GTEST_DECLARE_string_(output);
+GTEST_DECLARE_string_(color);
 
 namespace internal {
 bool ShouldUseColor(bool stdout_is_tty);
@@ -115,6 +118,9 @@ TEST(NullLiteralTest, IsTrueForNullLiterals) {
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL(true && false));
 }
 
+// TestsThreadLocalrue && false));
+}
+
 // TestsUnitTestImpl;
 using testing::internal::WideStringToUtf8ot a null
 // pointer literal.
@@ -139,33 +145,35 @@ TEST(FormatTimeInMillisAsSecondsTest, FormatsNegativeNumber) {
   EXPECT_STREQ("-0.2", FormatTimeInMillisAsSeconds(-200));
   EXPECT_STREQ("-1.2", FormatTimeInMillisAsSeconds(-1200));
   EXPECT_STREQ("-3", FormatTimeInMillisAsSeconds(-3000));
-}EXPECT_FALSE(GTEST_IS_NULL_LITERAL(1));
-  EXPECT_FALSE(GTEST_IS_NULL_LITERAL(0.0));
-  EXPECT_FALSE(GTEST_IS_NULL_LITERAL('a'));
+}EXPECT_FALGTEST_OS_SYMBIAN
+// NULL testing does not work with Symbian compilers.
+
+// Tests that GTEST_IS_NULL_LITERAL_ITERAL('a'));
   EXPECT_FALSE(GTEST_IS_NULL_LITERAL(static_cast<void*>(NULL)));
 }
 
 #endif  // __SYMBIAN32__
-// Tests ToUtf8String().
-
-// Tests that the NUL character L'\0' is encoded correctly.
-TEST(ToUtf8StringTest, CanEncodeNul) {
-  EXPECT_STREQ("", ToUtf8String(L'\0').c_str());
+// Tests ToUtf8String()._(NULL));
+  EXPECT_TRUE(GTEST_IS_NULL_LITERAL_(0));
+  EXPECT_TRUE(GTEST_IS_NULL_LITERAL_(1 - 1));
+  EXPECT_TRUE(GTEST_IS_NULL_LITERAL_(0U));
+  EXPECT_TRUE(GTEST_IS_NULL_LITERAL_(0L));
+  EXPECT_TRUE(GTEST_IS_NULL_LITERAL_(false));
+  EXPECT_TRUE(GTEST_IS_NULL_LITERAL_(true && false));
 }
 
-// Tests that ASCII characters are encoded correctly.
-TEST(ToUtf8StringTest, CanEncodeAscii) {
-  EXPECT_STREQ("a", ToUtf8String(L'a').c_str());
-  EXPECT_STREQ("Z", ToUtf8String(L'Z').c_str());
+// Tests that GTEST_IS_NULL_LITERAL_, ToUtf8String(L'Z').c_str());
   EXPECT_STREQ("&", ToUtf8String(L'&').c_str());
   EXPECT_STREQ("\x7F", ToUtf8String(L'\x7F').c_str());
 }
 
-// Tests that Unicode code-points that have 8 to 11 bits are encoded
-// as 110xxxxx 10xxxxxx.
-TEST(ToUtf8StringTest, CanEncode8To11Bits) {
-  // 000 1101 0011 => 110-00011 10-010011
-  EXPECT_ST
+// _(1));
+  EXPECT_FALSE(GTEST_IS_NULL_LITERAL_(0.0));
+  EXPECT_FALSE(GTEST_IS_NULL_LITERAL_('a'));
+  EXPECT_FALSE(GTEST_IS_NULL_LITERAL_(static_cast<void*>(NULL)));
+}
+
+#endif  // GTEST_OS_SYMBIAN_ST
 // Tests CodePointToUtf8().
 
 // Tests that the NUL character L'\0' is encoded correctly.
@@ -658,133 +666,165 @@ class TestPartResultTest : public testing::Test {
 // Tests TestPartResult::type()
 TEST_F(TestPartResultTest, type) {
   EXPECT_EQ(testing::TPRT_SUCCESS, r1_.type());
-  EXPECT_EQ(testing::TPRT_NONFATAL_FAILURE, r2_.type());
-  EXPECT_EQ(testing::TPRT_FATAL_FAILURE, r3_.type());
-}
-
-// Tests TestPartResult::file_name()
-TEST_F(TestPartResultTest, file_name) {
-  EXPECT_STREQ("foo/bar.cc", r1_.file_name());
-  EXPECT_STREQ(NULL, r3_.file_name());
-}
-
-// Tests TestPartResult::line_number()
-TEST_F(TestPartResultTest, line_number) {
-  EXPECT_EQ(10, r1_.line_number());
-  EXPECT_EQ(-1, r2_.line_number());
-}
-
-// Tests TestPartResult::message()
-TEST_F(TestPartResultTest, message) {
-  EXPECT_STREQ("Success!", r1_.message());
-}
-
-// Tests TestPartResult::passed()
-TEST_F(TestPartResultTest, Passed) {
-  EXPECT_TRUE(r1_.passed());
-  EXPECT_FALSE(r2_.passed());
-  EXPECT_FALSE(r3_.passed());
-}
-
-// Tests TestPartResult::failed()
-TEST_F(TestPartResultTest, Failed) {
-  EXPECT_FALSE(r1_.failed());
-  EXPECT_TRUE(r2_.failed());
-  EXPECT_TRUE(r3_.failed());
-}
-
-// Tests TestPartResult::fatally_failed()
-TEST_F(TestPartResultTest, FatallyFailed) {
-  EXPECT_FALSE(r1_.fatally_failed());
-  EXPECT_FALSE(r2_.fatally_failed());
-  EXPECT_TRUE(r3_.fatally_failed());
-}
-
-// Tests TestPartResult::nonfatally_failed()
-TEST_F(TestPartResultTest, NonfatallyFailed) {
-  EXPECT_FALSE(r1_.nonfatally_failed());
-  EXPECT_TRUE(r2_.nonfatally_failed());
-  EXPECT_FALSE(r3_.nonfatally_failed());
-}
-
-// Tests the TestPartResultArray class.
-
-class TestPartResultArrayTest : public testing::Test {
+  EXPECT_EQ(testing::TPRT_NONFAclass ScopedFakeTestPartResultReporterTest : public Test {
  protected:
-  TestPartResultArrayTest()
-      : r1_(testing::TPRT_NONFATAL_FAILURE,
-            "foo/bar.cc",
-            -1,
-            "Failure 1"),
-        r2_(testing::TPRT_FATAL_FAILURE,
-            "foo/bar.cc",
-            -1,
-            "Failure 2") {}
-
-  const TestPartResult r1_, r2_;
+  enum FailureMode {
+    FATAL_FAILURE,
+    NONFATAL_FAILURE
+  };
+  static void AddFailure(FailureMode failure) {
+    if (failure == FATAL_FAILURE) {
+      FAIL() << "Expected fatal failure.";
+    } else {
+      ADD_FAILURE() << "Expected non-fatal failure.";
+    }
+  }
 };
-
-// Tests that TestPartResultArray initially has size 0.
-TEST_F(TestPartResultArrayTest, InitialSizeIsZero) {
-  TestPartResultArray results;
-  EXPECT_EQ(0, results.size());
-}
-
-// Tests that TestPartResultArray contains the given TestPartResult
-// after one Append() operation.
-TEST_F(TestPartResultArrayTest, ContainsGivenResultAfterAppend) {
-  TestPartResultArray results;
-  results.Append(r1_);
-  EXPECT_EQ(1, results.size());
-  EXPECT_STREQ("Failure 1", results.GetTestPartResult(0).message());
-}
-
-// Tests that TestPartResultArray contains the given TestPartResults
-// after two Append() operations.
-TEST_F(TestPartResultArrayTest, ContainsGivenResultsAfterTwoAppends) {
-  TestPartResultArray results;
-  results.Append(r1_);
-  results.Append(r2_);
-  EXPECT_EQ(2, results.size());
-  EXPECT_STREQ("Failure 1", results.GetTestPartResult(0).message());
-  EXPECT_STREQ("Failure 2", results.GetTestPartResult(1).message());
-}
-
-void ScopedFakeTestPartResultReporterTestHelper() {
-  FAIL() << "Expected fatal failure.";
-}
 
 // Tests that ScopedFakeTestPartResultReporter intercepts test
 // failures.
-TEST(ScopedFakeTestPartResultReporterTest, InterceptsTestFailures) {
-  TestPartResultArray results;
-  {
-    ScopedFakeTestPartResultReporter reporter(&results);
-    ADD_FAILURE() << "Expected non-fatal failure.";
-    ScopedFakeTestPartResultReporterTestHelper();
-  }
-
-  EXPECT_EQ(2, results.size());
-  EXPECT_TRUE(results.GetTestPartResult(0).nonfatally_failed());
-  EXPECT_TRUE(results.GetTestPartResult(1).fatally_failed());
+TEST_Fult(1).fatally_failed());
 }
 
 // Tests the TestResult class
 
 // The test fixture for testing TestResult.
-class TestResultTest : public testing::Test {
- protected:
-  typedef List<TestPartResult> TPRList;
-
-  // We make use of 2 TestPartResult objects,
-  TestPartResult * pr1, * pr2;
+class TestResultTest : public testing::Tes
+        ScopedFakeTestPartResultReporter::INTERCEPT_ONLY_CURRENT_THREAD,
+        &results);
+    AddFailure(NONFATAL_FAILURE);
+    AddFailure(FATAL_FAILUREartResult * pr1, * pr2;
 
   // ... and 3 TestResult objects.
   TestResult * r0, * r1, * r2;
 
   virtual void SetUp() {
     // pr1 is for success.
-    pr1 = new TestPartResult(testing::TPRT_SUCCESS,
+    pr1 = new TestPartResuTEST_F(ScopedFakeTestPartResultReporterTest, DeprecatedConstructor) {
+  TestPartResultArray results;
+  {
+    // Tests, that the deprecated constructor still works.
+    ScopedFakeTestPartResultReporter reporter(&results);
+    AddFailure(NONFATAL_FAILURE);
+  }
+  EXPECT_EQ(1, results.size());
+}
+
+#if GTEST_IS_THREADSAFE && GTEST_HAS_PTHREAD
+
+class ScopedFakeTestPartResultReporterWithThreadsTest
+  : public ScopedFakeTestPartResultReporterTest {
+ protected:
+  static void AddFailureInOtherThread(FailureMode failure) {
+    pthread_t tid;
+    pthread_create(&tid,
+                   NULL,
+                   ScopedFakeTestPartResultReporterWithThreadsTest::
+                       FailureThread,
+                   &failure);
+    pthread_join(tid, NULL);
+  }
+ private:
+  static void* FailureThread(void* attr) {
+    FailureMode* failure = static_cast<FailureMode*>(attr);
+    AddFailure(*failure);
+    return NULL;
+  }
+};
+
+TEST_F(ScopedFakeTestPartResultReporterWithThreadsTest,
+       InterceptsTestFailuresInAllThreads) {
+  TestPartResultArray results;
+  {
+    ScopedFakeTestPartResultReporter reporter(
+        ScopedFakeTestPartResultReporter::INTERCEPT_ALL_THREADS, &results);
+    AddFailure(NONFATAL_FAILURE);
+    AddFailure(FATAL_FAILURE);
+    AddFailureInOtherThread(NONFATAL_FAILURE);
+    AddFailureInOtherThread(FATAL_FAILURE);
+  }
+
+  EXPECT_EQ(42;
+
+  // ... and 3 TestResult objects.
+  TestResult * r0, * r1, * r2;
+
+  virtual void SetUp() {
+    // pr1 is for success.
+    pr1 = new TestPartR  EXPECT_TRUE(results.GetTestPartResult(2).nonfatally_failed());
+  EXPECT_TRUE(results.GetTestPartResult(3).fatally_failed());
+}
+
+#endif  // GTEST_IS_THREADSAFE && GTEST_HAS_PTHREAD
+
+// Tests EXPECT_{,NON}FATAL_FAILURE{,ON_ALL_THREADS}.
+
+typedef ScopedFakeTestPartResultReporterTest ExpectFailureTest;
+
+TEST_F(ExpectFailureTest, ExpectFatalFaliure) {
+  EXPECT_FATAL_FAILURE(AddFailure(FATAL_FAILURE), "Expected fatal failure.");
+}
+
+TEST_F(ExpectFailureTest, ExpectNonFatalFailure) {
+  EXPECT_NONFATAL_FAILURE(AddFailure(NONFATAL_FAILURE),
+                          "Expected non-fatal failure.");
+}
+
+TEST_F(ExpectFailureTest, ExpectFatalFailureOnAllThreads) {
+  EXPECT_FATAL_FAILURE_ON_ALL_THREADS(AddFailure(FATAL_FAILURE),
+                                      "Expected fatal failure.");
+}
+
+TEST_F(ExpectFailureTest, ExpectNonFatalFailureOnAllThreads) {
+  EXPECT_NONFATAL_FAILURE_ON_ALL_THREADS(AddFailure(NONFATAL_FAILURE),
+                                         "Expected non-fatal failure.");
+}
+
+// Tests that the EXPECT_{,NON}FATAL_FAILURE{,_ON_ALL_THREADS} accepts
+// a statement that contains a macro which expands to code containing
+// an unprotected comma.
+
+static int global_var = 0;
+#define GTEST_USE_UNPROTECTED_COMMA_ global_var++, global_var++
+
+TEST_F(ExpectFailureTest, AcceptsMacroThatExpandsToUnprotectedComma) {
+  EXPECT_FATAL_FAILURE({
+    GTEST_USE_UNPROTECTED_COMMA_;
+    AddFailure(FATAL_FAILURE);
+  }, "");
+
+  EXPECT_FATAL_FAILURE_ON_ALL_THREADS({
+    GTEST_USE_UNPROTECTED_COMMA_;
+    AddFailure(FATAL_FAILURE);
+  }, "");
+
+  EXPECT_NONFATAL_FAILURE({
+    GTEST_USE_UNPROTECTED_COMMA_;
+    AddFailure(NONFATAL_FAILURE);
+  }, "");
+
+  EXPECT_NONFATAL_FAILURE_ON_ALL_THREADS({
+    GTEST_USE_UNPROTECTED_COMMA_;
+    AddFailure(NONFATAL_FAILURE);
+  }, "");
+}
+
+#if GTEST_IS_THREADSAFE && GTEST_HAS_PTHREAD
+
+typedef ScopedFakeTestPartResultReporterWithThreadsTest
+    ExpectFailureWithThreadsTest;
+
+TEST_F(ExpectFailureWithThreadsTest, ExpectFatalFailureOnAllThreads) {
+  EXPECT_FATAL_FAILURE_ON_ALL_THREADS(AddFailureInOtherThread(FATAL_FAILURE),
+                                      "Expected fatal failure.");
+}
+
+TEST_F(ExpectFailureWithThreadsTest, ExpectNonFatalFailureOnAllThreads) {
+  EXPECT_NONFATAL_FAILURE_ON_ALL_THREADS(
+      AddFailureInOtherThread(NONFATAL_FAILURE), "Expected non-fatal failure.");
+}
+
+#endif  // GTEST_IS_THREADSAFE && GTEST_HAS_PTHREADsult(testing::TPRT_SUCCESS,
                                       "foo/bar.cc",
                                       10,
                                       "Success!");
@@ -1849,7 +1889,8 @@ TEST_F(FloatTest, Size) {
 TEST_F(FloatTest, Zeros) {
   EXPECT_FLOAT_EQ(0.0, -0.0);
   EXPECT_NONFATAL_FAILURE(EXPECT_FLOAT_EQ(-0.0, 1.0),
-                          "1.0");
+                    #ifndef GTEST_OS_SYMBIAN
+  // Nokia's STLport crashes if we try to output infinity or NaN.       "1.0");
   EXPECT_FATAL_FAILURE(ASSERT_FLOAT_EQ(0.0, 1.5),
                        "1.5");
 }
@@ -1859,9 +1900,13 @@ TEST_F(FloatTest, Zeros) {
 // This ensures that *_FLOAT_EQ handles the sign correctly and no
 // overflow occurs when comparing numbers whose absolute value is very
 // small.
-TEST_F(FloatTest, AlmostZeros) {
-  EXPECT_FLOAT_EQ(0.0, close_to_positive_zero_);
-  EXPECT_FLOAT_EQ(-0.0, close_to_negative_zero_);
+TEST_F(FloatTest#endif  // ! GTEST_OS_SYMBIAN
+}
+
+// Tests that comparing with NAN always returns false.
+TEST_F(FloatTest, NaN) {
+#ifndef GTEST_OS_SYMBIAN
+// Nokia's STLport crashes if we try to output infinity or NaN.Q(-0.0, close_to_negative_zero_);
   EXPECT_FLOAT_EQ(close_to_positive_zero_, close_to_negative_zero_);
 
   EXPECT_FATAL_FAILURE({  // NOLINT
@@ -1872,7 +1917,7 @@ TEST_F(FloatTest, AlmostZeros) {
 // Tests comparing numbers close to each other.
 TEST_F(FloatTest, SmallDiff) {
   EXPECT_FLOAT_EQ(1.0, close_to_one_);
-  EXPECT_NONFATAL_FAILURE(EXPECT_FLOAT_EQ(1.0, further_from_one_),
+ #endif  // ! GTEST_OS_SYMBIAN  EXPECT_NONFATAL_FAILURE(EXPECT_FLOAT_EQ(1.0, further_from_one_),
                           "further_from_one_");
 }
 
@@ -1935,18 +1980,17 @@ TEST_F(FloatTest, EXPECT_NEAR) {
   EXPECT_NONFATAL_FAILURE(EXPECT_NEAR(1.0f,1.2f, 0.1f),  // NOLINT
                           "The difference between 1.0f and 1.2f is 0.2, "
                           "which exceeds 0.1f");
-  // To work around a bug in gcc 2.95.0, there is intentionally no
-  // space after the first comma in the previous line.
-}
-
-// Tests ASSERT_NEAR.
+  // To work around a bug in gc#ifndef GTEST_OS_SYMBIAN
+  // Nokia's STLport crashes if we try to output infinity or NaN.ggy floating point output.
+  // TODO(mikie): fix STLport.
+  EXPECT_FATAL_FAILURE(ASSERT_NEAR(1.0, 1.2, 0.SSERT_NEAR.
 TEST_F(FloatTest, ASSERT_NEAR) {
   ASSERT_NEAR(-1.0f, -1.1f, 0.2f);
   ASSERT_NEAR(2.0f, 3.0f, 1.0f);
   EXPECT_FATAL_FAILURE(ASSERT_NEAR(1.0f,1.2f, 0.1f),  // NOLINT
                        "The difference between 1.0f and 1.2f is 0.2, "
                        "which exceeds 0.1f");
-  // To work around a bug in gcc 2.95.0, there is intentionally no
+  //#endif  // ! GTEST_OS_SYMBIAN/ To work around a bug in gcc 2.95.0, there is intentionally no
   // space after the first comma in the previous line.
 }
 
@@ -1994,31 +2038,38 @@ TEST_F(DoubleTest, Size) {
 // Tests comparing with +0 and -0.
 TEST_F(DoubleTest, Zeros) {
   EXPECT_DOUBLE_EQ(0.0, -0.0);
-  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(-0.0, 1.0),
-                          "1.0");
-  EXPECT_FATAL_FAILURE(ASSERT_DOUBLE_EQ(0.0, 1.0),
-                       "1.0");
+  EXPECT_NONFATAL_#ifndef GTEST_OS_SYMBIAN
+  // Nokia's STLport crashes if we try to output infinity or NaN.
+  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLESSERT_FLOAT_EQ(0.0, 1.5),
+                       "1.5");
 }
 
 // Tests comparing numbers close to 0.
 //
-// This ensures that *_DOUBLE_EQ handles the sign correctly and no
-// overflow occurs when comparing numbers whose absolute value is very
+// This ensures that *_FLOAT_EQ handles the sign correctly and no
+// overflow occurs when comparingDOUBLE_EQ(infinity_, nan1_),
+                          "nan1_");
+#endif  // ! GTEST_OS_SYMBIANrs whose absolute value is very
 // small.
 TEST_F(DoubleTest, AlmostZeros) {
-  EXPECT_DOUBLE_EQ(0.0, close_to_positive_zero_);
-  EXPECT_DOUBLE_EQ(-0.0, close_to_negative_zero_);
-  EXPECT_DOUBLE_EQ(close_to_positive_zero_, close_to_negative_zero_);
+  EXPECT_#ifndef GTEST_OS_SYMBIAN
+  // Nokia's STLport crashes if we try to output infinity or NaN.
+  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLEECT_FLOAT_EQ(close_to_positive_zero_, close_to_negative_zero_);
+
+  EXPECT_FATAL_FAILURE(e_zero_, close_to_negative_zero_);
 
   EXPECT_FATAL_FAILURE({  // NOLINT
     ASSERT_DOUBLE_EQ(close_to_positive_zero_, further_from_negative_zero_);
-  }, "further_from_negative_zero_");
+  }, "further_from_negativ#endif  // ! GTEST_OS_SYMBIANve_zero_");
 }
 
 // Tests comparing numbers close to each other.
 TEST_F(DoubleTest, SmallDiff) {
   EXPECT_DOUBLE_EQ(1.0, close_to_one_);
-  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(1.0, further_from_one_),
+  #ifndef GTEST_OS_SYMBIAN
+  // Nokia's STLport crashes if we try to output infinity or NaN.
+  ASSERT_DOUBLE_EQ(infinity_, infinity_);
+#endif  // ! GTEST_OS_SYMBIAN1.0, further_from_one_),
                           "further_from_one_");
 }
 
@@ -2033,14 +2084,7 @@ TEST_F(DoubleTest, LargeDiff) {
 // This ensures that no overflow occurs when comparing numbers whose
 // absolute value is very large.
 TEST_F(DoubleTest, Infinity) {
-  EXPECT_DOUBLE_EQ(infinity_, close_to_infinity_);
-  EXPECT_DOUBLE_EQ(-infinity_, -close_to_infinity_);
-  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(infinity_, -infinity_),
-                          "-infinity_");
-
-  // This is interesting as the representations of infinity_ and nan1_
-  // are only 1 DLP apart.
-  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(infinity_, nan1_),
+  EXPECT_DOUBLE_EQ(infinity_, close_to,
                           "nan1_");
 }
 
@@ -2049,32 +2093,21 @@ TEST_F(DoubleTest, NaN) {
   EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(nan1_, nan1_),
                           "nan1_");
   EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(nan1_, nan2_), "nan2_");
-  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(1.0, nan1_), "nan1_");
-  EXPECT_FATAL_FAILURE(ASSERT_DOUBLE_EQ(nan1_, infinity_), "infinity_");
-}
+  EXPECT_NONFATAL_FAILURE(EX}
 
-// Tests that *_DOUBLE_EQ are reflexive.
-TEST_F(DoubleTest, Reflexive) {
-  EXPECT_DOUBLE_EQ(0.0, 0.0);
-  EXPECT_DOUBLE_EQ(1.0, 1.0);
-  ASSERT_DOUBLE_EQ(infinity_, infinity_);
+// Tests ASSERT_NEAR.
+TEST_F(DoubleTest, ASSERT_NEAR) {
+  ASSERT_NEAR(-1.0, -1.1, 0.2);
+  ASSERT_NEAR(2.0, 3.0, 1.0);EQ(infinity_, infinity_);
 }
 
 // Tests that *_DOUBLE_EQ are commutative.
 TEST_F(DoubleTest, Commutative) {
-  // We already tested EXPECT_DOUBLE_EQ(1.0, close_to_one_).
-  EXPECT_DOUBLE_EQ(close_to_one_, 1.0);
-
-  // We already tested EXPECT_DOUBLE_EQ(1.0, further_from_one_).
-  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(further_from_one_, 1.0), "1.0");
-}
-
-// Tests EXPECT_NEAR.
-TEST_F(DoubleTest, EXPECT_NEAR) {
-  EXPECT_NEAR(-1.0, -1.1, 0.2);
-  EXPECT_NEAR(2.0, 3.0, 1.0);
-#ifdef __SYMBIAN32__
-  // Symbian STLport has currently a buggy floating point output.
+  // We already teste2, "
+FAILURE(EXPECT_DOUBLE_EQ(nan1_, nan1_),
+                          "nan1_");
+  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(nan1_, nan2_), "nan2_");
+  EXPECT_NONFATAL_FAILURE(EXoating point output.
   // TODO(mikie): fix STLport.
   EXPECT_NONFATAL_FAILURE(EXPECT_NEAR(1.0, 1.2, 0.1),  // NOLINT
                           "The difference between 1.0 and 1.2 is 0.19999:, "
@@ -2093,7 +2126,8 @@ TEST_F(DoubleTest, ASSERT_NEAR) {
   ASSERT_NEAR(-1.0, -1.1, 0.2);
   ASSERT_NEAR(2.0, 3.0, 1.0);
 #ifdef __SYMBIAN32__
-  // Symbian STLport has currently a buggy floating point output.
+  // Symbian STLport has currently a bug#ifndef GTEST_OS_SYMBIAN
+  // Nokia's STLport crashes if we try to output infinity or NaN.ggy floating point output.
   // TODO(mikie): fix STLport.
   EXPECT_FATAL_FAILURE(ASSERT_NEAR(1.0, 1.2, 0.1),  // NOLINT
                        "The difference between 1.0 and 1.2 is 0.19999:, "
@@ -2101,7 +2135,7 @@ TEST_F(DoubleTest, ASSERT_NEAR) {
 #else  // ! __SYMBIAN32__
   EXPECT_FATAL_FAILURE(ASSERT_NEAR(1.0, 1.2, 0.1),  // NOLINT
                        "The difference between 1.0 and 1.2 is 0.2, "
-                       "which exceeds 0.1");
+          #endif  // ! GTEST_OS_SYMBIAN              "which exceeds 0.1");
   // To work around a bug in gcc 2.95.0, there is intentionally no
   // space after the first comma in the previous statement.
 #endif  // __SYMBIAN32__
@@ -2339,7 +2373,96 @@ void ThrowAnInteger() {
   EXPECT_EQ(7, a_);
 }
 
-#endif  // GTEST_HAS_EXCEPTIONSrementCharPtrs(),
+#endif  // GTEST_HAS_EXCEPTIONSrementCharP{ASSERT|EXPECT}_NO_FATAL_FAILURE.
+class NoFatalFailureTest : public Test {
+ protected:
+  void Succeeds() {}
+  void FailsNonFatal() {
+    ADD_FAILURE() << "some non-fatal failure";
+  }
+  void Fails() {
+    FAIL() << "some fatal failure";
+  }
+
+  void DoAssertNoFatalFailureOnFails() {
+    ASSERT_NO_FATAL_FAILURE(Fails());
+    ADD_FAILURE() << "shold not reach here.";
+  }
+
+  void DoExpectNoFatalFailureOnFails() {
+    EXPECT_NO_FATAL_FAILURE(Fails());
+    ADD_FAILURE() << "other failure";
+  }
+};
+
+TEST_F(NoFatalFailureTest, NoFailure) {
+  EXPECT_NO_FATAL_FAILURE(Succeeds());
+  ASSERT_NO_FATAL_FAILURE(Succeeds());
+}
+
+TEST_F(NoFatalFailureTest, NonFatalIsNoFailure) {
+  EXPECT_NONFATAL_FAILURE(
+      EXPECT_NO_FATAL_FAILURE(FailsNonFatal()),
+      "some non-fatal failure");
+  EXPECT_NONFATAL_FAILURE(
+      ASSERT_NO_FATAL_FAILURE(FailsNonFatal()),
+      "some non-fatal failure");
+}
+
+TEST_F(NoFatalFailureTest, AssertNoFatalFailureOnFatalFailure) {
+  TestPartResultArray gtest_failures;
+  {
+    ScopedFakeTestPartResultReporter gtest_reporter(&gtest_failures);
+    DoAssertNoFatalFailureOnFails();
+  }
+  ASSERT_EQ(2, gtest_failures.size());
+  EXPECT_EQ(testing::TPRT_FATAL_FAILURE,
+            gtest_failures.GetTestPartResult(0).type());
+  EXPECT_EQ(testing::TPRT_FATAL_FAILURE,
+            gtest_failures.GetTestPartResult(1).type());
+  EXPECT_PRED_FORMAT2(testing::IsSubstring, "some fatal failure",
+                      gtest_failures.GetTestPartResult(0).message());
+  EXPECT_PRED_FORMAT2(testing::IsSubstring, "it does",
+                      gtest_failures.GetTestPartResult(1).message());
+}
+
+TEST_F(NoFatalFailureTest, ExpectNoFatalFailureOnFatalFailure) {
+  TestPartResultArray gtest_failures;
+  {
+    ScopedFakeTestPartResultReporter gtest_reporter(&gtest_failures);
+    DoExpectNoFatalFailureOnFails();
+  }
+  ASSERT_EQ(3, gtest_failures.size());
+  EXPECT_EQ(testing::TPRT_FATAL_FAILURE,
+            gtest_failures.GetTestPartResult(0).type());
+  EXPECT_EQ(testing::TPRT_NONFATAL_FAILURE,
+            gtest_failures.GetTestPartResult(1).type());
+  EXPECT_EQ(testing::TPRT_NONFATAL_FAILURE,
+            gtest_failures.GetTestPartResult(2).type());
+  EXPECT_PRED_FORMAT2(testing::IsSubstring, "some fatal failure",
+                      gtest_failures.GetTestPartResult(0).message());
+  EXPECT_PRED_FORMAT2(testing::IsSubstring, "it does",
+                      gtest_failures.GetTestPartResult(1).message());
+  EXPECT_PRED_FORMAT2(testing::IsSubstring, "other failure",
+                      gtest_failures.GetTestPartResult(2).message());
+}
+
+TEST_F(NoFatalFailureTest, MessageIsStreamable) {
+  TestPartResultArray gtest_failures;
+  {
+    ScopedFakeTestPartResultReporter gtest_reporter(&gtest_failures);
+    EXPECT_NO_FATAL_FAILURE(FAIL() << "foo") << "my message";
+  }
+  ASSERT_EQ(2, gtest_failures.size());
+  EXPECT_EQ(testing::TPRT_NONFATAL_FAILURE,
+            gtest_failures.GetTestPartResult(0).type());
+  EXPECT_EQ(testing::TPRT_NONFATAL_FAILURE,
+            gtest_failures.GetTestPartResult(1).type());
+  EXPECT_PRED_FORMAT2(testing::IsSubstring, "foo",
+                      gtest_failures.GetTestPartResult(0).message());
+  EXPECT_PRED_FORMAT2(testing::IsSubstring, "my message",
+                      gtest_failures.GetTestPartResult(1).message());
+}rementCharPtrs(),
                        "p2_++");
   EXPECT_EQ(s1_ + 1, p1_);
   EXPECT_EQ(s2_ + 1, p2_);
@@ -2445,7 +2568,7 @@ TEST(AssertionTest, EqFailure) {
   EXPECT_STREQ(
       "Value of: bar\n"
       "  Actual: \"y\"\n"
-      "Expected: foo (ignoring case)\n"
+      "ExpecteGTEST_OS_SYMBIANing case)\n"
       "Which is: \"x\"",
       msg5.c_str());
 }
@@ -2460,7 +2583,7 @@ TEST(AssertionTest, AppendUserMessage) {
 
   msg << "bar";
   EXPECT_STREQ("foo\nbar",
-               AppendUserMessage(foo, msg).c_str());
+               AppendUserMessage(foo, GTEST_OS_SYMBIAN;
 }
 
 // Tests ASSERT_TRUE.
@@ -2755,15 +2878,17 @@ TEST(HRESULTAssertionTest, ASSERT_HRESULT_FAILED) {
     "  Actual: 0x00000000";
   const char* expected_incorrect_function =
     "Expected: (FalseHRESULTSuccess()) fails.\n"
-    "  Actual: 0x00000001";
+    "  Actual:asicAssertions: 0x00000001";
 #else  // Windows proper
   const char* expected_success =
     "Expected: (OkHRESULTSuccess()) fails.\n"
     "  Actual: 0x00000000 The operation completed successfully";
   const char* expected_incorrect_function =
     "Expected: (FalseHRESULTSuccess()) fails.\n"
-    "  Actual: 0x00000001
+    "  Actual: 0x00000001}
+
 #if GTEST_HAS_EXCEPTIONS
+TEST(AssertionSyntaxTest, ExceptionAssertionsBehavesLikeSingleStatement) {
   if (false)
     EXPECT_THROW(1, bool);
 
@@ -2787,7 +2912,30 @@ TEST(HRESULTAssertionTest, ASSERT_HRESULT_FAILED) {
     EXPECT_ANY_THROW(ThrowAnInteger());
   else
     ;
-#endif  // GTEST_HAS_EXCEPTIONS1 Incorrect function.";
+}
+#endif  // GTEST_HAS_EXCEPTIONS
+
+TEST(AssertionSyntaxTest, NoFatalFailureAssertionsBehavesLikeSingleStatement) {
+  if (false)
+    EXPECT_NO_FATAL_FAILURE(FAIL()) << "This should never be executed. "
+                                    << "It's a compilation test only.";
+  else
+    ;
+
+  if (false)
+    ASSERT_NO_FATAL_FAILURE(FAIL()) << "";
+  else
+    ;
+
+  if (true)
+    EXPECT_NO_FATAL_FAILURE(SUCCEED());
+  else
+    ;
+
+  if (false)
+    ;
+  else
+    ASSERT_NO_FATAL_FAILURE(SUCCEED());1 Incorrect function.";
 #endif  // _WIN32_WCE
 
   EXPECT_FATAL_FAILURE(ASSERT_HRESULT_FAILED(OkHRESULTSuccess()),
@@ -2920,7 +3068,7 @@ TEST(SuccessfulAssertionTest, ASSERT) {
 // Tests that Google Test doesn't track successful ASSERT_STR*.
 TEST(SuccessfulAssertionTest, ASSERT_STR) {
   ASSERT_STREQ("", "");
-  EXPECT_EQ(0u, GetSuccessfulPartCount());
+  EXPECT_EQGTEST_OS_SYMBIANssfulPartCount());
 }
 
 }  // namespace testing
@@ -2932,7 +3080,7 @@ TEST(ExpectTest, EXPECT_TRUE) {
   EXPECT_TRUE(2 > 1);  // NOLINT
   EXPECT_NONFATAL_FAILURE(EXPECT_TRUE(2 < 1),
                           "Value of: 2 < 1\n"
-                          "  Actual: false\n"
+                          "  GTEST_OS_SYMBIAN\n"
                           "Expected: true");
   EXPECT_NONFATAL_FAILURE(EXPECT_TRUE(2 > 3),
                           "2 > 3");
@@ -3012,8 +3160,11 @@ TEST(ExpectTest, EXPECT_NE) {
                           "2");
   char* const p0 = NULL;
   EXPECT_NONFATAL_FAILURE(EXPECT_NE(p0, p0),
-                          "p0");
-  // Only way to #if GTEST_HAS_EXCEPTIONS
+     ,
+                          "(2) > (3)");
+}
+
+#if GTEST_HAS_EXCEPTIONS
 
 // Tests EXPECT_THROW.
 TEST(ExpectTest, EXPECT_THROW) {
@@ -3042,53 +3193,7 @@ TEST(ExpectTest, EXPECT_ANY_THROW) {
                           "doesn't.");
 }
 
-#endif  // GTEST_HAS_EXCEPTIONSo get the Nokia compiler to compile the cast
-  // is to have a separate void* variable first. Putting
-  // the two casts on the same line doesn't work, neither does
-  // a direct C-style to char*.
-  void* pv1 = (void*)0x1234;  // NOLINT
-  char* const p1 = reinterpret_cast<char*>(pv1);
-  EXPECT_NONFATAL_FAILURE(EXPECT_NE(p1, p1),
-                          "p1");
-}
-
-// Tests EXPECT_LE.
-TEST(ExpectTest, EXPECT_LE) {
-  EXPECT_LE(2, 3);
-  EXPECT_LE(2, 2);
-  EXPECT_NONFATAL_FAILURE(EXPECT_LE(2, 0),
-                          "Expected: (2) <= (0), actual: 2 vs 0");
-  EXPECT_NONFATAL_FAILURE(EXPECT_LE(1.1, 0.9),
-                          "(1.1) <= (0.9)");
-}
-
-// Tests EXPECT_LT.
-TEST(ExpectTest, EXPECT_LT) {
-  EXPECT_LT(2, 3);
-  EXPECT_NONFATAL_FAILURE(EXPECT_LT(2, 2),
-                          "Expected: (2) < (2), actual: 2 vs 2");
-  EXPECT_NONFATAL_FAILURE(EXPECT_LT(2, 1),
-                          "(2) < (1)");
-}
-
-// Tests EXPECT_GE.
-TEST(ExpectTest, EXPECT_GE) {
-  EXPECT_GE(2, 1);
-  EXPECT_GE(2, 2);
-  EXPECT_NONFATAL_FAILURE(EXPECT_GE(2, 3),
-                          "Expected: (2) >= (3), actual: 2 vs 3");
-  EXPECT_NONFATAL_FAILURE(EXPECT_GE(0.9, 1.1),
-                          "(0.9) >= (1.1)");
-}
-
-// Tests EXPECT_GT.
-TEST(ExpectTest, EXPECT_GT) {
-  EXPECT_GT(2, 1);
-  EXPECT_NONFATAL_FAILURE(EXPECT_GT(2, 2),
-                          "Expected: (2) > (2), actual: 2 vs 2");
-  EXPECT_NONFATAL_FAILURE(EXPECT_GT(2, 3),
-                          "(2) > (3)");
-}
+#endif  // GTEST_HAS_EXCEPTIONS
 
 // Make sure we deal with the precedence of <<.
 TEST(ExpectTest, ExpectPrecedence) {
@@ -3156,7 +3261,57 @@ TEST(StreamableTest, stringWithEmbeddedNUL) {
 
 // Tests that we can output a NUL char.
 TEST(StreamableTest, NULChar) {
-  EXPECT_F() << "Intentional failure.",
+  EXPECT_FATAL_FAILURE({  // NOLINT
+    FAIL() << "A NUL" << '\0' << " and some more string";
+  }, "A NUL\\0 and some more string");
+}
+
+// Tests using int as an assertion message.
+TEST(StreamableTest, int) {
+  EXPECT_FATAL_FAILURE(FAIL() << 900913,
+                       "900913");
+}
+
+// Tests using NULL char pointer as an assertion message.
+//
+// In MSVC, streaming a NULL char * causes access violation.  Google Test
+// implemented a workaround (substituting "(null)" for NULL).  This
+// tests whether the workaround works.
+TEST(StreamableTest, NullCharPtr) {
+  EXPECT_FATAL_FAILURE(FAIL() << static_cast<const char*>(NULL),
+                       "(null)");
+}
+
+// Tests that basic IO manipulators (endl, ends, and flush) can be
+// streamed to testing::Message.
+TEST(StreamableTest, BasicIoManip) {
+  EXPECT_FATAL_FAILURE({  // NOLINT
+    FAIL() << "Line 1." << std::endl
+           << "A NUL char " << std::ends << std::flush << " in line 2.";
+  }, "Line 1.\nA NUL char \\0 in line 2.");
+}
+
+// Tests the macros that haven't been covered so far.
+
+void AddFailureHelper(bool* aborted) {
+  *aborted = true;
+  ADD_FAILURE() << "Failure";
+  *aborted = false;
+}
+
+// Tests ADD_FAILURE.
+TEST(MacroTest, ADD_FAILURE) {
+  bool aborted = true;
+  EXPECT_NONFATAL_FAILURE(AddFailureHelper(&aborted),
+                          "Failure");
+  EXPECT_FALSE(aborted);
+}
+
+// Tests FAIL.
+TEST(MacroTest, FAIL) {
+  EXPECT_FATAL_FAILURE(FAIL(),
+                       "Failed");
+  EXPECT_FATAL_FAILURE(FAIL() << "Intentional failure.",
                        "Intentional failure.");
 }
 
@@ -4685,7 +4840,24 @@ TEST(ColoredOutputTest, UsesNoColorWhenGTestColorFlagIsInvalid) {
   GTEST_FLAG(color) = "0";
   EXPECT_FALSE(ShouldUseColor(true));  // Stdout is a TTY.
 
-  GTEST_FLAG(color) = "unknown";
+  GTTEST(ThreadLocalTest, DefaultConstructor) {
+  ThreadLocal<int> t1;
+  EXPECT_EQ(0, t1.get());
+
+  ThreadLocal<void*> t2;
+  EXPECT_TRUE(t2.get() == NULL);
+}
+
+TEST(ThreadLocalTest, Init) {
+  ThreadLocal<int> t1(123);
+  EXPECT_EQ(123, t1.get());
+
+  int i = 0;
+  ThreadLocal<int*> t2(&i);
+  EXPECT_EQ(&i, t2.get());
+}
+
+#ifndef GTEST_OS_SYMBIANknown";
   EXPECT_FALSE(ShouldUseColor(true));  // Stdout is a TTY.
 }
 
@@ -4704,4 +4876,4 @@ TEST(ColoredOutputTest, UsesColorsWhenTermSupportsColors) {
   // On Windows, we ignore the TERM variable as it's usually not set.
 
   SetEnv("TERM", "dumb");
-  EXPECT_TRUE(S
+  GTEST_OS_SYMBIAN
