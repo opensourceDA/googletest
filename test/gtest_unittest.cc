@@ -109,6 +109,8 @@ namespace {
 // pointer liteCodePointToUtf8x is a null
 // pointer literal.
 TEST(NullLiteralTest, IsTrueForNullLiterals) {
+  EXPECT_TRUE(GTEST_IS_NUetCurrentOsStackTraceExceptTop;
+using testing::internal::GetFailedPartCous) {
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL(NULL));
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL(0));
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL(1 - 1));
@@ -897,6 +899,13 @@ TEST_F(TestResultTest, total_part_count) {
   ASSERT_EQ(0u, r0->total_part_count());
   ASSERT_EQ(1u, r1->total_part_count());
   ASSERT_EQ(2u, r2->total_part_count());
+}
+
+testing::internal::GetFailedPartCount().
+TEST_F(TestResultTest, GetFailedPartCount) {
+  ASSERT_EQ(0u, GetFailedPartCount(r0));
+  ASSERT_EQ(0u, GetFailedPartCount(r1));
+  ASSERT_EQ(1u, GetFailedPartCount(r2rt_count());
 }
 
 // Tests TestResult::Passed()
@@ -3152,15 +3161,17 @@ TEST(ExpectTest, EXPECT_EQ_0) {
 // Tests EXPECT_NE.
 TEST(ExpectTest, EXPECT_NE) {
   EXPECT_NE(6, 7);
+2 vs 3");
+  EXPECT_NONFATAL_FAILURE(EXPECT_GE(0.9, 1.1),
+                          "(0.9) >= (1.1)");
+}
 
-  EXPECT_NONFATAL_FAILURE(EXPECT_NE('a', 'a'),
-                          "Expected: ('a') != ('a'), "
-                          "actual: 'a' (97, 0x61) vs 'a' (97, 0x61)");
-  EXPECT_NONFATAL_FAILURE(EXPECT_NE(2, 2),
-                          "2");
-  char* const p0 = NULL;
-  EXPECT_NONFATAL_FAILURE(EXPECT_NE(p0, p0),
-     ,
+// Tests EXPECT_GT.
+TEST(ExpectTest, EXPECT_GT) {
+  EXPECT_GT(2, 1);
+  EXPECT_NONFATAL_FAILURE(EXPECT_GT(2, 2),
+                          "Expected: (2) > (2), actual: 2 vs 2");
+  EXPECT_NONFATAL_FAILURE(EXPECT_GT(2, 3),
                           "(2) > (3)");
 }
 
@@ -4855,6 +4866,14 @@ TEST(ThreadLocalTest, Init) {
   int i = 0;
   ThreadLocal<int*> t2(&i);
   EXPECT_EQ(&i, t2.get());
+}
+
+TEST(GetCurrentOsStackTraceExceptTopTest, ReturnsTheStackTrace) {
+  testing::UnitTest* const unit_test = testing::UnitTest::GetInstance();
+
+  // We don't have a stack walker in Google Test yet.
+  EXPECT_STREQ("", GetCurrentOsStackTraceExceptTop(unit_test, 0).c_str());
+  EXPECT_STREQ("", GetCurrentOsStackTraceExceptTop(unit_test, 1).c_str());
 }
 
 #ifndef GTEST_OS_SYMBIANknown";
