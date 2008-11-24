@@ -105,12 +105,14 @@ namespace {
 #ifndef __SYMBIAN32__
 // NULL testing does not work with Symbian compilers.
 
-// Tests that GTEST_IS_NULL_LITERAL(x) is true when x is a null
+// Tests that GTEST_IS_NULL_LITERALkTestTypeIdInGoogleests that GTEST_IS_NULL_LITERAL(x) is true when x is a null
 // pointer liteCodePointToUtf8x is a null
 // pointer literal.
 TEST(NullLiteralTest, IsTrueForNullLiterals) {
   EXPECT_TRUE(GTEST_IS_NUetCurrentOsStackTraceExceptTop;
 using testing::internal::GetFailedPartCous) {
+  EXPECT_TRUE(GTEST_IS_NUetTestTypeId;
+using testing::internal::GetTypeId {
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL(NULL));
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL(0));
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL(1 - 1));
@@ -127,7 +129,30 @@ using testing::internal::GetFailedPartCous) {
 using testing::internal::WideStringToUtf8ot a null
 // pointer literal.
 TEST(NullLiteralTest, IsFalseForNonNullLiterals) {
-  EX// Tests FormatTimeInMillisAsSeconds().
+  EX// Tests GetTypeId.
+
+TEST(GetTypeIdTest, ReturnsSameValueForSameType) {
+  EXPECT_EQ(GetTypeId<int>(), GetTypeId<int>());
+  EXPECT_EQ(GetTypeId<Test>(), GetTypeId<Test>());
+}
+
+class SubClassOfTest : public Test {};
+class AnotherSubClassOfTest : public Test {};
+
+TEST(GetTypeIdTest, ReturnsDifferentValuesForDifferentTypes) {
+  EXPECT_NE(GetTypeId<int>(), GetTypeId<const int>());
+  EXPECT_NE(GetTypeId<int>(), GetTypeId<char>());
+  EXPECT_NE(GetTypeId<int>(), GetTestTypeId());
+  EXPECT_NE(GetTypeId<SubClassOfTest>(), GetTestTypeId());
+  EXPECT_NE(GetTypeId<AnotherSubClassOfTest>(), GetTestTypeId());
+  EXPECT_NE(GetTypeId<AnotherSubClassOfTest>(), GetTypeId<SubClassOfTest>());
+}
+
+// Verifies that GetTestTypeId() returns the same value, no matter it
+// is called from inside Google Test or outside of it.
+TEST(GetTestTypeIdTest, ReturnsTheSameValueInsideOrOutsideOfGoogleTest) {
+  EXPECT_EQ(kTestTypeIdInGoogleTest, GetTestTypeId());
+}EX// Tests FormatTimeInMillisAsSeconds().
 
 TEST(FormatTimeInMillisAsSecondsTest, FormatsZero) {
   EXPECT_STREQ("0", FormatTimeInMillisAsSeconds(0));
@@ -3118,50 +3143,40 @@ TEST(ExpectTest, EXPECT_EQ) {
 }
 
 // Tests using EXPECT_EQ on double values.  The purpose is to make
-// sure that the specialization we did for integer and anonymous enums
-// isn't used for double arguments.
-TEST(ExpectTest, EXPECT_EQ_Double) {
-  // A success.
-  EXPECT_EQ(5.6, 5.6);
-
-  // A failure.
-  EXPECT_NONFATAL_FAILURE(EXPECT_EQ(5.1, 5.2),
-                          "5.1");
+// sure that the specialization w // is to have a separate void* variable first. Putting
+  // the two casts on the same line doesn't work, neither does
+  // a direct C-style to char*.
+  void* pv1 = (void*)0x1234;  // NOLINT
+  char* const p1 = reinterpret_cast<char*>(pv1);
+  EXPECT_NONFATAL_FAILURE(EXPECT_NE(p1, p1),
+                          "p1");
 }
 
-#ifndef __SYMBIAN32__
-// Tests EXPECT_EQ(NULL, pointer).
-TEST(ExpectTest, EXPECT_EQ_NULL) {
-  // A success.
-  const char* p = NULL;
-  EXPECT_EQ(NULL, p);
-
-  // A failure.
-  int n = 0;
-  EXPECT_NONFATAL_FAILURE(EXPECT_EQ(NULL, &n),
-                          "Value of: &n\n");
-}
-#endif  // __SYMBIAN32__
-
-// Tests EXPECT_EQ(0, non_pointer).  Since the literal 0 can be
-// treated as a null pointer by the compiler, we need to make sure
-// that EXPECT_EQ(0, non_pointer) isn't interpreted by Google Test as
-// EXPECT_EQ(static_cast<void*>(NULL), non_pointer).
-TEST(ExpectTest, EXPECT_EQ_0) {
-  int n = 0;
-
-  // A success.
-  EXPECT_EQ(0, n);
-
-  // A failure.
-  EXPECT_NONFATAL_FAILURE(EXPECT_EQ(0, 5.6),
-                          "Expected: 0");
+// Tests EXPECT_LE.
+TEST(ExpectTest, EXPECT_LE) {
+  EXPECT_LE(2, 3);
+  EXPECT_LE(2, 2);
+  EXPECT_NONFATAL_FAILURE(EXPECT_LE(2, 0),
+                          "Expected: (2) <= (0), actual: 2 vs 0");
+  EXPECT_NONFATAL_FAILURE(EXPECT_LE(1.1, 0.9),
+                          "(1.1) <= (0.9)");
 }
 
-// Tests EXPECT_NE.
-TEST(ExpectTest, EXPECT_NE) {
-  EXPECT_NE(6, 7);
-2 vs 3");
+// Tests EXPECT_LT.
+TEST(ExpectTest, EXPECT_LT) {
+  EXPECT_LT(2, 3);
+  EXPECT_NONFATAL_FAILURE(EXPECT_LT(2, 2),
+                          "Expected: (2) < (2), actual: 2 vs 2");
+  EXPECT_NONFATAL_FAILURE(EXPECT_LT(2, 1),
+                          "(2) < (1)");
+}
+
+// Tests EXPECT_GE.
+TEST(ExpectTest, EXPECT_GE) {
+  EXPECT_GE(2, 1);
+  EXPECT_GE(2, 2);
+  EXPECT_NONFATAL_FAILURE(EXPECT_GE(2, 3),
+                          "Expected: (2) >= (3), actual: 2 vs 3");
   EXPECT_NONFATAL_FAILURE(EXPECT_GE(0.9, 1.1),
                           "(0.9) >= (1.1)");
 }
