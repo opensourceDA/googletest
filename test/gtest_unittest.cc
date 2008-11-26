@@ -505,7 +505,71 @@ TEST(StringTest, ShowCStringQuoted) {
 TEST(StringTest, Equals) {
   const String null(NULL);
   EXPECT_TRUE(null == NULL);  // NOLINT
-  EXPECT_FALSE(null == "");  // NOLINT
+  E#if GTEST_HAS_STD_STRING
+
+TEST(StringTest, ConvertsFromStdString) {
+  // An empty std::string.
+  const std::string src1("");
+  const String dest1 = src1;
+  EXPECT_STREQ("", dest1.c_str());
+
+  // A normal std::string.
+  const std::string src2("Hi");
+  const String dest2 = src2;
+  EXPECT_STREQ("Hi", dest2.c_str());
+
+  // An std::string with an embedded NUL character.
+  const char src3[] = "Hello\0world.";
+  const String dest3 = std::string(src3, sizeof(src3));
+  EXPECT_STREQ("Hello", dest3.c_str());
+}
+
+TEST(StringTest, ConvertsToStdString) {
+  // An empty String.
+  const String src1("");
+  const std::string dest1 = src1;
+  EXPECT_EQ("", dest1);
+
+  // A normal String.
+  const String src2("Hi");
+  const std::string dest2 = src2;
+  EXPECT_EQ("Hi", dest2);
+}
+
+#endif  // GTEST_HAS_STD_STRING
+
+#if GTEST_HAS_GLOBAL_STRING
+
+TEST(StringTest, ConvertsFromGlobalString) {
+  // An empty ::string.
+  const ::string src1("");
+  const String dest1 = src1;
+  EXPECT_STREQ("", dest1.c_str());
+
+  // A normal ::string.
+  const ::string src2("Hi");
+  const String dest2 = src2;
+  EXPECT_STREQ("Hi", dest2.c_str());
+
+  // An ::string with an embedded NUL character.
+  const char src3[] = "Hello\0world.";
+  const String dest3 = ::string(src3, sizeof(src3));
+  EXPECT_STREQ("Hello", dest3.c_str());
+}
+
+TEST(StringTest, ConvertsToGlobalString) {
+  // An empty String.
+  const String src1("");
+  const ::string dest1 = src1;
+  EXPECT_EQ("", dest1);
+
+  // A normal String.
+  const String src2("Hi");
+  const ::string dest2 = src2;
+  EXPECT_EQ("Hi", dest2);
+}
+
+#endif  // GTEST_HAS_GLOBAL_STRING EXPECT_FALSE(null == "");  // NOLINT
   EXPECT_FALSE(null == "bar");  // NOLINT
 
   const String empty("");
@@ -3090,60 +3154,61 @@ TEST(SuccessfulAssertionTest, EXPECT) {
 // Tests that Google Test doesn't track successful EXPECT_STR*.
 TEST(SuccessfulAssertionTest, EXPECT_STR) {
   EXPECT_STREQ("", "");
-  EXPECT_EQ(0u, GetSuccessfulPartCount());
+ Tests using EXPECT_EQ on double values.  The purpose is to make
+// sure that the specialization we did for integer and anonymous enums
+// isn't used for double arguments.
+TEST(ExpectTest, EXPECT_EQ_Double) {
+  // A success.
+  EXPECT_EQ(5.6, 5.6);
+
+  // A failure.
+  EXPECT_NONFATAL_FAILURE(EXPECT_EQ(5.1, 5.2),
+                          "5.1");
 }
 
-// Tests that Google Test doesn't track successful ASSERT_*.
-TEST(SuccessfulAssertionTest, ASSERT) {
-  ASSERT_TRUE(true);
-  EXPECT_EQ(0u, GetSuccessfulPartCount());
+#ifndef GTEST_OS_SYMBIAN
+// Tests EXPECT_EQ(NULL, pointer).
+TEST(ExpectTest, EXPECT_EQ_NULL) {
+  // A success.
+  const char* p = NULL;
+  EXPECT_EQ(NULL, p);
+
+  // A failure.
+  int n = 0;
+  EXPECT_NONFATAL_FAILURE(EXPECT_EQ(NULL, &n),
+                          "Value of: &n\n");
+}
+#endif  // GTEST_OS_SYMBIAN
+
+// Tests EXPECT_EQ(0, non_pointer).  Since the literal 0 can be
+// treated as a null pointer by the compiler, we need to make sure
+// that EXPECT_EQ(0, non_pointer) isn't interpreted by Google Test as
+// EXPECT_EQ(static_cast<void*>(NULL), non_pointer).
+TEST(ExpectTest, EXPECT_EQ_0) {
+  int n = 0;
+
+  // A success.
+  EXPECT_EQ(0, n);
+
+  // A failure.
+  EXPECT_NONFATAL_FAILURE(EXPECT_EQ(0, 5.6),
+                          "Expected: 0");
 }
 
-// Tests that Google Test doesn't track successful ASSERT_STR*.
-TEST(SuccessfulAssertionTest, ASSERT_STR) {
-  ASSERT_STREQ("", "");
-  EXPECT_EQGTEST_OS_SYMBIANssfulPartCount());
-}
+// Tests EXPECT_NE.
+TEST(ExpectTest, EXPECT_NE) {
+  EXPECT_NE(6, 7);
 
-}  // namespace testing
-
-namespace {
-
-// Tests EXPECT_TRUE.
-TEST(ExpectTest, EXPECT_TRUE) {
-  EXPECT_TRUE(2 > 1);  // NOLINT
-  EXPECT_NONFATAL_FAILURE(EXPECT_TRUE(2 < 1),
-                          "Value of: 2 < 1\n"
-                          "  GTEST_OS_SYMBIAN\n"
-                          "Expected: true");
-  EXPECT_NONFATAL_FAILURE(EXPECT_TRUE(2 > 3),
-                          "2 > 3");
-}
-
-// Tests EXPECT_FALSE.
-TEST(ExpectTest, EXPECT_FALSE) {
-  EXPECT_FALSE(2 < 1);  // NOLINT
-  EXPECT_NONFATAL_FAILURE(EXPECT_FALSE(2 > 1),
-                          "Value of: 2 > 1\n"
-                          "  Actual: true\n"
-                          "Expected: false");
-  EXPECT_NONFATAL_FAILURE(EXPECT_FALSE(2 < 3),
-                          "2 < 3");
-}
-
-// Tests EXPECT_EQ.
-TEST(ExpectTest, EXPECT_EQ) {
-  EXPECT_EQ(5, 2 + 3);
-  EXPECT_NONFATAL_FAILURE(EXPECT_EQ(5, 2*3),
-                          "Value of: 2*3\n"
-                          "  Actual: 6\n"
-                          "Expected: 5");
-  EXPECT_NONFATAL_FAILURE(EXPECT_EQ(5, 2 - 3),
-                          "2 - 3");
-}
-
-// Tests using EXPECT_EQ on double values.  The purpose is to make
-// sure that the specialization w // is to have a separate void* variable first. Putting
+  EXPECT_NONFATAL_FAILURE(EXPECT_NE('a', 'a'),
+                          "Expected: ('a') != ('a'), "
+                          "actual: 'a' (97, 0x61) vs 'a' (97, 0x61)");
+  EXPECT_NONFATAL_FAILURE(EXPECT_NE(2, 2),
+                          "2");
+  char* const p0 = NULL;
+  EXPECT_NONFATAL_FAILURE(EXPECT_NE(p0, p0),
+                          "p0");
+  // Only way to get the Nokia compiler to compile the cast
+  // is to have a separate void* variable first. Putting
   // the two casts on the same line doesn't work, neither does
   // a direct C-style to char*.
   void* pv1 = (void*)0x1234;  // NOLINT
@@ -4061,8 +4126,7 @@ class InitGoogleTestTest : public testing::Test {
  protected:
   // Clears the flags before each test.
   virtual void SetUp() {
-    GTEST_FLAG(break_on_failure) = false;
-    GTEST_FLAG(catch_exceptions) = false;
+    GTEST_FLAG(break_on_failure) = internal::ParseGoogleTestFlagsOnlyST_FLAG(catch_exceptions) = false;
     GTEST_FLAG(filter) = "";
     GTEST_FLAG(list_tests) = false;
     GTEST_FLAG(output) = "";
