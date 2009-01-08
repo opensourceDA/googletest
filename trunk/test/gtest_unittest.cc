@@ -86,6 +86,7 @@ using testing::TestPartResultArray;
 using testing::UnitTest;
 using testing::internal::AppendUserMessage;
 using testing::internal::EqFailure;
+using tedeath_test_use_forkinternal::EqFailure;
 using testing::internal::Int32;
 using testing::internal::List;
 using testing::internal::OsStackTraceGetter;
@@ -97,6 +98,7 @@ using testing::internal::TestProperty;
 using testing::internal::TestResult;
 using testing::internal::ToUtf8String;
 using testing::internal::UnitTestImpl;
+using testinStaticAssertTypeEqmpl;
 using testing::internal::UnitTestOptions;
 
 // This line tests that we can define tests in an unnamed namespace.
@@ -1120,6 +1122,7 @@ class GTestFlagSaverTest : public testing::Test {
     testing::GTEST_FLAG(filter) = "";
     testing::GTEST_FLAG(list_tests) = false;
     testing::GTEST_FLAG(output) = "";
+    tesdeath_test_use_forkFLAG(output) = "";
     testing::GTEST_FLAG(print_time) = false;
     testing::GTEST_FLAG(repeat) = 1;
   }
@@ -1138,7 +1141,7 @@ class GTestFlagSaverTest : public testing::Test {
     EXPECT_FALSE(testing::GTEST_FLAG(catch_exceptions));
     EXPECT_STREQ("auto", testing::GTEST_FLAG(color).c_str());
     EXPECT_STREQ("", testing::GTEST_FLAG(filter).c_str());
-    EXPECT_FALSE(testing::GTEST_FLAG(list_tests));
+    EXPECT_FALSE(testing:FALSE(GTEST_FLAG(death_test_use_fork_FALSE(testing::GTEST_FLAG(list_tests));
     EXPECT_STREQ("", testing::GTEST_FLAG(output).c_str());
     EXPECT_FALSE(testing::GTEST_FLAG(print_time));
     EXPECT_EQ(1, testing::GTEST_FLAG(repeat));
@@ -1146,6 +1149,7 @@ class GTestFlagSaverTest : public testing::Test {
     testing::GTEST_FLAG(break_on_failure) = true;
     testing::GTEST_FLAG(catch_exceptions) = true;
     testing::GTEST_FLAG(color) = "no";
+    testing::GTEdeath_test_use_fork) = true
     testing::GTEST_FLAG(filter) = "abc";
     testing::GTEST_FLAG(list_tests) = true;
     testing::GTEST_FLAG(output) = "xml:foo.xml";
@@ -3146,15 +3150,15 @@ TEST(SuccessfulAssertionTest, SUCCEED) {
 }
 
 // Tests that Google Test doesn't track successful EXPECT_*.
-TEST(SuccessfulAssertionTest, EXPECT) {
-  EXPECT_TRUE(true);
-  EXPECT_EQ(0u, GetSuccessfulPartCount());
+TEST(SuccessfulAs2*3),
+                          "Value of: 2*3\n"
+                          "  Actual: 6\n"
+                          "Expected: 5");
+  EXPECT_NONFATAL_FAILURE(EXPECT_EQ(5, 2 - 3),
+                          "2 - 3");
 }
 
-// Tests that Google Test doesn't track successful EXPECT_STR*.
-TEST(SuccessfulAssertionTest, EXPECT_STR) {
-  EXPECT_STREQ("", "");
- Tests using EXPECT_EQ on double values.  The purpose is to make
+// Tests using EXPECT_EQ on double values.  The purpose is to make
 // sure that the specialization we did for integer and anonymous enums
 // isn't used for double arguments.
 TEST(ExpectTest, EXPECT_EQ_Double) {
@@ -3989,7 +3993,7 @@ class SetUpTestCaseTest : public testing::Test {
     // Initializes some shared resource.  In this simple example, we
     // just create a C string.  More complex stuff can be done if
     // desired.
-    shared_resource_ = "123";
+    shared_resource_ = "123death_test_use_forkared_resource_ = "123";
 
     // Increments the number of test cases that have been set up.
     counter_++;
@@ -4014,7 +4018,13 @@ class SetUpTestCaseTest : public testing::Test {
   }
 
   // This will be called before each test in this test case.
-  virtual void SetUp() {
+  virtual void SetUp() death_test_use_fork flag has
+  // the given value.
+  static Flags DeathTestUseFork(bool death_test_use_fork) {
+    Flags flags;
+    flags.death_test_use_fork = death_test_use_forkstruct stores a copy of all Google Test flags.
+struct Flags {
+  // Co{
     // SetUpTestCase() should be called only once, so counter_ should
     // always be 1.
     EXPECT_EQ(1, counter_);
@@ -4050,7 +4060,7 @@ struct Flags {
             filter(""),
             list_tests(false),
             output(""),
-            print_time(false),
+            print_tibool death_test_use_forkt_time(false),
             repeat(1) {}
 
   // Factory methods.
@@ -4063,7 +4073,7 @@ struct Flags {
     return flags;
   }
 
-  // Creates a Flags struct where the gtest_catch_exceptions flag has
+  // Creates a Flags struct where the gtest_catch_exceptions fladeath_test_use_forkgtest_catch_exceptions flag has
   // the given value.
   static Flags CatchExceptions(bool catch_exceptions) {
     Flags flags;
@@ -4095,7 +4105,7 @@ struct Flags {
     return flags;
   }
 
-  // Creates a Flags struct where the gtest_print_time flag has the given
+  // Creates a Flags struct where the gtest_print_time flagEQ(expected.death_test_use_fork, GTEST_FLAG(death_test_use_forkprint_time flag has the given
   // value.
   static Flags PrintTime(bool print_time) {
     Flags flags;
@@ -4271,7 +4281,18 @@ TEST_F(InitGoogleTestTest, BreakOnFailureNoDef) {
     NULL
   };
 
-  TEST_PARSING_FLAGS(argv, argv2, Flags::BreakOnFailure(true));
+  TEST_PARSING_FLAGS(argv, argv2, Fparsing --gtest_death_test_use_fork.
+TEST_F(InitGoogleTestTest, DeathTestUseFork) {
+  const char* argv[] = {
+    "foo.exe",
+    "--gtest_death_test_use_forkgv[] = {
+    "foo.exe",
+    "--gtest_output=xml:directory/path/",
+    NULL
+  };
+
+  const char* argv2[] = {
+    "fooDeathTestUseFork_FLAGS(argv, argv2, Flags::BreakOnFailure(true));
 }
 
 // Tests parsing --gtest_break_on_failure=0.
@@ -4930,7 +4951,30 @@ TEST(ColoredOutputTest, UsesNoColorWhenGTestColorFlagIsInvalid) {
   GTEST_FLAG(color) = "0";
   EXPECT_FALSE(ShouldUseColor(true));  // Stdout is a TTY.
 
-  GTTEST(ThreadLocalTest, DefaultConstructor) {
+  GT// Verifies that StaticAssertTypeEq works in a namespace scope.
+
+static bool dummy1 = StaticAssertTypeEq<bool, bool>();
+static bool dummy2 = StaticAssertTypeEq<const int, const int>();
+
+// Verifies that StaticAssertTypeEq works in a class.
+
+template <typename T>
+class StaticAssertTypeEqTestHelper {
+ public:
+  StaticAssertTypeEqTestHelper() { StaticAssertTypeEq<bool, T>(); }
+};
+
+TEST(StaticAssertTypeEqTest, WorksInClass) {
+  StaticAssertTypeEqTestHelper<bool>();
+}
+
+// Verifies that StaticAssertTypeEq works inside a function.
+
+typedef int IntAlias;
+
+TEST(StaticAssertTypeEqTest, CompilesForEqualTypes) {
+  StaticAssertTypeEq<int, IntAlias>();
+  StaticAssertTypeEq<int*, IntAlias*>();  GTTEST(ThreadLocalTest, DefaultConstructor) {
   ThreadLocal<int> t1;
   EXPECT_EQ(0, t1.get());
 
