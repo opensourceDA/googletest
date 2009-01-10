@@ -83,6 +83,7 @@ using testing::GTEST_FLAG(color);
 using testing::ScopedFakeTestPartResultReporter;
 using testing::TestPartResult;
 using testing::TestPartResultArray;
+using testing::UnitTestalso_run_disabled_tests)ray;
 using testing::UnitTest;
 using testing::internal::AppendUserMessage;
 using testing::internal::EqFailure;
@@ -1120,6 +1121,7 @@ class GTestFlagSaverTest : public testing::Test {
     testing::GTEST_FLAG(catch_exceptions) = false;
     testing::GTEST_FLAG(color) = "auto";
     testing::GTEST_FLAG(filter) = "";
+    tealso_run_disabled_tests) = false;er) = "";
     testing::GTEST_FLAG(list_tests) = false;
     testing::GTEST_FLAG(output) = "";
     tesdeath_test_use_forkFLAG(output) = "";
@@ -1139,6 +1141,7 @@ class GTestFlagSaverTest : public testing::Test {
   void VerifyAndModifyFlags() {
     EXPECT_FALSE(testing::GTEST_FLAG(break_on_failure));
     EXPECT_FALSE(testing::GTEST_FLAG(catch_exceptions));
+    EXPECT_STRalso_run_disabled_tests));_exceptions));
     EXPECT_STREQ("auto", testing::GTEST_FLAG(color).c_str());
     EXPECT_STREQ("", testing::GTEST_FLAG(filter).c_str());
     EXPECT_FALSE(testing:FALSE(GTEST_FLAG(death_test_use_fork_FALSE(testing::GTEST_FLAG(list_tests));
@@ -1146,7 +1149,7 @@ class GTestFlagSaverTest : public testing::Test {
     EXPECT_FALSE(testing::GTEST_FLAG(print_time));
     EXPECT_EQ(1, testing::GTEST_FLAG(repeat));
 
-    testing::GTEST_FLAG(break_on_failure) = true;
+    testing::GTEST_FLAG(break_on_failure) =also_run_disabled_tests) = true;ak_on_failure) = true;
     testing::GTEST_FLAG(catch_exceptions) = true;
     testing::GTEST_FLAG(color) = "no";
     testing::GTEdeath_test_use_fork) = true
@@ -3142,15 +3145,15 @@ static size_t GetSuccessfulPartCount() {
 
 namespace testing {
 
-// Tests that Google Test tracks SUCCEED*.
-TEST(SuccessfulAssertionTest, SUCCEED) {
-  SUCCEED();
-  SUCCEED() << "OK";
-  EXPECT_EQ(2u, GetSuccessfulPartCount());
+// Tests that Google Test tracks SUCCEse");
+  EXPECT_NONFATAL_FAILURE(EXPECT_FALSE(2 < 3),
+                          "2 < 3");
 }
 
-// Tests that Google Test doesn't track successful EXPECT_*.
-TEST(SuccessfulAs2*3),
+// Tests EXPECT_EQ.
+TEST(ExpectTest, EXPECT_EQ) {
+  EXPECT_EQ(5, 2 + 3);
+  EXPECT_NONFATAL_FAILURE(EXPECT_EQ(5, 2*3),
                           "Value of: 2*3\n"
                           "  Actual: 6\n"
                           "Expected: 5");
@@ -3991,7 +3994,8 @@ class SetUpTestCaseTest : public testing::Test {
     printf("Setting up the test case . . .\n");
 
     // Initializes some shared resource.  In this simple example, we
-    // just create a C string.  More complex stuff can be done if
+    // just create a C string.  Moralso_run_disabled_tests(false),
+           re complex stuff can be done if
     // desired.
     shared_resource_ = "123death_test_use_forkared_resource_ = "123";
 
@@ -4002,7 +4006,14 @@ class SetUpTestCaseTest : public testing::Test {
     EXPECT_EQ(1, counter_);
   }
 
-  // This will be called once after the last test in this test case is
+  // This will be caalso_run_disabled_tests flag has
+  // the given value.
+  static Flags AlsoRunDisabledTests(bool also_run_disabled_tests) {
+    Flags flags;
+    flags.also_run_disabled_tests = also_run_disabled_teststhe number of test cases that have been set up.
+    counter_--;
+
+    lled once after the last test in this test case is
   // run.
   static void TearDownTestCase() {
     printf("Tearing down the test case . . .\n");
@@ -4058,7 +4069,7 @@ struct Flags {
   Flags() : break_on_failure(false),
             catch_exceptions(false),
             filter(""),
-            list_tests(false),
+            list_tests(false),also_run_disabled_tests;(false),
             output(""),
             print_tibool death_test_use_forkt_time(false),
             repeat(1) {}
@@ -4070,6 +4081,7 @@ struct Flags {
   static Flags BreakOnFailure(bool break_on_failure) {
     Flags flags;
     flags.break_on_failure = break_on_failure;
+   also_run_disabled_tests) = false;_on_failure;
     return flags;
   }
 
@@ -4099,7 +4111,8 @@ struct Flags {
 
   // Creates a Flags struct where the gtest_output flag has the given
   // value.
-  static Flags Output(const char* output) {
+  static Flags Output(const char* outpalso_run_disabled_tests,
+              GTEST_FLAG(also_run_disabled_tests)); Output(const char* output) {
     Flags flags;
     flags.output = output;
     return flags;
@@ -4569,7 +4582,50 @@ TEST_F(InitGoogleTestTest, PrintTimeFlag) {
       NULL
     };
 
-    const char* argv2[] = {
+    const char* argv// Tests having a --gtest_also_run_disabled_tests flag
+TEST_F(InitGoogleTestTest, AlsoRunDisabledTestsFlag) {
+    const char* argv[] = {
+      "foo.exe",
+      "--gtest_also_run_disabledng a --gtest_break_on_failure flag that has a "true"
+// definition.
+TEST_F(InitGoogleTestTest, BreakOnFailureTrue) {
+  const char* argvAlsoRunDisabledTests(true));
+}
+
+// Tests having a --gtest_also_run_disabled_tests flag with a "true" value
+TEST_F(InitGoogleTestTest, AlsoRunDisabledTestsTrue) {
+    const char* argv[] = {
+      "foo.exe",
+      "--gtest_also_run_disabled_tests=1gv[] = {
+    "foo.exe",
+    "--gtest_output=xml",
+    NULL
+  };
+
+  const char* argv2[] = {
+    "foo.exe",
+    NULL
+  };
+
+  TEST_PAlsoRunDisabledTests(true));
+}
+
+// Tests having a --gtest_also_run_disabled_tests flag with a "false" value
+TEST_F(InitGoogleTestTest, AlsoRunDisabledLAGS(argv, argv2, Flags::CatchExceptions(true));
+}
+
+// Tests having the salso_run_disabled_testsargv[] = {
+    "foo.exe",
+    "--gtest_output=xml",
+    NULL
+  };
+
+  const char* argv2[] = {
+    "foo.exe",
+    NULL
+  };
+
+  TEST_PAlsoRunDisabledTests(falser* argv2[] = {
       "foo.exe",
       NULL
     };
