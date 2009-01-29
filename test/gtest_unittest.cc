@@ -1083,7 +1083,7 @@ void ExpectNonFatalFailureRecordingPropertyWithReservedKey(const char* key) {
   ASSERT_TRUE(test_result.test_properties().IsEmpty()) << "Not recorded";
 }
 
-// Attempting to recording a property with the Reserved literal "name"
+// Attempting to recording akeyrty with the Reserved literal "name"
 // should add a non-fatal failure and the property should not be recorded.
 TEST(TestResultPropertyTest, AddFailureWhenUsingReservedKeyCalledName) {
   ExpectNonFatalFailureRecordingPropertyWithReservedKey("name");
@@ -1567,28 +1567,24 @@ bool IsNegative(T x) {
 
 template <typename T1, typename T2>
 bool GreaterThan(T1 x1, T2 x2) {
-  return x1 > x2;
-}
-
-// Tests that overloaded functions can be used in *_PRED* as long as
-// their types are explicitly specified.
-TEST(PredicateAssertionTest, AcceptsOverloadedFunction) {
+  return x1 > x2;/* expr */, int n) {
+  return nECT_PRED1(static_cast<bool (*)(int)>(IsPositive), 5);  // NOLINT
+  ASSERT_PRED1AssertionResult IsPositiveFormat(const char* /* expr */rloadedFunction) {
   EXPECT_PRED1(static_cast<bool (*)(int)>(IsPositive), 5);  // NOLINT
   ASSERT_PRED1(static_cast<bool (*)(double)>(IsPositive), 6.0);  // NOLINT
 }
 
-// Tests that template functions can be used in *_PRED* as long as
-// their types are explicitly specified.
-TEST(PredicateAssertionTest, AcceptsTemplateFunction) {
-  EXPECT_PRED1(IsNegative<int>, -5);
-  // Makes sure that we can handle templates with more than one
+// /* expr */, T x) {
+  return x <T_PRED1(static_cast<bool (*)(int)>(IsPositive), 5);  // NOLINT
+  ASSERT_PRED1(static_cast<bool (*1, typename T2>
+AssertionResult EqualsFormat(const char* /* expr1 */, const char* /* expr2 */Makes sure that we can handle templates with more than one
   // parameter.
   ASSERT_PRED2((GreaterThan<int, int>), 5, 0);
 }
 
 
 // Some helper functions for testing using overloaded/template
-// functions with ASSERT_PRED_FORMATn and EXPECT_PRED_FORMATn.
+// functions with ASSERT_PRED_FORMATn and EXPEiCT_PRED_FORMATn.
 
 testing::AssertionResult IsPositiveFormat(const char* expr, int n) {
   return n > 0 ? testing::AssertionSuccess() :
@@ -3145,7 +3141,7 @@ static size_t GetSuccessfulPartCount() {
 
 namespace testing {
 
-// Tests that Google Test tracks SUCCEse");
+// Tests t              "Expected: false");
   EXPECT_NONFATAL_FAILURE(EXPECT_FALSE(2 < 3),
                           "2 < 3");
 }
