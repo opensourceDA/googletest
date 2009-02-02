@@ -33,6 +33,25 @@
 // Google Test work.
 
 #include <gtest/gtest.h>
+
+// Verifies that the command line flag variables can be accessed
+// in code once <gtest/gtest.h> has been #included.
+// Do not move it after other #includes.
+TEST(CommandLineFlagsTest, CanBeAccessedInCodeOnceGTestHIsIncluded) {
+  bool dummy = testing::GTEST_FLAG(also_run_disabled_tests)
+      || testing::GTEST_FLAG(break_on_failure)
+      || testing::GTEST_FLAG(catch_exceptions)
+      || testing::GTEST_FLAG(color) != "unknown"
+      || testing::GTEST_FLAG(filter) != "unknown"
+      || testing::GTEST_FLAG(list_tests)
+      || testing::GTEST_FLAG(output) != "unknown"
+      || testing::GTEST_FLAG(print_time)
+      || testing::GTEST_FLAG(repeat) > 0
+      || testing::GTEST_FLAG(show_internal_stack_frames)
+      || testing::GTEST_FLAG(stack_trace_depth) > 0;
+  EXPECT_TRUE(dummy || !dummy);  // Suppresses warning that dummy is unused.
+}
+
 #include <gtest/gtest-spi.h>
 
 // Indicates that this translation unit is part of Google Test's
@@ -3102,46 +3121,37 @@ TEST(AssertionSyntaxTest, BehavesLikeSingleStatement) {
   if (false)
     ;
   else
-    EXPECT_GT(3, 2) << "";
+    EXPECT_GT(3, 2) << ""0u, GetSuccessfulPartCount());
 }
 
-// Tests that the assertion macros work well with switch statements.
-TEST(AssertionSyntaxTest, WorksWithSwitch) {
-  switch (0) {
-    case 1:
-      break;
-    default:
-      ASSERT_TRUE(true);
-  }
-
-  switch (0)
-    case 0:
-      EXPECT_FALSE(false) << "EXPECT_FALSE failed in switch case";
-
-  // Binary assertions are implemented using a different code path
-  // than the Boolean assertions.  Hence we test them separately.
-  switch (0) {
-    case 1:
-    default:
-      ASSERT_EQ(1, 1) << "ASSERT_EQ failed in default switch handler";
-  }
-
-  switch (0)
-    case 0:
-      EXPECT_NE(1, 2);
+// Tests that Google Test doesn't track successful ASSERT_STR*.
+TEST(SuccessfulAssertionTest, ASSERT_STR) {
+  ASSERT_STREQ("", "");
+  EXPECT_EQ(0u, GetSuccessfulPartCount());
 }
 
-}  // namespace
+}  // namespace testing
 
-// Returns the number of successful parts in the current test.
-static size_t GetSuccessfulPartCount() {
-  return UnitTest::GetInstance()->impl()->current_test_result()->
-    successful_part_count();
+namespace {
+
+// Tests EXPECT_TRUE.
+TEST(ExpectTest, EXPECT_TRUE) {
+  EXPECT_TRUE(2 > 1);  // NOLINT
+  EXPECT_NONFATAL_FAILURE(EXPECT_TRUE(2 < 1),
+                          "Value of: 2 < 1\n"
+                          "  Actual: false\n"
+                          "Expected: true");
+  EXPECT_NONFATAL_FAILURE(EXPECT_TRUE(2 > 3),
+                          "2 > 3");
 }
 
-namespace testing {
-
-// Tests t              "Expected: false");
+// Tests EXPECT_FALSE.
+TEST(ExpectTest, EXPECT_FALSE) {
+  EXPECT_FALSE(2 < 1);  // NOLINT
+  EXPECT_NONFATAL_FAILURE(EXPECT_FALSE(2 > 1),
+                          "Value of: 2 > 1\n"
+                          "  Actual: true\n"
+                          "Expected: false");
   EXPECT_NONFATAL_FAILURE(EXPECT_FALSE(2 < 3),
                           "2 < 3");
 }
