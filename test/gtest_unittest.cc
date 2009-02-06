@@ -870,37 +870,58 @@ TEST_F(ScopedFakeTestPartResultReporterWithThreadsTest,
 
 #endif  // GTEST_IS_THREADSAFE && GTEST_HAS_PTHREAD
 
-// Tests EXPECT_{,NON}FATAL_FAILURE{,ON_ALL_THREADS}.
+// Tests EXPECT_FATAL_FAILURE{,ON_ALL_THREADS}.
 
-typedef ScopedFakeTestPartResultReporterTest ExpectFailureTest;
+typedef ScopedFakeTestPartResultReporterTest ExpectFatalFailureTest;
 
-TEST_F(ExpectFailureTest, ExpectFatalFaliure) {
+TEST_F(ExpectFatalFailureTest, CatchesFatalFaliure) {
   EXPECT_FATAL_FAILURE(AddFailure(FATAL_FAILURE), "Expected fatal failure.");
 }
 
-TEST_F(ExpectFailureTest, ExpectNonFatalFailure) {
-  EXPECT_NONFATAL_FAILURE(AddFailure(NONFATAL_FAILURE),
-                          "Expected non-fatal failure.");
-}
-
-TEST_F(ExpectFailureTest, ExpectFatalFailureOnAllThreads) {
+TEST_F(ExpectFatalFailureTest, CatchesFatalFailureOnAllThreads) {
+  // We have another test below to verify that the macro catches fatal
+  // failures generated on another thread.
   EXPECT_FATAL_FAILURE_ON_ALL_THREADS(AddFailure(FATAL_FAILURE),
                                       "Expected fatal failure.");
 }
 
-TEST_F(ExpectFailureTest, ExpectNonFatalFailureOnAllThreads) {
-  EXPECT_NONFATAL_FAILURE_ON_ALL_THREADS(AddFailure(NONFATAL_FAILURE),
-                                         "Expected non-fatal failure.");
+// Tests that EXPECT_FATAL_FAILURE() can be used in a non-void
+// function even when the statement in it contains ASSERT_*.
+
+int NonVoidFunction() {
+  EXPECT_FATAL_FAILURE(ASSERT_TRUE(false), "");
+  EXPECT_FATAL_FAILURE_ON_ALL_THREADS(FAIL(), "");
+  return 0;
 }
 
-// Tests that the EXPECT_{,NON}FATAL_FAILURE{,_ON_ALL_THREADS} accepts
-// a statement that contains a macro which expands to code containing
-// an unprotected comma.
+TEST_F(ExpectFatalFailureTest, CanBeUsedInNonVoidFunction) {
+  NonVoidFunction();
+}
+
+// Tests that EXPECT_FATAL_FAILURE(statement, ...) doesn't abort the
+// current function even though 'statement' generates a fatal failure.
+
+void DoesNotAbortHelper(bool* aborted) {
+  EXPECT_FATAL_FAILURE(ASSERT_TRUE(false), "");
+  EXPECT_FATAL_FAILURE_ON_ALL_THREADS(FAIL(), "");
+
+  *aborted = false;
+}
+
+TEST_F(ExpectFatalFailureTest, DoesNotAbort) {
+  bool aborted = true;
+  DoesNotAbortHelper(&aborted);
+  EXPECT_FALSE(aborted);
+}
+
+// Tests that the EXPECT_FATAL_FAILURE{,_ON_ALL_THREADS} accepts a
+// statement that contains a macro which expands to code containing an
+// unprotected comma.
 
 static int global_var = 0;
 #define GTEST_USE_UNPROTECTED_COMMA_ global_var++, global_var++
 
-TEST_F(ExpectFailureTest, AcceptsMacroThatExpandsToUnprotectedComma) {
+TEST_F(ExpectFatalFailureTest, AcceptsMacroThatExpandsToUnprotectedComma) {
   EXPECT_FATAL_FAILURE({
     GTEST_USE_UNPROTECTED_COMMA_;
     AddFailure(FATAL_FAILURE);
@@ -910,7 +931,28 @@ TEST_F(ExpectFailureTest, AcceptsMacroThatExpandsToUnprotectedComma) {
     GTEST_USE_UNPROTECTED_COMMA_;
     AddFailure(FATAL_FAILURE);
   }, "");
+}
 
+// Tests EXPECT_NONFATAL_FAILURE{,ON_ALL_THREADS}.
+
+typedef ScopedFakeTestPartResultReporterTest ExpectNonfatalFailureTest;
+
+TEST_F(ExpectNonfatalFailureTest, CatchesNonfatalFailure) {
+  EXPECT_NONFATAL_FAILURE(AddFailure(NONFATAL_FAILURE),
+                          "Expected non-fatal failure.");
+}
+
+TEST_F(ExpectNonfatalFailureTest, CatchesNonfatalFailureOnAllThreads) {
+  // We have another test below to verify that the macro catches
+  // non-fatal failures generated on another thread.
+  EXPECT_NONFATAL_FAILURE_ON_ALL_THREADS(AddFailure(NONFATAL_FAILURE),
+                                         "Expected non-fatal failure.");
+}
+
+// Tests that the EXPECT_NONFATAL_FAILURE{,_ON_ALL_THREADS} accepts a
+// statement that contains a macro which expands to code containing an
+// unprotected comma.
+TEST_F(ExpectNonfatalFailureTest, AcceptsMacroThatExpandsToUnprotectedComma) {
   EXPECT_NONFATAL_FAILURE({
     GTEST_USE_UNPROTECTED_COMMA_;
     AddFailure(NONFATAL_FAILURE);
@@ -3008,6 +3050,20 @@ TEST(HRESULTAssertionTest, ASSERT_HRESULT_FAILED) {
     "  Actual: 0x00000001}
 
 #if GTEST_HAS_EXCEPTIONS
+// Tests that the compiler will not complain about unreachable code in the
+// EXPECT_THROW/EXPECT_ANY_THROW/EXPECT_NO_THROW macros.
+TEST(ExpectThrowTest, DoesNotGenerateUnreachableCodeWarning) {
+  int n = 0;
+
+  EXPECT_THROW(throw 1, int);
+  EXPECT_NONFATAL_FAILURE(EXPECT_THROW(n++, int), "");
+  EXPECT_NONFATAL_FAILURE(EXPECT_THROW(throw 1, const char*), "");
+  EXPECT_NO_THROW(n++);
+  EXPECT_NONFATAL_FAILURE(EXPECT_NO_THROW(throw 1), "");
+  EXPECT_ANY_THROW(throw 1);
+  EXPECT_NONFATAL_FAILURE(EXPECT_ANY_THROW(n++), "");
+}
+
 TEST(AssertionSyntaxTest, ExceptionAssertionsBehavesLikeSingleStatement) {
   if (false)
     EXPECT_THROW(1, bool);
@@ -3055,23 +3111,36 @@ TEST(AssertionSyntaxTest, NoFatalFailureAssertionsBehavesLikeSingleStatement) {
   if (false)
     ;
   else
-    ASSERT_NO_FATAL_FAILURE(SUCCEED());1 Incorrect function.";
-#endif  // _WIN32_WCE
-
-  EXPECT_FATAL_FAILURE(ASSERT_HRESULT_FAILED(OkHRESULTSuccess()),
-      expected_success);
-  EXPECT_FATAL_FAILURE(ASSERT_HRESULT_FAILED(FalseHRESULTSuccess()),
-      expected_incorrect_function);
+    ASSERT_NO_FATAL_FAILURE(SUCCEED());
 }
 
-// Tests that streaming to the HRESULT macros works.
-TEST(HRESULTAssertionTest, Streaming) {
-  EXPECT_HRESULT_SUCCEEDED(S_OK) << "unexpected failure";
-  ASSERT_HRESULT_SUCCEEDED(S_OK) << "unexpected failure";
-  EXPECT_HRESULT_FAILED(E_UNEXPECTED) << "unexpected failure";
-  ASSERT_HRESULT_FAILED(E_UNEXPECTED) << "unexpected failure";
+// Tests that the assertion macros work well with switch statements.
+TEST(AssertionSyntaxTest, WorksWithSwitch) {
+  switch (0) {
+    case 1:
+      break;
+    default:
+      ASSERT_TRUE(true);
+  }
 
-  EXPECT_NON#if GTEST_HAS_EXCEPTIONS
+  switch (0)
+    case 0:
+      EXPECT_FALSE(false) << "EXPECT_FALSE failed in switch case";
+
+  // Binary assertions are implemented using a different code path
+  // than the Boolean assertions.  Hence we test them separately.
+  switch (0) {
+    case 1:
+    default:
+      ASSERT_EQ(1, 1) << "ASSERT_EQ failed in default switch handler";
+  }
+
+  switch (0)
+    case 0:
+      EXPECT_NE(1, 2);
+}
+
+#if GTEST_HAS_EXCEPTIONS
 
 void ThrowAString() {
     throw "String";
@@ -3085,43 +3154,41 @@ TEST(AssertionSyntaxTest, WorksWithConst) {
     EXPECT_THROW(ThrowAString(), const char*);
 }
 
-#endif  // GTEST_HAS_EXCEPTIONSONFATAL_FAILURE(
-      EXPECT_HRESULT_SUCCEEDED(E_UNEXPECTED) << "expected failure",
-      "expected failure");
+#endif  // GTEST_HAS_EXCEPTIONS
 
-  EXPECT_FATAL_FAILURE(
-      ASSERT_HRESULT_SUCCEEDED(E_UNEXPECTED) << "expected failure",
-      "expected failure");
+}  // namespace
 
-  EXPECT_NONFATAL_FAILURE(
-      EXPECT_HRESULT_FAILED(S_OK) << "expected failure",
-      "expected failure");
-
-  EXPECT_FATAL_FAILURE(
-      ASSERT_HRESULT_FAILED(S_OK) << "expected failure",
-      "expected failure");
+// Returns the number of successful parts in the current test.
+static size_t GetSuccessfulPartCount() {
+  return UnitTest::GetInstance()->impl()->current_test_result()->
+    successful_part_count();
 }
 
-#endif  // defined(GTEST_OS_WINDOWS)
+namespace testing {
 
-// Tests that the assertion macros behave like single statements.
-TEST(AssertionSyntaxTest, BehavesLikeSingleStatement) {
-  if (false)
-    ASSERT_TRUE(false) << "This should never be executed; "
-                          "It's a compilation test only.";
+// Tests that Google Test tracks SUCCEED*.
+TEST(SuccessfulAssertionTest, SUCCEED) {
+  SUCCEED();
+  SUCCEED() << "OK";
+  EXPECT_EQ(2u, GetSuccessfulPartCount());
+}
 
-  if (true)
-    EXPECT_FALSE(false);
-  else
-    ;
+// Tests that Google Test doesn't track successful EXPECT_*.
+TEST(SuccessfulAssertionTest, EXPECT) {
+  EXPECT_TRUE(true);
+  EXPECT_EQ(0u, GetSuccessfulPartCount());
+}
 
-  if (false)
-    ASSERT_LT(1, 3);
+// Tests that Google Test doesn't track successful EXPECT_STR*.
+TEST(SuccessfulAssertionTest, EXPECT_STR) {
+  EXPECT_STREQ("", "");
+  EXPECT_EQ(0u, GetSuccessfulPartCount());
+}
 
-  if (false)
-    ;
-  else
-    EXPECT_GT(3, 2) << ""0u, GetSuccessfulPartCount());
+// Tests that Google Test doesn't track successful ASSERT_*.
+TEST(SuccessfulAssertionTest, ASSERT) {
+  ASSERT_TRUE(true);
+  EXPECT_EQ(0u, GetSuccessfulPartCount());
 }
 
 // Tests that Google Test doesn't track successful ASSERT_STR*.
