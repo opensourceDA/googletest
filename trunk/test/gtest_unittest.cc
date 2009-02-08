@@ -2800,31 +2800,37 @@ TEST(AssertionTest, ASSERT_EQ_NULL) {
   EXPECT_FATAL_FAILURE(ASSERT_EQ(NULL, &n),
                     #if GTEST_HAS_EXCEPTIONS
 
+void ThrowNothing() {}
+
+
 // Tests ASSERT_THROW.
 TEST(AssertionTest, ASSERT_THROW) {
   ASSERT_THROW(ThrowAnInteger(), int);
-  EXPECT_FATAL_FAILURE(ASSERT_THROW(ThrowAnInteger(), bool),
-                       "Expected: ThrowAnInteger() throws an exception of type"\
-                       " bool.\n  Actual: it throws a different type.");
-  EXPECT_FATAL_FAILURE(ASSERT_THROW(1, bool),
-                       "Expected: 1 throws an exception of type bool.\n"\
-                       "  Actual: it throws nothing.");
+  EXPECT_FATAL_FAILURE(
+      ASSERT_THROW(ThrowAnInteger(), bool),
+      "Expected: ThrowAnInteger() throws an exception of type bool.\n"
+      "  Actual: it throws a different type.");
+  EXPECT_FATAL_FAILURE(
+      ASSERT_THROW(ThrowNothing(), bool),
+      "Expected: ThrowNothing() throws an exception of type bool.\n"
+      "  Actual: it throws nothing.");
 }
 
 // Tests ASSERT_NO_THROW.
 TEST(AssertionTest, ASSERT_NO_THROW) {
-  ASSERT_NO_THROW(1);
+  ASSERT_NO_THROW(ThrowNothing());
   EXPECT_FATAL_FAILURE(ASSERT_NO_THROW(ThrowAnInteger()),
-                       "Expected: ThrowAnInteger() doesn't throw an exception."\
+                       "Expected: ThrowAnInteger() doesn't throw an exception."
                        "\n  Actual: it throws.");
 }
 
 // Tests ASSERT_ANY_THROW.
 TEST(AssertionTest, ASSERT_ANY_THROW) {
   ASSERT_ANY_THROW(ThrowAnInteger());
-  EXPECT_FATAL_FAILURE(ASSERT_ANY_THROW(1),
-                       "Expected: 1 throws an exception.\n  Actual: it "\
-                       "doesn't.");
+  EXPECT_FATAL_FAILURE(
+      ASSERT_ANY_THROW(ThrowNothing()),
+      "Expected: ThrowNothing() throws an exception.\n"
+      "  Actual: it doesn't.");
 }
 
 #endif  // GTEST_HAS_EXCEPTIONS     "Value of: &n\n");
@@ -3066,7 +3072,7 @@ TEST(ExpectThrowTest, DoesNotGenerateUnreachableCodeWarning) {
 
 TEST(AssertionSyntaxTest, ExceptionAssertionsBehavesLikeSingleStatement) {
   if (false)
-    EXPECT_THROW(1, bool);
+    EXPECT_THROW(ThrowNothing(), bool);
 
   if (true)
     EXPECT_THROW(ThrowAnInteger(), int);
@@ -3077,12 +3083,12 @@ TEST(AssertionSyntaxTest, ExceptionAssertionsBehavesLikeSingleStatement) {
     EXPECT_NO_THROW(ThrowAnInteger());
 
   if (true)
-    EXPECT_NO_THROW(1);
+    EXPECT_NO_THROW(ThrowNothing());
   else
     ;
 
   if (false)
-    EXPECT_ANY_THROW(1);
+    EXPECT_ANY_THROW(ThrowNothing());
 
   if (true)
     EXPECT_ANY_THROW(ThrowAnInteger());
@@ -3341,27 +3347,29 @@ TEST(ExpectTest, EXPECT_GT) {
 TEST(ExpectTest, EXPECT_THROW) {
   EXPECT_THROW(ThrowAnInteger(), int);
   EXPECT_NONFATAL_FAILURE(EXPECT_THROW(ThrowAnInteger(), bool),
-                          "Expected: ThrowAnInteger() throws an exception of "\
+                          "Expected: ThrowAnInteger() throws an exception of "
                           "type bool.\n  Actual: it throws a different type.");
-  EXPECT_NONFATAL_FAILURE(EXPECT_THROW(1, bool),
-                          "Expected: 1 throws an exception of type bool.\n"\
-                          "  Actual: it throws nothing.");
+  EXPECT_NONFATAL_FAILURE(
+      EXPECT_THROW(ThrowNothing(), bool),
+      "Expected: ThrowNothing() throws an exception of type bool.\n"
+      "  Actual: it throws nothing.");
 }
 
 // Tests EXPECT_NO_THROW.
 TEST(ExpectTest, EXPECT_NO_THROW) {
-  EXPECT_NO_THROW(1);
+  EXPECT_NO_THROW(ThrowNothing());
   EXPECT_NONFATAL_FAILURE(EXPECT_NO_THROW(ThrowAnInteger()),
-                          "Expected: ThrowAnInteger() doesn't throw an "\
+                          "Expected: ThrowAnInteger() doesn't throw an "
                           "exception.\n  Actual: it throws.");
 }
 
 // Tests EXPECT_ANY_THROW.
 TEST(ExpectTest, EXPECT_ANY_THROW) {
   EXPECT_ANY_THROW(ThrowAnInteger());
-  EXPECT_NONFATAL_FAILURE(EXPECT_ANY_THROW(1),
-                          "Expected: 1 throws an exception.\n  Actual: it "\
-                          "doesn't.");
+  EXPECT_NONFATAL_FAILURE(
+      EXPECT_ANY_THROW(ThrowNothing()),
+      "Expected: ThrowNothing() throws an exception.\n"
+      "  Actual: it doesn't.");
 }
 
 #endif  // GTEST_HAS_EXCEPTIONS
@@ -4979,8 +4987,8 @@ TEST(StreamingAssertionsTest, Throw) {
 }
 
 TEST(StreamingAssertionsTest, NoThrow) {
-  EXPECT_NO_THROW(1) << "unexpected failure";
-  ASSERT_NO_THROW(1) << "unexpected failure";
+  EXPECT_NO_THROW(ThrowNothing()) << "unexpected failure";
+  ASSERT_NO_THROW(ThrowNothing()) << "unexpected failure";
   EXPECT_NONFATAL_FAILURE(EXPECT_NO_THROW(ThrowAnInteger()) <<
                           "expected failure", "expected failure");
   EXPECT_FATAL_FAILURE(ASSERT_NO_THROW(ThrowAnInteger()) <<
@@ -4990,9 +4998,9 @@ TEST(StreamingAssertionsTest, NoThrow) {
 TEST(StreamingAssertionsTest, AnyThrow) {
   EXPECT_ANY_THROW(ThrowAnInteger()) << "unexpected failure";
   ASSERT_ANY_THROW(ThrowAnInteger()) << "unexpected failure";
-  EXPECT_NONFATAL_FAILURE(EXPECT_ANY_THROW(1) <<
+  EXPECT_NONFATAL_FAILURE(EXPECT_ANY_THROW(ThrowNothing()) <<
                           "expected failure", "expected failure");
-  EXPECT_FATAL_FAILURE(ASSERT_ANY_THROW(1) <<
+  EXPECT_FATAL_FAILURE(ASSERT_ANY_THROW(ThrowNothing()) <<
                        "expected failure", "expected failure");
 }
 
