@@ -137,7 +137,10 @@ using testing::internal::GetFailedPartCous) {
 using testing::internal::GetTypeId {
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL(NULL));
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL(0));
-  EXPECT_TRUE(GTEST_IS_NULL_LITERAL(1 - 1));
+  EXPECT_TRUInt32FromEnvOrDie;
+using testing::internal::List;
+using testing::internal::ShouldRunTestOnShard;
+using testing::internal::ShouldShardEST_IS_NULL_LITERAL(1 - 1));
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL(0U));
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL(0L));
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL(false));
@@ -1357,7 +1360,159 @@ TEST(ParseInt32FlagTest, ParsesAndReturnsValidValue) {
   EXPECT_TRUE(ParseInt32Flag("--" GTEST_FLAG_PREFIX "abc=456", "abc", &value));
   EXPECT_EQ(456, value);
 
-  EXPECT_TRUE(ParseInt32Flag("--" GTEST_FLAG_PREFIX "abc=-789", "abc", &value));
+  EXPECT_TRUE(ParseITests that Int32FromEnvOrDie() parses the value of the var or
+// returns the correct default.
+TEST(Int32FromEnvOrDieTest, ParsesAndReturnsValidValue) {
+  EXPECT_EQ(333, Int32FromEnvOrDie(GTEST_FLAG_PREFIX_UPPER "UnsetVar", 333));
+  SetEnv(GTEST_FLAG_PREFIX_UPPER "UnsetVar", "123");
+  EXPECT_EQ(123, Int32FromEnvOrDie(GTEST_FLAG_PREFIX_UPPER "UnsetVar", 333));
+  SetEnv(GTEST_FLAG_PREFIX_UPPER "UnsetVar", "-123");
+  EXPECT_EQ(-123, Int32FromEnvOrDie(GTEST_FLAG_PREFIX_UPPER "UnsetVar", 333));
+}
+
+#ifdef GTEST_HAS_DEATH_TEST
+
+// Tests that Int32FromEnvOrDie() aborts with an error message
+// if the variable is not an Int32.
+TEST(Int32FromEnvOrDieDeathTest, AbortsOnFailure) {
+  SetEnv(GTEST_FLAG_PREFIX_UPPER "VAR", "xxx");
+  EXPECT_DEATH({Int32FromEnvOrDie(GTEST_FLAG_PREFIX_UPPER "VAR", 123);},
+               ".*");
+}
+
+// Tests that Int32FromEnvOrDie() aborts with an error message
+// if the variable cannot be represnted by an Int32.
+TEST(Int32FromEnvOrDieDeathTest, AbortsOnInt32Overflow) {
+  SetEnv(GTEST_FLAG_PREFIX_UPPER "VAR", "1234567891234567891234");
+  EXPECT_DEATH({Int32FromEnvOrDie(GTEST_FLAG_PREFIX_UPPER "VAR", 123);},
+               ".*");
+}
+
+#endif  // GTEST_HAS_DEATH_TEST
+
+
+// Tests that ShouldRunTestOnShard() selects all tests
+// where there is 1 shard.
+TEST(ShouldRunTestOnShardTest, IsPartitionWhenThereIsOneShard) {
+  EXPECT_TRUE(ShouldRunTestOnShard(1, 0, 0));
+  EXPECT_TRUE(ShouldRunTestOnShard(1, 0, 1));
+  EXPECT_TRUE(ShouldRunTestOnShard(1, 0, 2));
+  EXPECT_TRUE(ShouldRunTestOnShard(1, 0, 3));
+  EXPECT_TRUE(ShouldRunTestOnShard(1, 0, 4));
+}
+
+class ShouldShardTest : public testing::Test {
+ protected:
+  virtual void SetUp() {
+    index_var_ = GTEST_FLAG_PREFIX_UPPER "INDEX";
+    total_var_ = GTEST_FLAG_PREFIX_UPPER "TOTAL";
+  }
+
+  virtual void TearDown() {
+    SetEnv(index_var_, "");
+    SetEnv(total_var_, "");
+  }
+
+  const char* index_var_;
+  const char* total_var_;
+};
+
+// Tests that sharding is disabled if neither of the environment variables
+// are set.
+TEST_F(ShouldShardTest, ReturnsFalseWhenNeitherEnvVarIsSet) {
+  SetEnv(index_var_, "");
+  SetEnv(total_var_, "");
+
+  EXPECT_FALSE(ShouldShard(total_var_, index_var_, false));
+  EXPECT_FALSE(ShouldShard(total_var_, index_var_, true));
+}
+
+// Tests that sharding is not enabled if total_shards  == 1.
+TEST_F(ShouldShardTest, ReturnsFalseWhenTotalShardIsOne) {
+  SetEnv(index_var_, "0");
+  SetEnv(total_var_, "1");
+  EXPECT_FALSE(ShouldShard(total_var_, index_var_, false));
+  EXPECT_FALSE(ShouldShard(total_var_, index_var_, true));
+}
+
+// Tests that sharding is enabled if total_shards > 1 and
+// we are not in a death test subprocess.
+TEST_F(ShouldShardTest, WorksWhenShardEnvVarsAreValid) {
+  SetEnv(index_var_, "4");
+  SetEnv(total_var_, "22");
+  EXPECT_TRUE(ShouldShard(total_var_, index_var_, false));
+  EXPECT_FALSE(ShouldShard(total_var_, index_var_, true));
+
+  SetEnv(index_var_, "8");
+  SetEnv(total_var_, "9");
+  EXPECT_TRUE(ShouldShard(total_var_, index_var_, false));
+  EXPECT_FALSE(ShouldShard(total_var_, index_var_, true));
+
+  SetEnv(index_var_, "0");
+  SetEnv(total_var_, "9");
+  EXPECT_TRUE(ShouldShard(total_var_, index_var_, false));
+  EXPECT_FALSE(ShouldShard(total_var_, index_var_, true));
+}
+
+#ifdef GTEST_HAS_DEATH_TEST
+
+// Tests that we exit in error if the sharding values are not valid.
+TEST_F(ShouldShardTest, AbortsWhenShardingEnvVarsAreInvalid) {
+  SetEnv(index_var_, "4");
+  SetEnv(total_var_, "4");
+  EXPECT_DEATH({ShouldShard(total_var_, index_var_, false);},
+               ".*");
+
+  SetEnv(index_var_, "4");
+  SetEnv(total_var_, "-2");
+  EXPECT_DEATH({ShouldShard(total_var_, index_var_, false);},
+               ".*");
+
+  SetEnv(index_var_, "5");
+  SetEnv(total_var_, "");
+  EXPECT_DEATH({ShouldShard(total_var_, index_var_, false);},
+               ".*");
+
+  SetEnv(index_var_, "");
+  SetEnv(total_var_, "5");
+  EXPECT_DEATH({ShouldShard(total_var_, index_var_, false);},
+               ".*");
+}
+
+#endif  // GTEST_HAS_DEATH_TEST
+
+// Tests that ShouldRunTestOnShard is a partition when 5
+// shards are used.
+TEST(ShouldRunTestOnShardTest, IsPartitionWhenThereAreFiveShards) {
+  // Choose an arbitrary number of tests and shards.
+  const int num_tests = 17;
+  const int num_shards = 5;
+
+  // Check partitioning: each test should be on exactly 1 shard.
+  for (int test_id = 0; test_id < num_tests; test_id++) {
+    int prev_selected_shard_index = -1;
+    for (int shard_index = 0; shard_index < num_shards; shard_index++) {
+      if (ShouldRunTestOnShard(num_shards, shard_index, test_id)) {
+        if (prev_selected_shard_index < 0) {
+          prev_selected_shard_index = shard_index;
+        } else {
+          ADD_FAILURE() << "Shard " << prev_selected_shard_index << " and "
+            << shard_index << " are both selected to run test " << test_id;
+        }
+      }
+    }
+  }
+
+  // Check balance: This is not required by the sharding protocol, but is a
+  // desirable property for performance.
+  for (int shard_index = 0; shard_index < num_shards; shard_index++) {
+    int num_tests_on_shard = 0;
+    for (int test_id = 0; test_id < num_tests; test_id++) {
+      num_tests_on_shard +=
+        ShouldRunTestOnShard(num_shards, shard_index, test_id);
+    }
+    EXPECT_GE(num_tests_on_shard, num_tests / num_shards);
+  }(ParseInt32Flag("--" GTEST_FLAG_PREFIX "abc=-789", "abc", &value));
   EXPECT_EQ(-789, value);
 }
 
@@ -2943,69 +3098,85 @@ void TestAssertNonPositive() {
 void TestAssertEqualsUncopyable() {
   Uncopyable x(5);
   Uncopyable y(-1);
-  ASSERT_EQ(x, y);
-}
-
-// Tests that uncopyable objects can be used in assertions.
-TEST(AssertionTest, AssertWorksWithUncopyableObject) {
-  Uncopyable x(5);
-  ASSERT_PRED1(IsPositiveUncopyable, x);
-  ASSERT_EQ(x, x);
-  EXPECT_FATAL_FAILURE(TestAssertNonPositive(),
-    "IsPositiveUncopyable(y) evaluates to false, where\ny evaluates to -1");
-  EXPECT_FATAL_FAILURE(TestAssertEqualsUncopyable(),
-    "Value of: y\n  Actual: -1\nExpected: x\nWhich is: 5");
-}
-
-// Tests that uncopyable objects can be used in expects.
-TEST(AssertionTest, ExpectWorksWithUncopyableObject) {
-  Uncopyable x(5);
-  EXPECT_PRED1(IsPositiveUncopyable, x);
-  Uncopyable y(-1);
-  EXPECT_NONFATAL_FAILURE(EXPECT_PRED1(IsPositiveUncopyable, y),
-    "IsPositiveUncopyable(y) evaluates to false, where\ny evaluates to -1");
-  EXPECT_EQ(x, x);
-  EXPECT_NONFATAL_FAILURE(EXPECT_EQ(x, y),
-    "Value of: y\n  Actual: -1\nExpected: x\nWhich is: 5");
-}
-
-
-// The version of gcc used in XCode 2.2 has a bug and doesn't allow
-// anonymous enums in assertions.  Therefore the following test is
-// done only on Linux and Windows.
-#if defined(GTEST_OS_LINUX) || defined(GTEST_OS_WINDOWS)
-
-// Tests using assertions with anonymous enums.
-enum {
-  CASE_A = -1,
-#ifdef GTEST_OS_LINUX
-  // We want to test the case where the size of the anonymous enum is
-  // larger than sizeof(int), to make sure our implementation of the
-  // assertions doesn't truncate the enums.  However, MSVC
-  // (incorrectly) doesn't allow an enum value to exceed the range of
+  Ae to exceed the range of
   // an int, so this has to be conditionally compiled.
   //
-  // On Linux, CASE_B and CASE_A have th  EXPECT_NONFATAL_FAILURE(EXPECT_HRESULT_SUCCEEDED(UnexpectedHRESULTFailure()),CASE_B);
-  ASSERT_LE(CASE_A, CASE_B);
-  ASSERT_GT(CASE_B, CASE_A);
-  ASSERT_GE(CASE"CT_NE(CASE_A, CASE_B);
+  // On Linux, CASE_B and CASE_A have the same value when truncated to
+  // int size.  We want to test whether this will confuse the
+  // assertions.
+  CASE_B = testing::internal::kMaxBiggestInt,
+#else
+  CASE_B = INT_MAX,
+#endif  // GTEST_OS_LINUX
+};
+
+TEST(AssertionTest, AnonymousEnum) {
+#ifdef GTEST_OS_LINUX
+  EXPECT_EQ(static_cast<int>(CASE_A), static_cast<int>(CASE_B));
+#endif  // GTEST_OS_LINUX
+
+  EXPECT_EQ(CASE_A, CASE_A);
+  EXPECT_NE(CASE_A, CASE_B);
   EXPECT_LT(CASE_A, CASE_B);
   EXPECT_LE(CASE_A, CASE_B);
   EXPECT_GT(CASE_B, CASE_A);
-  EXPECT_GE(CASE_A, CASASE_A, CASE_B),
+  EXPECT_GE(CASE_A, CASE_A);
+  EXPECT_NONFATAL_FAILURE(EXPECT_GE(CASE_A, CASE_B),
+                          "(CASE_A) >= (CASE_B)");
+
+  ASSERT_EQ(CASE_A, CASE_A);
+  ASSERT_NE(CASE_A, CASE_B);
+  ASSERT_LT(CASE_A, CASE_B);
+  ASSERT_LE(CASE_A, CASE_B);
+  ASSERT_GT(CASE_B, CASE_A);
+  ASSERT_GE(CASE_A, CASE_A);
+  EXPECT_FATAL_FAILURE(ASSERT_EQ(CASE_A, CASE_B),
                        "Value of: CASE_B");
 }
 
-#endif  // definedB);
-  ASSERT_LE(CASE_A, CASE_B);
-  ASSERT_GT(CASE_B, CASE_A);
-  ASSERT_GE(CASE");
+#endif  // defined(GTEST_OS_LINUX) || defined(GTEST_OS_WINDOWS)
+
+#if defined(GTEST_OS_WINDOWS)
+
+static HRESULT UnexpectedHRESULTFailure() {
+  return E_UNEXPECTED;
+}
+
+static HRESULT OkHRESULTSuccess() {
+  return S_OK;
+}
+
+static HRESULT FalseHRESULTSuccess() {
+  return S_FALSE;
+}
+
+// HRESULT assertion tests test both zero and non-zero
+// success codes as well as failure message for each.
+//
+// Windows CE doesn't support message texts.
+TEST(HRESULTAssertionTest, EXPECT_HRESULT_SUCCEEDED) {
+  EXPECT_HRESULT_SUCCEEDED(S_OK);
+  EXPECT_HRESULT_SUCCEEDED(S_FALSE);
+
+  EXPECT_NONFATAL_FAILURE(EXPECT_HRESULT_SUCCEEDED(UnexpectedHRESULTFailure()),
+    "Expected: (UnexpectedHRESULTFailure()) succeeds.\n"
+    "  Actual: 0x8000FFFF");
+}
+
+TEST(HRESULTAssertionTest, ASSERT_HRESULT_SUCCEEDED) {
+  ASSERT_HRESULT_SUCCEEDED(S_OK);
+  ASSERT_HRESULT_SUCCEEDED(S_FALSE);
+
+  EXPECT_FATAL_FAILURE(ASSERT_HRESULT_SUCCEEDED(UnexpectedHRESULTFailure()),
+    "Expected: (UnexpectedHRESULTFailure()) succeeds.\n"
+    "  Actual: 0x8000FFFF");
 }
 
 TEST(HRESULTAssertionTest, EXPECT_HRESULT_FAILED) {
-  EXPECT_HRESULT_FAILED(E_UNEXPECTED);indows proper
-  const char* expected =
-    "Expected: (UnexpectedHRESULTFai"Expected: (OkHRESULTSuccess()) fails.\n"
+  EXPECT_HRESULT_FAILED(E_UNEXPECTED);
+
+  EXPECT_NONFATAL_FAILURE(EXPECT_HRESULT_FAILED(OkHRESULTSuccess()),
+    "Expected: (OkHRESULTSuccess()) fails.\n"
     "  Actual: 0x00000000");
   EXPECT_NONFATAL_FAILURE(EXPECT_HRESULT_FAILED(FalseHRESULTSuccess()),
     "Expected: (FalseHRESULTSuccess()) fails.\n"
@@ -3020,40 +3191,54 @@ TEST(HRESULTAssertionTest, ASSERT_HRESULT_FAILED) {
     "  Actual: 0x00000000");
   EXPECT_FATAL_FAILURE(ASSERT_HRESULT_FAILED(FalseHRESULTSuccess()),
     "Expected: (FalseHRESULTSuccess()) fails.\n"
-    "  Actual: 0x00000001"    "Expected: (FalseHRESULTSuccess()) fails.\n"
-    "  Actual: 0x00000001";
-#else  // Windows proper
-  const char* expected_success =
-    "Expected: (OkHRESULTSuccess()) fails.\n"
-    "  Actual: 0x00000000 The operation completed successfully";
-  const char* expected_incorrect_function =
-    "Expected: (FalseHRESULTSuccess()) fails.\n"
-    "  Actual: 0x00000001 Incorrect function.";
-#endif  // _WIN32_WCE
-
-  EXPECT_NONFATAL_FAILURE(EXPECT_HRESULT_FAILED(OkHRESULTSuccess()),
-      expected_success);
-  EXPECT_NONFATAL_FAILURE(EXPECT_HRESULT_FAILED(FalseHRESULTSuccess()),
-      expected_incorrect_function);
+    "  Actual: 0x00000001");
 }
 
-TEST(HRESULTAssertionTest, ASSERT_HRESULT_FAILED) {
-  ASSERT_HRESULT_FAILED(E_UNEXPECTED);
+// Tests that streaming to the HRESULT macros works.
+TEST(HRESULTAssertionTest, Streaming) {
+  EXPECT_HRESULT_SUCCEEDED(S_OK) << "unexpected failure";
+  ASSERT_HRESULT_SUCCEEDED(S_OK) << "unexpected failure";
+  EXPECT_HRESULT_FAILED(E_UNEXPECTED) << "unexpected failure";
+  ASSERT_HRESULT_FAILED(E_UNEXPECTED) << "unexpected failure";
 
-#ifdef _WIN32_WCE
-  const char* expected_success =
-    "Expected: (OkHRESULTSuccess()) fails.\n"
-    "  Actual: 0x00000000";
-  const char* expected_incorrect_function =
-    "Expected: (FalseHRESULTSuccess()) fails.\n"
-    "  Actual:asicAssertions: 0x00000001";
-#else  // Windows proper
-  const char* expected_success =
-    "Expected: (OkHRESULTSuccess()) fails.\n"
-    "  Actual: 0x00000000 The operation completed successfully";
-  const char* expected_incorrect_function =
-    "Expected: (FalseHRESULTSuccess()) fails.\n"
-    "  Actual: 0x00000001}
+  EXPECT_NONFATAL_FAILURE(
+      EXPECT_HRESULT_SUCCEEDED(E_UNEXPECTED) << "expected failure",
+      "expected failure");
+
+  EXPECT_FATAL_FAILURE(
+      ASSERT_HRESULT_SUCCEEDED(E_UNEXPECTED) << "expected failure",
+      "expected failure");
+
+  EXPECT_NONFATAL_FAILURE(
+      EXPECT_HRESULT_FAILED(S_OK) << "expected failure",
+      "expected failure");
+
+  EXPECT_FATAL_FAILURE(
+      ASSERT_HRESULT_FAILED(S_OK) << "expected failure",
+      "expected failure");
+}
+
+#endif  // defined(GTEST_OS_WINDOWS)
+
+// Tests that the assertion macros behave like single statements.
+TEST(AssertionSyntaxTest, BasicAssertionsBehavesLikeSingleStatement) {
+  if (false)
+    ASSERT_TRUE(false) << "This should never be executed; "
+                          "It's a compilation test only.";
+
+  if (true)
+    EXPECT_FALSE(false);
+  else
+    ;
+
+  if (false)
+    ASSERT_LT(1, 3);
+
+  if (false)
+    ;
+  else
+    EXPECT_GT(3, 2) << "";
+}
 
 #if GTEST_HAS_EXCEPTIONS
 // Tests that the compiler will not complain about unreachable code in the
