@@ -5320,24 +5320,3 @@ TEST(GetCurrentOsStackTraceExceptTopTest, ReturnsTheStackTrace) {
   EXPECT_STREQ("", GetCurrentOsStackTraceExceptTop(unit_test, 0).c_str());
   EXPECT_STREQ("", GetCurrentOsStackTraceExceptTop(unit_test, 1).c_str());
 }
-
-#ifndef GTEST_OS_SYMBIANknown";
-  EXPECT_FALSE(ShouldUseColor(true));  // Stdout is a TTY.
-}
-
-TEST(ColoredOutputTest, UsesColorsWhenStdoutIsTty) {
-  GTEST_FLAG(color) = "auto";
-
-  SetEnv("TERM", "xterm");  // TERM supports colors.
-  EXPECT_FALSE(ShouldUseColor(false));  // Stdout is not a TTY.
-  EXPECT_TRUE(ShouldUseColor(true));    // Stdout is a TTY.
-}
-
-TEST(ColoredOutputTest, UsesColorsWhenTermSupportsColors) {
-  GTEST_FLAG(color) = "auto";
-
-#ifdef GTEST_OS_WINDOWS
-  // On Windows, we ignore the TERM variable as it's usually not set.
-
-  SetEnv("TERM", "dumb");
-  GTEST_OS_SYMBIAN
