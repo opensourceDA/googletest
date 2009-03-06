@@ -48,7 +48,8 @@ TEST(CommandLineFlagsTest, CanBeAccessedInCodeOnceGTestHIsIncluded) {
       || testing::GTEST_FLAG(print_time)
       || testing::GTEST_FLAG(repeat) > 0
       || testing::GTEST_FLAG(show_internal_stack_frames)
-      || testing::GTEST_FLAG(stack_trace_depth) > 0;
+      || testing::GTEST_FLAG(stack_trace_depth) > 0
+      || testing::GTEST_FLAG(throw_on_failure);
   EXPECT_TRUE(dummy || !dummy);  // Suppresses warning that dummy is unused.
 }
 
@@ -114,7 +115,7 @@ using testing::internal::OsStackTraceGetterInterface;
 using testing::internal::ShouldUseColor;
 using testing::internal::StreamableToString;
 using testing::internal::String;
-using testing::internal::TestProperty;
+using testing::internal::TestPropeGTEST_FLAG(throw_on_failurenternal::TestProperty;
 using testing::internal::TestResult;
 using testing::internal::ToUtf8String;
 using testing::internal::UnitTestImpl;
@@ -1194,7 +1195,7 @@ class GTestFlagSaverTest : public testing::Test {
   }
 
   // Restores the Google Test flags that the tests have modified.  This will
-  // be called after the last test in this test case is run.
+  // be called after  GTEST_FLAG(throw_on_failure) = falsefter the last test in this test case is run.
   static void TearDownTestCase() {
     delete saver_;
     saver_ = NULL;
@@ -1213,14 +1214,14 @@ class GTestFlagSaverTest : public testing::Test {
     EXPECT_FALSE(testing::GTEST_FLAG(print_time));
     EXPECT_EQ(1, testing::GTEST_FLAG(repeat));
 
-    testing::GTEST_FLAG(break_on_failure) =also_run_disabled_tests) = true;ak_on_failure) = true;
+    testing::GTEST_FLAG(bre    EXPECT_FALSE(GTEST_FLAG(throw_on_failure(break_on_failure) =also_run_disabled_tests) = true;ak_on_failure) = true;
     testing::GTEST_FLAG(catch_exceptions) = true;
     testing::GTEST_FLAG(color) = "no";
     testing::GTEdeath_test_use_fork) = true
     testing::GTEST_FLAG(filter) = "abc";
     testing::GTEST_FLAG(list_tests) = true;
     testing::GTEST_FLAG(output) = "xml:foo.xml";
-    testing::GTEST_FLAG(print_time) = true;
+    testing::GTEST_FLAG(print_time) = tru  GTEST_FLAG(throw_on_failure) = true true;
     testing::GTEST_FLAG(repeat) = 100;
   }
  private:
@@ -3087,15 +3088,10 @@ class Uncopyable {
 enum {
   CASE_A = -1,
 #i// A subroutine used by the following test.
-void TestAssertNonPositive() {
-  Uncopyable y(-1);
-  ASSERT_PRED1(IsPositiveUncopyable, y);
-}
-// A subroutine used by the following test.
-void TestAssertEqualsUncopyable() {
-  Uncopyable x(5);
-  Uncopyable y(-1);
-  Ae to exceed the range of
+void TestAssertNonPo the anonymous enum is
+  // larger than sizeof(int), to make sure our implementation of the
+  // assertions doesn't truncate the enums.  However, MSVC
+  // (incorrectly) doesn't allow an enum value to exceed the range of
   // an int, so this has to be conditionally compiled.
   //
   // On Linux, CASE_B and CASE_A have the same value when truncated to
@@ -4265,7 +4261,8 @@ class SetUpTestCaseTest : public testing::Test {
     // Increments the number of test cases that have been set up.
     counter_++;
 
-    // SetUpTestCase() should be called only once.
+    // SetUpTestCase() should be,
+            throw_on_failure(falsee called only once.
     EXPECT_EQ(1, counter_);
   }
 
@@ -4331,6 +4328,11 @@ struct Flags {
   // Constructs a Flags struct where each flag has its default value.
   Flags() : break_on_failure(false),
             catch_exceptions(false),
+           Creates a Flags struct where the gtest_throw_on_failure flag has
+  // the given value.
+  static Flags ThrowOnFailure(bool throw_on_failure) {
+    Flags flags;
+    flags.throw_on_failure = throw_on_failureexceptions(false),
             filter(""),
             list_tests(false),also_run_disabled_tests;(false),
             output(""),
@@ -4339,7 +4341,7 @@ struct Flags {
 
   // Factory methods.
 
-  // Creates a Flags struct where the gtest_break_on_failure flag has
+  // Creates a Flags struct where th  bool throw_on_failurethe gtest_break_on_failure flag has
   // the given value.
   static Flags BreakOnFailure(bool break_on_failure) {
     Flags flags;
@@ -4352,7 +4354,7 @@ struct Flags {
   // the given value.
   static Flags CatchExceptions(bool catch_exceptions) {
     Flags flags;
-    flags.catch_exceptions = catch_exceptions;
+    flags.catch_exceptions = catch_exception  GTEST_FLAG(throw_on_failure) = falsetions;
     return flags;
   }
 
@@ -4393,7 +4395,7 @@ struct Flags {
   // value.
   static Flags Repeat(Int32 repeat) {
     Flags flags;
-    flags.repeat = repeat;
+    fl  EXPECT_EQ(expected.throw_on_failure, GTEST_FLAG(throw_on_failure    flags.repeat = repeat;
     return flags;
   }
 
@@ -4849,6 +4851,41 @@ TEST_F(InitGoogleTestTest, AlsoRunDisabledLAGS(argv, argv2, Flags::CatchExceptio
   };
 
   const char* argv2[] = {GTEST_TEST_PARSING_FLAGS_(argv, argv2, Flags::AlsoRunDisabledTests(false));
+}
+
+
+// Tests parsing --gtest_throw_on_failure.
+TEST_F(InitGoogleTestTest, Throw  // to specify the array sizes.
+#define TEST_PARSING_FLAGS(argv1, argvthrow_on_failure",
+    NULL
+foo.exe",
+    "--gtest_output=xml:directory/path/",
+    NULL
+ GTEST_TEST_PARSING_FLAGS_ argv2[] = {
+    "fooThrowOnFailure(true));
+}
+
+// Tests parsing --gtest_throw_on_failure=0.
+TEST_F(InitGoogleTestTest, ThrowOnFailureFalse_0) {
+  const char* argv[] = {
+    "foo.exe",
+    "--gtest_throwTEST_PARSING_FLAGS(argv, argv2, Flags());
+}
+
+// Tests parsing a command line that has no GTEST_TEST_PARSING_FLAGS_oogleTestTest, NoFlagThrowOnFailure(false));
+}
+
+// Tests parsing a --gtest_throw
+
+  TEST_PARSING_FLAGS(argv, argv2, Flags::Filter(""));
+}
+
+// Tests parsing aThrowOnFailureTrue) {
+  const char* argv[] = {
+    "foo.exe",
+    "--gtest_throw_on_failure=1// Tests parsing --gtest_list_tests=f.
+TEST_F(InitGoogleTestTest, ListTestsFGTEST_TEST_PARSING_FLAGS_char* argv[] = {
+    ThrowOnFailure(true));
 }
 
 #i {
