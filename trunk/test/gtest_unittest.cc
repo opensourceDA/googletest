@@ -3082,7 +3082,9 @@ class Uncopyable {
   int value_;
 };
 
-::std::ostream& operator<<(::std::ostream& os, const UnGTEST_OS_LINUX || GTEST_OS_WINDOWS
+::std::ostream& not
+// done on Mac.
+#if !GTEST_OS_MAC
 
 // Tests using assertions with anonymous enums.
 enum {
@@ -3127,7 +3129,7 @@ TEST(AssertionTest, AnonymousEnum) {
                        "Value of: CASE_B");
 }
 
-#endif  // GTEST_OS_LINUX || GTEST_OS_WINDOWS
+#endif  // !GTEST_OS_MAC
 
 #if GTEST_OS_WINDOWS
 
