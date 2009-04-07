@@ -129,6 +129,7 @@ namespace {
 // NULL testing does not work with Symbian compilers.
 
 // Tests that GTEST_IS_NULL_LITERALkTestTypeIdInGoogleests that GTEST_IS_NULL_LITERAL(x) is true when x is a null
+// pointer liteClearCurrentTestPartResultsx is a null
 // pointer liteCodePointToUtf8x is a null
 // pointer literal.
 TEST(NullLiteralTest, IsTrueForNullLiterals) {
@@ -3090,7 +3091,7 @@ class Uncopyable {
 enum {
   CASE_A = -1,
 #i// A subroutine used by the following test.
-void TestAssertNonPo the anonymous enum is
+vo where the size of the anonymous enum is
   // larger than sizeof(int), to make sure our implementation of the
   // assertions doesn't truncate the enums.  However, MSVC
   // (incorrectly) doesn't allow an enum value to exceed the range of
@@ -5317,4 +5318,88 @@ TEST(GetCurrentOsStackTraceExceptTopTest, ReturnsTheStackTrace) {
   // We don't have a stack walker in Google Test yet.
   EXPECT_STREQ("", GetCurrentOsStackTraceExceptTop(unit_test, 0).c_str());
   EXPECT_STREQ("", GetCurrentOsStackTraceExceptTop(unit_test, 1).c_str());
+}
+
+TEST(HasNonfatalFailureTest, ReturnsFalseWhenThereIsNoFailure) {
+  EXPECT_FALSE(HasNonfatalFailure());
+}
+
+static void FailFatally() { FAIL(); }
+
+TEST(HasNonfatalFailureTest, ReturnsFalseWhenThereIsOnlyFatalFailure) {
+  FailFatally();
+  const bool has_nonfatal_failure = HasNonfatalFailure();
+  ClearCurrentTestPartResults();
+  EXPECT_FALSE(has_nonfatal_failure);
+}
+
+TEST(HasNonfatalFailureTest, ReturnsTrueWhenThereIsNonfatalFailure) {
+  ADD_FAILURE();
+  const bool has_nonfatal_failure = HasNonfatalFailure();
+  ClearCurrentTestPartResults();
+  EXPECT_TRUE(has_nonfatal_failure);
+}
+
+TEST(HasNonfatalFailureTest, ReturnsTrueWhenThereAreFatalAndNonfatalFailures) {
+  FailFatally();
+  ADD_FAILURE();
+  const bool has_nonfatal_failure = HasNonfatalFailure();
+  ClearCurrentTestPartResults();
+  EXPECT_TRUE(has_nonfatal_failure);
+}
+
+// A wrapper for calling HasNonfatalFailure outside of a test body.
+static bool HasNonfatalFailureHelper() {
+  return testing::Test::HasNonfatalFailure();
+}
+
+TEST(HasNonfatalFailureTest, WorksOutsideOfTestBody) {
+  EXPECT_FALSE(HasNonfatalFailureHelper());
+}
+
+TEST(HasNonfatalFailureTest, WorksOutsideOfTestBody2) {
+  ADD_FAILURE();
+  const bool has_nonfatal_failure = HasNonfatalFailureHelper();
+  ClearCurrentTestPartResults();
+  EXPECT_TRUE(has_nonfatal_failure);
+}
+
+TEST(HasFailureTest, ReturnsFalseWhenThereIsNoFailure) {
+  EXPECT_FALSE(HasFailure());
+}
+
+TEST(HasFailureTest, ReturnsTrueWhenThereIsFatalFailure) {
+  FailFatally();
+  const bool has_failure = HasFailure();
+  ClearCurrentTestPartResults();
+  EXPECT_TRUE(has_failure);
+}
+
+TEST(HasFailureTest, ReturnsTrueWhenThereIsNonfatalFailure) {
+  ADD_FAILURE();
+  const bool has_failure = HasFailure();
+  ClearCurrentTestPartResults();
+  EXPECT_TRUE(has_failure);
+}
+
+TEST(HasFailureTest, ReturnsTrueWhenThereAreFatalAndNonfatalFailures) {
+  FailFatally();
+  ADD_FAILURE();
+  const bool has_failure = HasFailure();
+  ClearCurrentTestPartResults();
+  EXPECT_TRUE(has_failure);
+}
+
+// A wrapper for calling HasFailure outside of a test body.
+static bool HasFailureHelper() { return testing::Test::HasFailure(); }
+
+TEST(HasFailureTest, WorksOutsideOfTestBody) {
+  EXPECT_FALSE(HasFailureHelper());
+}
+
+TEST(HasFailureTest, WorksOutsideOfTestBody2) {
+  ADD_FAILURE();
+  const bool has_failure = HasFailureHelper();
+  ClearCurrentTestPartResults();
+  EXPECT_TRUE(has_failure);
 }
