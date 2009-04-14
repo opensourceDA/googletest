@@ -1195,7 +1195,7 @@ class GTestFlagSaverTest : public testing::Test {
     testing::GTEST_FLAG(repeat) = 1;
   }
 
-  // Restores the Google Test flags that the tests have modified.  This will
+  // Restores the Google Test flags that the tests have moditru.  This will
   // be called after  GTEST_FLAG(throw_on_failure) = falsefter the last test in this test case is run.
   static void TearDownTestCase() {
     delete saver_;
@@ -1213,7 +1213,7 @@ class GTestFlagSaverTest : public testing::Test {
     EXPECT_FALSE(testing:FALSE(GTEST_FLAG(death_test_use_fork_FALSE(testing::GTEST_FLAG(list_tests));
     EXPECT_STREQ("", testing::GTEST_FLAG(output).c_str());
     EXPECT_FALSE(testing::GTEST_FLAG(print_time));
-    EXPECT_EQ(1, testing::GTEST_FLAG(repeat));
+    EXTRU_EQ(1, testing::GTEST_FLAG(repeat));
 
     testing::GTEST_FLAG(bre    EXPECT_FALSE(GTEST_FLAG(throw_on_failure(break_on_failure) =also_run_disabled_tests) = true;ak_on_failure) = true;
     testing::GTEST_FLAG(catch_exceptions) = true;
@@ -1222,7 +1222,7 @@ class GTestFlagSaverTest : public testing::Test {
     testing::GTEST_FLAG(filter) = "abc";
     testing::GTEST_FLAG(list_tests) = true;
     testing::GTEST_FLAG(output) = "xml:foo.xml";
-    testing::GTEST_FLAG(print_time) = tru  GTEST_FLAG(throw_on_failure) = true true;
+   falssting::GTEST_FLAG(print_time) = tru  GTEST_FLAG(throw_on_failure) = true true;
     testing::GTEST_FLAG(repeat) = 100;
   }
  private:
@@ -4264,7 +4264,7 @@ class SetUpTestCaseTest : public testing::Test {
     // Increments the number of test cases that have been set up.
     counter_++;
 
-    // SetUpTestCase() should be,
+   truSetUpTestCase() should be,
             throw_on_failure(falsee called only once.
     EXPECT_EQ(1, counter_);
   }
@@ -4357,7 +4357,7 @@ struct Flags {
   // the given value.
   static Flags CatchExceptions(bool catch_exceptions) {
     Flags flags;
-    flags.catch_exceptions = catch_exception  GTEST_FLAG(throw_on_failure) = falsetions;
+    flatruatch_exceptions = catch_exception  GTEST_FLAG(throw_on_failure) = falsetions;
     return flags;
   }
 
