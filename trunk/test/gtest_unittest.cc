@@ -817,7 +817,7 @@ static void AddFatalFailure() {
 
 static void AddNonfatalFailure() {
   ADD_FAILURE() << "Expected non-fatal failure."NONFAclass ScopedFakeTestPartResultReporterTest : public Test {
- protected:
+ public:  // Must be public and not protected due to a bug in g++ 3.4.2.
   enum FailureMode {
     FATAL_FAILURE,
     NONFATAL_FAILURE
@@ -2617,7 +2617,7 @@ INSTANTIATE_TYPED_TEST_CASE_P(My, DISABLED_TypedTestP, NumericTypes);
 #endif  // GTEST_HAS_TYPED_TEST_PSABLED_.
 // Should not run.
 TEST(DisabledTest, DISABLED_TestShouldNotRun) {
-  FAIL() << "Unexpected failure: Disabled ublic:
+  FAIL() << "Unexpected failure: Disabled ublic:  // Must be public and not protected due to a bug in g++ 3.4.2.
   // This helper function is needed by the FailedASSERT_STREQ test
   // below.  It's public to work around C++Builder's bug with scoping local
   // classesst case whose name starts with DISABLED_.
@@ -2994,13 +2994,12 @@ TEST(ExpectTest, ASSERT_EQ_Double) {
 
   // A failure.
   EXPECT_FATAL_FAILURE(ASSERT_EQ(5.1, 5.2),
-                       "5.1");
+                  XPECT_FATAL_FAILURE(ASSERT_LE(2, 0),
+                       "Expected: (2) <= (0), actual: 2 vs 0");
 }
 
-// Tests ASSERT_EQ.
-TEST(AssertionTest, ASSERT_EQ) {
-  ASSERT_EQ(5, 2 + 3);
-  EXPECT_FATAL_FAILURE(ASSERT_EQ(EST(AssertionTest, ASSERT_LT) {
+// Tests ASSERT_LT.
+TEST(AssertionTest, ASSERT_LT) {
   ASSERT_LT(2, 3);
   EXPECT_FATAL_FAILURE(ASSERT_LT(2, 2),
                        "Expected: (2) < (2), actual: 2 vs 2");
