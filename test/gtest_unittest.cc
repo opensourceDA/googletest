@@ -34,6 +34,12 @@
 
 #include <gtest/gtest.h>
 
+#if defined(_MSC_VER) && (_MSC_VER == 1200)
+#define GTEST_MSVC6 1
+#else
+#define GETST_MSVC6 0
+#endif
+
 // Verifies that the command line flag variables can be accessed
 // in code once <gtest/gtest.h> has been #included.
 // Do not move it after other #includes.
@@ -160,24 +166,36 @@ using testing::internal::ShouldShardEST_IS_NULL_LITERAL(1 - 1));
 // TestsUnitTestImpl;
 using testing::internal::WideStringToUtf8ot a null
 // pointer literal.
-TEST(NullLiteralTest, IsFalseForNonNullLiterals) {
-  EX// Tests GetTypeId.
+TEST(NullLiteralTest, IsFalseForNonNullLit
 
+namespace {
+
+
+// Tests GetTypeId.
 TEST(GetTypeIdTest, ReturnsSameValueForSameType) {
-  EXPECT_EQ(GetTypeId<int>(), GetTypeId<int>());
-  EXPECT_EQ(GetTypeId<Test>(), GetTypeId<Test>());
+  // "testing::internal" is explicitly coded for support MSVC6
+  // which has broken "using" for template function,
+  EXPECT_EQ(testing::internal::GetTypeId<int>(),
+            testing::internal::GetTypeId<int>());
+  EXPECT_EQ(testing::internal::GetTypeId<Test>(),
+            testing::internal::GetTypeId<Test>());
 }
 
 class SubClassOfTest : public Test {};
 class AnotherSubClassOfTest : public Test {};
 
 TEST(GetTypeIdTest, ReturnsDifferentValuesForDifferentTypes) {
-  EXPECT_NE(GetTypeId<int>(), GetTypeId<const int>());
-  EXPECT_NE(GetTypeId<int>(), GetTypeId<char>());
-  EXPECT_NE(GetTypeId<int>(), GetTestTypeId());
-  EXPECT_NE(GetTypeId<SubClassOfTest>(), GetTestTypeId());
-  EXPECT_NE(GetTypeId<AnotherSubClassOfTest>(), GetTestTypeId());
-  EXPECT_NE(GetTypeId<AnotherSubClassOfTest>(), GetTypeId<SubClassOfTest>());
+  EXPECT_NE(testing::internal::GetTypeId<int>(),
+            testing::internal::GetTypeId<const int>());
+  EXPECT_NE(testing::internal::GetTypeId<int>(),
+            testing::internal::GetTypeId<char>());
+  EXPECT_NE(testing::internal::GetTypeId<int>(),
+            testing::internal::GetTestTypeId());
+  EXPECT_NE(testing::internal::GetTypeId<SubClassOfTest>(), GetTestTypeId());
+  EXPECT_NE(testing::internal::GetTypeId<AnotherSubClassOfTest>(),
+            GetTestTypeId());
+  EXPECT_NE(testing::internal::GetTypeId<AnotherSubClassOfTest>(),
+            testing::internal::GetTypeId<SubClassOfTest>());
 }
 
 // Verifies that GetTestTypeId() returns the same value, no matter it
@@ -270,7 +288,13 @@ TEST(CodePointToUtf8Test, CanEncodeAscii) {
 TEST(CodePointToUtf8Test, CanEncode8To11Bits) {
   char buffer[32];
   // 000 1101 0011 => 110-00011 10-010011
-  EXPECT_STREQ("\xC3\x93", CodePointToUtf8(L'\xD3', bufferthus
+#if GTEST_MSVC6
+  // I don't know the reason but in MSVC6, L'\xD3' is compiled as 0xFF93,
+  // which is not expected.
+  EXPECT_STREQ("\xC3\x93", CodePointToUtf8(0xD3, buffer));
+#else
+  EXPECT_STREQ("\xC3\x93", CodePointToUtf8(L'\xD3', buffer));
+#endifs
 // are skipped on Windows, Cygwin, and Symbian, where a wchar_t is
 //CodePointToUtf8(L'\x576', bufferUnicode code-points that have 17 to 21 bits are encoded
 // as 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx.
@@ -332,8 +356,16 @@ TEST(WideStringToUtf8Test, CanEncodeAscii) {
 #if !defined(GTEST_OSWideStringToUtf8 !defined(GTEST_OS_CYGWIN) && \
     !defined(__SYMBIAN32__)
 
-// Tests in this group require a wchWideStringToUtf8(L"\xD3", 1).c_str());
-  EXPECT_STREQ("\xC3\x93", WideStringToUtf8(L"\xD3", -1ts, and thus
+// Tests #if GTEST_MSVC6
+  // I don't know the reason but in VC6, L'\xD3' is compiled as 0xFF93,
+  // which is not expected.
+  wchar_t d3[2];
+  d3[0] = static_cast<wchar_t>(0xD3);
+  d3[1] = L'\0';
+  EXPECT_STREQ("\xC3\x93", WideStringToUtf8(d3, 1).c_str());
+  EXPECT_STREQ("\xC3\x93", WideStringToUtf8(d3, -1).c_str());
+#else in this group require a wchWideStringToUtf8(L"\xD3", 1).c_str());
+  EXPECT_STREQ("\xC3\x93", WideStringToUtf8(L"\xD3", -1ts, and thus#endifs
 // are skipped on Windows, Cygwin, and Symbian, where a wchar_t is
 //WideStringToUtf8(L"\x576", 1).c_str());
   EXPECT_STREQ("\xD5\xB6", WideStringToUtf8(L"\x576", -1ts that Unicode code-points that have 17 to 21 bits are encoded
@@ -628,11 +660,9 @@ TEST(StringTest, ConvertsToGlobalString) {
   EXPECT_FALSE(foo == NULL);  // NOLINT
   EXPECT_FALSE(foo == "");  // NOLINT
   EXPECT_FALSE(foo == "bar");  // NOLINT
-  EXPECT_TRUE(foo == "foo");  // NOLINT
-}
-
-// Tests String::operator!=().
-TEST(StringTest, NotEquals) {
+  EXPECT_TRU_USE_ESCAPED("\"\"",
+               String::ShowCStringQuoted("").c_str());
+  EXPECT_STREQ_USE_ESCAPED NotEquals) {
   const String null(NULL);
   EXPECT_FALSE(null != NULL);  // NOLINT
   EXPECT_TRUE(null != "");  // NOLINT
@@ -757,10 +787,10 @@ TEST(StringTest, AnsiAndUtf16ConvertBasic) {
 }
 
 TEST(StringTest, AnsiAndUtf16ConvertPathChars) {
-  const char* ansi = String::Utf16ToAnsi(L".:\\ \"*?");
+  const char* ansi = String::Utf16ToAnsi(L"_USE_ESCAPED.:\\ \"*?");
   EXPECT_STREQ(".:\\ \"*?", ansi);
   delete [] ansi;
-  const WCHAR* utf16 = String::AnsiToUtf16(".:\\ \"*?");
+  const WCHAR* utf_USE_ESCAPED16 = String::AnsiToUtf16(".:\\ \"*?");
   EXPECT_TRUE(wcsncmp(L".:\\ \"*?", utf16, 3) == 0);
   delete [] utf16;
 }
@@ -810,7 +840,7 @@ TEST_F(TestPartResultTest, type) {
   EXPECT_EQ(testing::TPRT_SUCCESS, r1_.type());
   EXPECT_EQ(testing::TPRT_NONFA// AddFatalFailure() and AddNonfatalFailure() must be stand-alone
 // functions (i.e. their definitions cannot be inlined at the call
-// sites), or C++Builder won't compile the code.
+// sites), or C++Builder/MSVC6 won't compile the code.
 static void AddFatalFailure() {
   FAIL() << "Expected fatal failure.";
 }
@@ -818,6 +848,11 @@ static void AddFatalFailure() {
 static void AddNonfatalFailure() {
   ADD_FAILURE() << "Expected non-fatal failure."NONFAclass ScopedFakeTestPartResultReporterTest : public Test {
  public:  // Must be public and not protected due to a bug in g++ 3.4.2.
+#if GTEST_MSVC6
+// MSVC6 can't access protected member from function inner class
+ public:
+#endif  // GTEST_MSVC6
+
   enum FailureMode {
     FATAL_FAILURE,
     NONFATAL_FAILURE
@@ -977,7 +1012,7 @@ TEST_F(ExpectFatalFailureTest, AcceptsMacroThatExpandsToUnprotectedComma) {
     GTEST_USE_UNPROTECTED_COMMA_;
     AddFatalFailure();
   }, "");
-#endif
+#endif  // __BORLANDC__
 
   EXPECT_FATAL_FAILURE_ON_ALL_THREADS({
     GTEST_USE_UNPROTECTED_COMMA_;
@@ -1705,7 +1740,38 @@ TEST(Pred1Test, WithoutFormat) {
 
   // Failure cases.
   EXPECT_NONFATAL_FAILURE({  // NOLINT
-    EXPECT_PRED1(IsEven, 5) << "This failure is expected.";
+    EXPECT_PRED1(IsEven, 5) <
+#if GTEST_MSVC6
+// On MSVC6, use fixture with static member.
+// because we can't access static int n from EXPECT_FATAL_FAILURE macro
+// (MSVC6 does not allow to access function static variable from nested class's
+// static function.)
+// Furthermore, from EXPECT_FATAL_FAILURE() macro, static member of outer
+// class required to be accessed with class name explicitly and required to be
+// public!
+class Pred1TestMSVC6 : public ::testing::Test {
+ public:
+  static int n;
+};
+int Pred1TestMSVC6::n = 0;
+
+TEST_F(Pred1TestMSVC6, SingleEvaluationOnFailure) {
+  // A success case.
+ AL_FAILURE(ASSERT_PRED1(IsEvenFunctor(), 5),
+                       "evaluates to false");
+}
+
+// Tests unaryEXPECT_FATAL_FAILURE(ASSERT_EQ(false, true),
+                       "Value of: true");
+  // A failure case.
+  EXPECT_FATAL_FAILURE({  // NOLINT
+    ASSERT_PRED_FORMAT1(AssertIsEvenFunctor(), Pred1TestMSVC6::n++EXPECT_PRED2(SumIsEven2, n1, n2) << "This failure is expected.";
+  }, "This f(), 4)
+    << "This failure is UNEXPECTED!";
+
+  // Failure cases.
+  con#else  // GTEST_MSVC6
+<< "This failure is expected.";
   }, "This failure is expected.");
   EXPECT_FATAL_FAILURE(ASSERT_PRED1(IsEvenFunctor(), 5),
                        "evaluates to false");
@@ -1719,7 +1785,7 @@ TEST(Pred1Test, WithFormat) {
     << "This failure is UNEXPECTED!";
 
   // Failure cases.
-  const int n = 5;
+  con#endif  // GTEST_MSVC6onst int n = 5;
   EXPECT_NONFATAL_FAILURE(EXPECT_PRED_FORMAT1(AssertIsEvenFunctor(), n),
                           "n evaluates to 5, which is not even.");
   EXPECT_FATAL_FAILURE({  // NOLINT
@@ -1830,7 +1896,14 @@ TEST(PredTest, SingleEvaluationOnFailure) {
 }
 
 
-// Some helper functions for testing using overloaded/template
+// Some helper// MSVC6 cause link error if you specify template function for
+// ASSERT_PRED2/EXPECT_PRED directly.
+// So need to  force template instantiation. Need better solution.
+#if GTEST_MSVC6
+  IsNegative<int>(-5);
+  GreaterThan<int, int>(5, 0);
+#endif
+r functions for testing using overloaded/template
 // functions with ASSERT_PREDn and EXPECT_PREDn.
 
 bool IsPositive(int n) {
@@ -2023,10 +2096,10 @@ TEST(StringAssertionTest, STRNE_Wide) {
 
 // Tests that IsSubstring() returns the correct result when the input
 // argument type is const char*.
-TEST(IsSubstringTest, ReturnsCorrectResultForCString) {
-  using ::testing::IsSubstring;
+TEST(IsSubstringTest,_USE_ESCAPEDting::IsNotSubstring;
 
-  EXPECT_FALSE(IsSubstring("", "", NULL, "a"));
+  EXPECT_TRUE(IsNotSubstring("", "", L"needle", L"haystack"));
+  EXPECg("", "", NULL, "a"));
   EXPECT_FALSE(IsSubstring("", "", "b", NULL));
   EXPECT_FALSE(IsSubstring("", "", "needle", "haystack"));
 
@@ -2053,7 +2126,7 @@ TEST(IsSubstringTest, GeneratesCorrectMessageForCString) {
   EXPECT_STREQ("Value of: needle_expr\n"
                "  Actual: \"needle\"\n"
                "Expected: a substring of haystack_expr\n"
-               "Which is: \"haystack\"",
+               "Whic_USE_ESCAPEDh is: \"haystack\"",
                ::testing::IsSubstring("needle_expr", "haystack_expr",
                                       "needle", "haystack").failure_message());
 }
@@ -2084,8 +2157,8 @@ TEST(IsSubstringTest, ReturnsCorrectResultForStdWstring) {
 TEST(IsSubstringTest, GeneratesCorrectMessageForWstring) {
   EXPECT_STREQ("Value of: needle_expr\n"
                "  Actual: L\"needle\"\n"
-               "Expected: a substring of haystack_expr\n"
-               "Which is: L\"haystack\"",
+         _USE_ESCAPEDh is: \"haystack\"",
+               ::testing::IsSubstring("needle_expr", "haystack_expr",
                ::testing::IsSubstring(
                    "needle_expr", "haystack_expr",
                    ::std::wstring(L"needle"), L"haystack").failure_message());
@@ -2107,7 +2180,7 @@ TEST(IsNotSubstringTest, ReturnsCorrectResultForCString) {
 // Tests that IsNotSubstring() returns the correct result when the input
 // argument type is const wchar_t*.
 TEST(IsNotSubstringTest, ReturnsCorrectResultForWideCString) {
-  using ::testing::IsNotSubstring;
+  using ::tes_USE_ESCAPEDting::IsNotSubstring;
 
   EXPECT_TRUE(IsNotSubstring("", "", L"needle", L"haystack"));
   EXPECT_FALSE(IsNotSubstring("", "", L"needle", L"two needles"));
@@ -2195,6 +2268,7 @@ class FloatingPointTest : pub  Sets the most significant bit of the fraction so 
     EXPECT_EQ(sizeof(RawType), sizeof(Bits));
   }
 
+ public:  // Workaround for MSVC6
   static TestValues values_;
 };
 
@@ -2231,16 +2305,22 @@ template <typename RawType>
 RawType FloatingP// In C++Builder, names within local classes (such as used by
   // EXPECT_FATAL_FAILURE) cannot be resolved against static members of the
   // scoping class.  Use a static local alias as a workaround.
-  static const FloatTest::TestValues& v(this->values_);
+  
+  // In MSVC6, reference seems should be initialized by assign(=). 
+  static const FloatTest::TestValues& v = FloatTest::TestValues(this->values_);
 
   EXPECT_FLOAT_EQ(0.0, v.close_to_positive_zero);
   EXPECT_FLOAT_EQ(-0.0, v.close_to_negative_zero);
   EXPECT_FLOAT_EQ(v.close_to_positive_zero, v.close_to_negative_zero);
 
+  // In MSVC6, within local classes, 
+  // function static variable nor static member of the scoping class 
+  // can be resolved. Only we can use in EXPECT_FATAL_FAILURE is
+  // public static member, or some globals. 
   EXPECT_FATAL_FAILURE({  // NOLINT
-    ASSERT_FLOAT_EQ(v.close_to_positive_zero,
-                    v.further_from_negative_zero);
-  }, "v.further_from_negative_zero");
+    ASSERT_FLOAT_EQ(FloatTest::values_.close_to_positive_zero,
+                    FloatTest::values_.further_from_negative_zero);
+  }, "FloatTest::values_.further_from_negative_zero");
 }
 
 // Tests comparing numbers close to each other.
@@ -2278,7 +2358,7 @@ TEST_F(DoubleTest, AlmosFloatTest, NaN) {
   // In C++Builder, names within local classes (such as used by
   // EXPECT_FATAL_FAILURE) cannot be resolved against static members of the
   // scoping class.  Use a static local alias as a workaround.
-  static const FloatTest::TestValues& v(this->values_);
+  static const FloatTest::TestValues& v = FloatTest::TestValues(this->values_);
 
   EXPECT_NONFATAL_FAILURE(EXPECT_FLOAT_EQ(v.nan1, v.nan1),
                           "v.nan1");
@@ -2286,9 +2366,15 @@ TEST_F(DoubleTest, AlmosFloatTest, NaN) {
                           "v.nan2");
   EXPECT_NONFATAL_FAILURE(EXPECT_FLOAT_EQ(1.0, v.nan1),
                           "v.nan1");
-
-  EXPECT_FATAL_FAILURE(ASSERT_FLOAT_EQ(v.nan1, v.infinity),
-                       "v.infinity);
+ 
+  // In MSVC6, within local classes, 
+  // function static variable nor static member of the scoping class 
+  // can be resolved. Only we can use in EXPECT_FATAL_FAILURE is
+  // public static member, or some globals. 
+  EXPECT_FATAL_FAILURE(ASSERT_FLOAT_EQ(
+                        FloatTest::values_.nan1,
+                        FloatTest::values_.infinity),
+                       "FloatTest::values_.infinity);
  #endif  // !GTEST_OS_SYMBIAN  EXPECT_NONFATAL_FAILURE(EXPECT_FLOAT_EQ(1.0, further_from_one_),
                           "further_from_one_");
 }
@@ -2352,9 +2438,10 @@ TEST_F(FloatTest, EXPECT_NEAR) {
               values_.further_from_one, 1.0f);
   }, "(values_.further_from_one) <= (1.0f)");
 
-#if !GTEST_OS_SYMBIAN && !defined(__BORLANDC__)
-  // Nokia's STLport crashes if we try to output infinity or NaN.   // C++Builder gives bad results for ordered comparisons involving NaNs
-  // due to compiler bugs.-1.0f, -1.1f, 0.2f);
+#if !GTEST_OS_SYMBIAN && !defined(__BORLANDC__) && !GTEST_MSVC6
+  // Nokia's STLport crashes if we try to output infinity or NaN.   // C++Builder/MSVC6 gives bad results for ordered comparisons involving NaNs
+  // due to compiler bugs.
+-1.0f, -1.1f, 0.2f);
   ASSERT_NEAR(2.0f, 3.0f, 1.0f);
   EXPECT_FATAL_FAILvalues_.nan1, values_.infinity);
   }, "(values_.nan1) <= (values_.infinityEAR(-1.0f, -1.1f, 0.2f);
@@ -2363,7 +2450,7 @@ TEST_F(FloatTest, EXPECT_NEAR) {
   }, "(-values_.infinity) <= (values_.nan1)");               "The difference between 1.0f and 1.2f is 0.2, "
        values_.nan1, values_.nan1);
   }, "(values_.nan1) <= (values_.nan1)");
-#endif  // !GTEST_OS_SYMBIAN && !defined(__BORLANDC__)/ To work around a bug in gcc 2.95.0, there is intentionally no
+#endif  // !GTEST_OS_SYMBIAN && !defined(__BORLANDC__) && !GTEST_MSVC6/ To work around a bug in gcc 2.95.0, there is intentionally no
   // space after the first comma in the previous line.
 }
 
@@ -2383,16 +2470,20 @@ TEST_F(FloatTest, FloatLEFails) {
       // In C++Builder, names within local classes (such as used by
   // EXPECT_FATAL_FAILURE) cannot be resolved against static members of the
   // scoping class.  Use a static local alias as a workaround.
-  static const DoubleTest::TestValues& v(this->values_);
+  static const DoubleTest::TestValues& v = DoubleTest::TestValues(this->values_);
 
   EXPECT_DOUBLE_EQ(0.0, v.close_to_positive_zero);
   EXPECT_DOUBLE_EQ(-0.0, v.close_to_negative_zero);
   EXPECT_DOUBLE_EQ(v.close_to_positive_zero, v.close_to_negative_zero);
 
+  // In MSVC6, within local classes, 
+  // function static variable nor static member of the scoping class 
+  // can be resolved. Only we can use in EXPECT_FATAL_FAILURE is
+  // public static member, or some globals. 
   EXPECT_FATAL_FAILURE({  // NOLINT
-    ASSERT_DOUBLE_EQ(v.close_to_positive_zero,
-                     v.further_from_negative_zero);
-  }, "v.further_from_negative_zero");
+    ASSERT_DOUBLE_EQ(DoubleTest::values_.close_to_positive_zero,
+                     DoubleTest::values_.further_from_negative_zero);
+  }, "DoubleTest::values_.further_from_negative_zero");
 }
 
 // Tests comparing numbers close to each other.
@@ -2425,18 +2516,25 @@ TEST_F(DoubleTest, Size) {
 // small.
 TEST_F(DoubleTest, AlmostZeros) {
   EXPECT_#if !GTEST_OS_SYMBIAN
-  // In C++Builder, names within local classes (such as used by
+  // In C++Builder and MSVC6, names within local classes (such as used by
   // EXPECT_FATAL_FAILURE) cannot be resolved against static members of the
   // scoping class.  Use a static local alias as a workaround.
-  static const DoubleTest::TestValues& v(this->values_);
+  static const DoubleTest::TestValues& v = 
+                          DoubleTest::TestValues(this->values_);
 
   // Nokia's STLport crashes if we try to output infinity or NaN.       "1.0");
   EXPECT_FATAL_FAILDOUBLE_EQ(v.nan1, v.nan1),
                           "v.nan1");
   EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(v.nan1, v.nan2), "v.nan2");
   EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(1.0, v.nan1), "v.nan1");
-  EXPECT_FATAL_FAILURE(ASSERT_DOUBLE_EQ(v.nan1, v.infinity),
-                       "v.infinityativ#endif  // !GTEST_OS_SYMBIANve_zero_");
+
+  // In MSVC6, within local classes, 
+  // function static variable nor static member of the scoping class 
+  // can be resolved. Only we can use in EXPECT_FATAL_FAILURE is
+  // public static member, or some globals. 
+  EXPECT_FATAL_FAILURE(ASSERT_DOUBLE_EQ(DoubleTest::values_.nan1, 
+                                        DoubleTest::values_.infinity),
+                       "DoubleTest::values_.infinityativ#endif  // !GTEST_OS_SYMBIANve_zero_");
 }
 
 // Tests comparing numbers close to each other.
@@ -2499,19 +2597,19 @@ TEST_F(DoubleTest, ASSERT_NEAR) {
   ASSERT_NEAR(2.0, 3.0, 1.0values_.further_from_one, 1.0);
   }, "(values_.further_from_one) <= (1.0)");
 
-#if !GTEST_OS_SYMBIAN && !defined(__BORLANDC__)
+#if !GTEST_OS_SYMBIAN && !defined(__BORLANDC__) && !GTEST_MSVC6
   // Nokia's STLport crashes if we try to output infinity or NaN.   // C++Builder gives bad results for ordered comparisons involving NaNs
-  // due to compiler bugs.
-  EXPECT_NONFATAL_FAILURE({  // NOLINT
-    EXPECT_PRED_FORMAT2(DoubleLE, values_.nan1, values_.infinity);
-  }, "(values_.nan1) <= (values_.infinity)");
-  EXPECT_NONFATAL_FAILURE({  // NOLINT
-    EXPECT_PRED_FORMAT2(DoubleLE, -values_.infinity, values_.nan1);
+  // due to compiler bugs.-1.0f, -1.1f, 0.2f);
+  ASSERT_NEAR(2.0f, 3.0f, 1.0f);
+  EXPECT_FDoubleFAILvalues_.nan1, values_.infinity);
+  }, "(values_.nan1) <= (values_.infinityEAR(-1.0f, -1.1f, 0.2f);
+  ASSERT_NEAR(2.0f, 3.0f, 1.0f);
+  EXPECT_FDoubleLE, -values_.infinity, values_.nan1);
   }, " (-values_.infinity) <= (values_.nan1)");
   EXPECT_FATAL_FAILURE({  // NOLINT
     ASSERT_PRED_FORMAT2(DoubleLE, values_.nan1, values_.nan1);
   }, "(values_.nan1) <= (values_.nan1)");
-#endif  // !GTEST_OS_SYMBIAN && !defined(__BORLANDC__)              "which exceeds 0.1");
+#endif  // !GTEST_OS_SYMBIAN && !defined(__BORLANDC__) && !GTEST_MSVC6              "which exceeds 0.1");
   // To work around a bug in gcc 2.95.0, there is intentionally no
   // space after the first comma in the previous statement.
 #endif  // __SYMBIAN32__
@@ -2627,7 +2725,11 @@ TEST(DISABLED_TestCase, TestShouldNotRun) {
   // public to work around C++Builder's bug with scoping local classes test case should not be run.";
 }
 
-// A test case and test whose names start  test should not be run.";
+// A test case and test whose names start#if GTEST_MSVC6
+ public:
+#else
+ protected:
+#endifld not be run.";
 }
 
 // A test whose name does not start with DISABLED_.
@@ -2839,73 +2941,13 @@ TEST_F(NoFatalFailureTest, MessageIsStreamable) {
                       gtest_failures.GetTestPartResult(0).message());
   EXPECT_PRED_FORMAT2(testing::IsSubstring, "my message",
                       gtest_failures.GetTestPartResult(1).message());
-}rementCharPtrs(),
-                       "p2_++");
-  EXPECT_EQ(s1_ + 1, p1_);
-  EXPECT_EQ(s2_ + 1, p2_);
 }
-
-// Tests that string assertion arguments are evaluated exactly once.
-TEST_F(SingleEvaluationTest, ASSERT_STR) {
-  // successful EXPECT_STRNE
-  EXPECT_STRNE(p1_++, p2_++);
-  EXPECT_EQ(s1_ + 1, p1_);
-  EXPECT_EQ(s2_ + 1, p2_);
-
-  // failed EXPECT_STRCASEEQ
-  EXPECT_NONFATAL_FAILURE(EXPECT_STRCASEEQ(p1_++, p2_++),
-                          "ignoring case");
-  EXPECT_EQ(s1_ + 2, p1_);
-  EXPECT_EQ(s2_ + 2, p2_);
-}
-
-// Tests that when ASSERT_NE fails, it evaluates its arguments exactly
-// once.
-TEST_F(SingleEvaluationTest, FailedASSERT_NE) {
-  EXPECT_FATAL_FAILURE(CompareAndIncrementInts(), "(a_++) != (b_++)");
-  EXPECT_EQ(1, a_);
-  EXPECT_EQ(1, b_);
-}
-
-// Tests that assertion arguments are evaluated exactly once.
-TEST_F(SingleEvaluationTest, OtherCases) {
-  // successful EXPECT_TRUE
-  EXPECT_TRUE(0 == a_++);  // NOLINT
-  EXPECT_EQ(1, a_);
-
-  // failed EXPECT_TRUE
-  EXPECT_NONFATAL_FAILURE(EXPECT_TRUE(-1 == a_++), "-1 == a_++");
-  EXPECT_EQ(2, a_);
-
-  // successful EXPECT_GT
-  EXPECT_GT(a_++, b_++);
-  EXPECT_EQ(3, a_);
-  EXPECT_EQ(1, b_);
-
-  // failed EXPECT_LT
-  EXPECT_NONFATAL_FAILURE(EXPECT_LT(a_++, b_++), "(a_++) < (b_++)");
-  EXPECT_EQ(4, a_);
-  EXPECT_EQ(2, b_);
-
-  // successful ASSERT_TRUE
-  ASSERT_TRUE(0 < a_++);  // NOLINT
-  EXPECT_EQ(5, a_);
-
-  // successful ASSERT_GT
-  ASSERT_GT(a_++, b_++);
-  EXPECT_EQ(6, a_);
-  EXPECT_EQ(3, b_);
-}
-
 
 // Tests non-string assertions.
 
 // Tests EqFailure(), used for implementing *EQ* assertions.
 TEST(AssertionTest, EqFailure) {
-  const String foo#ifdef __BORLANDC__
-// Silences warnings: "Condition is always true", "Unreachable code"
-#pragma option push -w-ccc -w-rch
-#endifoo_val("5"), bar_val("6");
+  const String foo_val("5"), bar_val("6");
   const String msg1(
       EqFailure("foo", "bar", foo_val, bar_val, false)
       .failure_message());
@@ -2922,10 +2964,7 @@ TEST(AssertionTest, EqFailure) {
   EXPECT_STREQ(
       "Value of: 6\n"
       "Expected: foo\n"
-      "Which is: #ifdef __BORLANDC__
-// Restores warnings after previous "#pragma option push" supressed them
-#pragma option pop
-#endif: 5",
+      "Which is: 5",
       msg2.c_str());
 
   const String msg3(
@@ -2948,10 +2987,11 @@ TEST(AssertionTest, EqFailure) {
       EqFailure("foo", "bar",
                 String("\"x\""), String("\"y\""),
                 true).failure_message());
-  EXPECT_STREQ(
+
+  EXPECT_STREQ_USE_ESCAPED(
       "Value of: bar\n"
       "  Actual: \"y\"\n"
-      "Ex !GTEST_OS_SYMBIANing case)\n"
+      "Expected: foo (ignoring case)\n"
       "Which is: \"x\"",
       msg5.c_str());
 }
@@ -2960,14 +3000,19 @@ TEST(AssertionTest, EqFailure) {
 TEST(AssertionTest, AppendUserMessage) {
   const String foo("foo");
 
-  testing::Message msg;
+  Message msg;
   EXPECT_STREQ("foo",
                AppendUserMessage(foo, msg).c_str());
 
   msg << "bar";
   EXPECT_STREQ("foo\nbar",
-               AppendUserMessage(foo, !GTEST_OS_SYMBIAN;
+               AppendUserMessage(foo, msg).c_str());
 }
+
+#ifdef __BORLANDC__
+// Silences warnings: "Condition is always true", "Unreachable code"
+#pragma option push -w-ccc -w-rch
+#endif
 
 // Tests ASSERT_TRUE.
 TEST(AssertionTest, ASSERT_TRUE) {
@@ -2985,6 +3030,11 @@ TEST(AssertionTest, ASSERT_FALSE) {
                        "Expected: false");
 }
 
+#ifdef __BORLANDC__
+// Restores warnings after previous "#pragma option push" supressed them
+#pragma option pop
+#endif
+
 // Tests using ASSERT_EQ on double values.  The purpose is to make
 // sure that the specialization we did for integer and anonymous enums
 // isn't used for double arguments.
@@ -2994,7 +3044,87 @@ TEST(ExpectTest, ASSERT_EQ_Double) {
 
   // A failure.
   EXPECT_FATAL_FAILURE(ASSERT_EQ(5.1, 5.2),
-                  XPECT_FATAL_FAILURE(ASSERT_LE(2, 0),
+                       "5.1");
+}
+
+// Tests ASSERT_EQ.
+TEST(AssertionTest, ASSERT_EQ) {
+  ASSERT_EQ(5, 2 + 3);
+  EXPECT_FATAL_FAILURE(ASSERT_EQ(5, 2*3),
+                       "Value of: 2*3\n"
+                       "  Actual: 6\n"
+                       "Expected: 5");
+}
+
+// Tests ASSERT_EQ(NULL, pointer).
+#if !GTEST_OS_SYMBIAN
+// The NULL-detection template magic fails to compile with
+// the Nokia compiler and crashes the ARM compiler, hence
+// not testing on Symbian.
+
+#if GTEST_MSVC6
+// see TEST(Pred1Test, SingleEvaluationOnFailure) for reason
+// of this hack
+class AssertionTest_MSVC6 : public testing::Test {
+ public:
+  static int n;
+};
+int AssertionTest_MSVC6::n = 0;
+
+TEST_F(AssertionTest_MSVC6, ASSERT_EQ_NULL) {
+  // A success.
+  const char* p = NULL;
+  ASSERT_EQ(NULL, p);
+
+  // A failure.
+  n = 0;
+  EXPECT_FATAL_FAILURE(ASSERT_EQ(NULL, &AssertionTest_MSVC6::n),
+                       "Value of: &AssertionTest_MSVC6::n\n");
+}
+
+#else  // GTEST_MSVC6
+
+TEST(AssertionTest, ASSERT_EQ_NULL) {
+  // A success.
+  const char* p = NULL;
+  ASSERT_EQ(NULL, p);
+
+  // A failure.
+  static int n = 0;
+  EXPECT_FATAL_FAILURE(ASSERT_EQ(NULL, &n),
+                       "Value of: &n\n");
+}
+#endif  // GTEST_MSVC6
+#endif  // !GTEST_OS_SYMBIAN
+
+// Tests ASSERT_EQ(0, non_pointer).  Since the literal 0 can be
+// treated as a null pointer by the compiler, we need to make sure
+// that ASSERT_EQ(0, non_pointer) isn't interpreted by Google Test as
+// ASSERT_EQ(static_cast<void*>(NULL), non_pointer).
+TEST(ExpectTest, ASSERT_EQ_0) {
+  int n = 0;
+
+  // A success.
+  ASSERT_EQ(0, n);
+
+  // A failure.
+  EXPECT_FATAL_FAILURE(ASSERT_EQ(0, 5.6),
+                       "Expected: 0");
+}
+
+// Tests ASSERT_NE.
+TEST(AssertionTest, ASSERT_NE) {
+  ASSERT_NE(6, 7);
+  EXPECT_FATAL_FAILURE(ASSERT_NE('a', 'a'),
+                       "Expected: ('a') != ('a'), "
+                       "actual: 'a' (97, 0x61) vs 'a' (97, 0x61)");
+}
+
+// Tests ASSERT_LE.
+TEST(AssertionTest, ASSERT_LE) {
+  ASSERT_LE(2, 3);
+  ASSERT_LE(2, 2);
+  EXPECT_FATAL_FAILURE(ASSERT_LE(2, 0),
                        "Expected: (2) <= (0), actual: 2 vs 0");
 }
 
@@ -3142,7 +3272,9 @@ TEST(AssertionTest, ExpectWorksWithUncopyableObject) {
 // The version of gcc used in XCode 2.2 has a bug and doesn't allow
 // anonymous enums in assertions.  Therefore the following test is not
 // done on Mac.
-#if !GTEST_OS_MAC
+// Additionaly, template initialization for anonymous enums seems not
+// be supported in MSVC6 also.
+#if !GTEST_OS_MAC && !GTEST_MSVC6
 
 // Tests using assertions with anonymous enums.
 enum {
@@ -3187,7 +3319,7 @@ TEST(AssertionTest, AnonymousEnum) {
                        "Value of: CASE_B");
 }
 
-#endif  // !GTEST_OS_MAC
+#endif  // !GTEST_OS_MAC && !GTEST_MSVC6
 
 #if GTEST_OS_WINDOWS
 
@@ -3404,9 +3536,27 @@ void ThrowAString() {
 // Test that the exception assertion macros compile and work with const
 // type qualifier.
 TEST(AssertionSyntaxTest, WorksWithConst) {
+#if GTEST_MSVC6
+  // MSVC6 can't catch "pointer-to-const" as "reference to pointer-to-const".
+  // for example
+  /*
+	  try{
+	    throw "foo";
+	  }catch(const char *&){
+	    printf("String catched\n");   // in MSVC6 this code can not be reached.
+	  }catch(char *&){
+      printf("String catched (non-const)\n");  // in MSVC66, catched here
+    }
+  */
+  // so you should expect pointer-to-non-const...
+    ASSERT_THROW(ThrowAString(), char *);
+    EXPECT_THROW(ThrowAString(), char *);
+
+#else
     ASSERT_THROW(ThrowAString(), const char*);
 
     EXPECT_THROW(ThrowAString(), const char*);
+#endif  // GTEST_MSVC6
 }
 
 #endif  // GTEST_HAS_EXCEPTIONS
@@ -3670,6 +3820,37 @@ TEST(StreamableToStringTest, NullCString) {
 // Tests using streamable values as assertion messages.
 
 #if GTEST_HAS_STD_STRING
+
+#if GTEST_MSVC6
+// see TEST(Pred1Test, SingleEvaluationOnFailure) for reason
+// of this hack
+class StreamableTest_MSVC6 : public testing::Test {
+ public:
+  static std::string str;
+  static std::string string_with_nul;
+};
+std::string StreamableTest_MSVC6::str
+  = "This failure message is a std::string, and is expected";
+std::string StreamableTest_MSVC6::string_with_nul = "";
+
+
+TEST_F(StreamableTest_MSVC6, string) {
+  EXPECT_FATAL_FAILURE(FAIL() << StreamableTest_MSVC6::str,
+          StreamableTest_MSVC6::str.c_str());
+}
+
+TEST_F(StreamableTest_MSVC6, stringWithEmbeddedNUL) {
+  static const char char_array_with_nul[] =
+      "Here's a NUL\0 and some more string";
+  StreamableTest_MSVC6::string_with_nul = std::string(char_array_with_nul,
+                                           sizeof(char_array_with_nul)
+                                           - 1);  // drops the trailing NUL
+  EXPECT_FATAL_FAILURE(FAIL() << StreamableTest_MSVC6::string_with_nul,
+                       "Here's a NUL\\0 and some more string");
+}
+
+
+#else  // GTEST_MSVC6
 // Tests using std::string as an assertion message.
 TEST(StreamableTest, string) {
   static const std::string str(
@@ -3689,6 +3870,8 @@ TEST(StreamableTest, stringWithEmbeddedNUL) {
   EXPECT_FATAL_FAILURE(FAIL() << string_with_nul,
                        "Here's a NUL\\0 and some more string");
 }
+
+#endif  // GTEST_MSVC6
 
 #endif  // GTEST_HAS_STD_STRING
 
@@ -3795,6 +3978,75 @@ TEST(EqAssertionTest, Char) {
                           "ch");
 }
 
+#if GTEST_MSVC6
+// see TEST(Pred1Test, SingleEvaluationOnFailure) for reason
+// of this hack
+class EqAssertionTest_MSVC6 : public testing::Test {
+ public:
+  static wchar_t wchar;
+  static ::std::string str1;
+  static ::std::string str2;
+  static ::std::string str3;
+};
+wchar_t EqAssertionTest_MSVC6::wchar = L'b';
+::std::string EqAssertionTest_MSVC6::str1 = "";
+::std::string EqAssertionTest_MSVC6::str2 = "";
+::std::string EqAssertionTest_MSVC6::str3 = "";
+
+// Tests using wchar_t values in {EXPECT|ASSERT}_EQ.
+TEST_F(EqAssertionTest_MSVC6, WideChar) {
+  EXPECT_EQ(L'b', L'b');
+
+  EXPECT_NONFATAL_FAILURE(EXPECT_EQ(L'\0', L'x'),
+                          "Value of: L'x'\n"
+                          "  Actual: L'x' (120, 0x78)\n"
+                          "Expected: L'\0'\n"
+                          "Which is: L'\0' (0, 0x0)");
+
+  wchar = L'b';
+  EXPECT_NONFATAL_FAILURE(EXPECT_EQ(L'a', wchar),
+                          "wchar");
+  wchar = L'\x8119';
+  EXPECT_FATAL_FAILURE(ASSERT_EQ(L'\x8120', EqAssertionTest_MSVC6::wchar),
+                       "Value of: EqAssertionTest_MSVC6::wchar");
+}
+
+#if GTEST_HAS_STD_STRING
+// Tests using ::std::string values in {EXPECT|ASSERT}_EQ.
+TEST_F(EqAssertionTest_MSVC6, StdString) {
+  // Compares a const char* to an std::string that has identical
+  // content.
+  ASSERT_EQ("Test", ::std::string("Test"));
+
+  // Compares two identical std::strings.
+  str1 = "A * in the middle";
+  str2 = str1;
+  EXPECT_EQ(str1, str2);
+
+  // Compares a const char* to an std::string that has different
+  // content
+  EXPECT_NONFATAL_FAILURE(EXPECT_EQ("Test", ::std::string("test")),
+                          "::std::string(\"test\")");
+
+  // Compares an std::string to a char* that has different content.
+  char* const p1 = const_cast<char*>("foo");
+  EXPECT_NONFATAL_FAILURE(EXPECT_EQ(::std::string("bar"), p1),
+                          "p1");
+
+  // Compares two std::strings that have different contents, one of
+  // which having a NUL character in the middle.  This should fail.
+  str3 = str1;
+  str3.at(2) = '\0';
+  EXPECT_FATAL_FAILURE(ASSERT_EQ(EqAssertionTest_MSVC6::str1,
+                                 EqAssertionTest_MSVC6::str3),
+                       "Value of: EqAssertionTest_MSVC6::str3\n"
+                       "  Actual: \"A \\0 in the middle\"");
+}
+
+#endif  // GTEST_HAS_STD_STRING
+
+#else  // GTEST_MSVC6
+
 // Tests using wchar_t values in {EXPECT|ASSERT}_EQ.
 TEST(EqAssertionTest, WideChar) {
   EXPECT_EQ(L'b', L'b');
@@ -3846,6 +4098,8 @@ TEST(EqAssertionTest, StdString) {
 }
 
 #endif  // GTEST_HAS_STD_STRING
+
+#endif  // GTEST_MSVC6
 
 #if GTEST_HAS_STD_WSTRING
 
@@ -5353,15 +5607,27 @@ TEST(ColoredOutputTest, UsesNoColorWhenGTestColorFlagIsInvalid) {
 
   GT// Verifies that StaticAssertTypeEq works in a namespace scope.
 
+#if GTEST_MSVC6
+// workaround for MSVC6, which does not allow to import template function by
+// "using functionname".
+static bool dummy1 = testing::StaticAssertTypeEq<bool, bool>();
+static bool dummy2 = testing::StaticAssertTypeEq<const int, const int>();
+
+#else
+
 static bool dummy1 = StaticAssertTypeEq<bool, bool>();
 static bool dummy2 = StaticAssertTypeEq<const int, const int>();
+
+#endif  // GTEST_MSVC6
+
+
 
 // Verifies that StaticAssertTypeEq works in a class.
 
 template <typename T>
 class StaticAssertTypeEqTestHelper {
  public:
-  StaticAssertTypeEqTestHelper() { StaticAssertTypeEq<bool, T>(); }
+  StaticAssertTypeEqTestHelper() { testing::StaticAssertTypeEq<bool, T>(); }
 };
 
 TEST(StaticAssertTypeEqTest, WorksInClass) {
@@ -5373,8 +5639,8 @@ TEST(StaticAssertTypeEqTest, WorksInClass) {
 typedef int IntAlias;
 
 TEST(StaticAssertTypeEqTest, CompilesForEqualTypes) {
-  StaticAssertTypeEq<int, IntAlias>();
-  StaticAssertTypeEq<int*, IntAlias*>();  GTTEST(ThreadLocalTest, DefaultConstructor) {
+  testing::StaticAssertTypeEq<int, IntAlias>();
+  testing::StaticAssertTypeEq<int*, IntAlias*>();  GTTEST(ThreadLocalTest, DefaultConstructor) {
   ThreadLocal<int> t1;
   EXPECT_EQ(0, t1.get());
 
