@@ -1415,6 +1415,8 @@ TEST(ParseInt32FlagTest, ParsesAnd_ "abc=456", "abc", &value));
 
   EXPECT_TRUE(ParseITests that Int32FromEnvOrDie() parses the value of the var or
 // returns the correct default.
+// Environment variables are not supported on Windows CE.
+#ifndef _WIN32_WCE
 TEST(Int32FromEnvOrDieTest, ParsesAndReturnsValidValue) {
   EXPECT_EQ(333, Int32FromEnvOrDie(GTEST_FLAG_PREFIX_UPPER_ "UnsetVar", 333));
   SetEnv(GTEST_FLAG_PREFIX_UPPER_ "UnsetVar", "123");
@@ -1422,6 +1424,7 @@ TEST(Int32FromEnvOrDieTest, ParsesAndReturnsValidValue) {
   SetEnv(GTEST_FLAG_PREFIX_UPPER_ "UnsetVar", "-123");
   EXPECT_EQ(-123, Int32FromEnvOrDie(GTEST_FLAG_PREFIX_UPPER_ "UnsetVar", 333));
 }
+#endif // _WIN32_WCE
 
 #if GTEST_HAS_DEATH_TEST
 
@@ -1490,6 +1493,8 @@ TEST_F(ShouldShardTest, ReturnsFalseWhenTotalShardIsOne) {
 
 // Tests that sharding is enabled if total_shards > 1 and
 // we are not in a death test subprocess.
+// Environment variables are not supported on Windows CE.
+#ifndef _WIN32_WCE
 TEST_F(ShouldShardTest, WorksWhenShardEnvVarsAreValid) {
   SetEnv(index_var_, "4");
   SetEnv(total_var_, "22");
@@ -1506,6 +1511,7 @@ TEST_F(ShouldShardTest, WorksWhenShardEnvVarsAreValid) {
   EXPECT_TRUE(ShouldShard(total_var_, index_var_, false));
   EXPECT_FALSE(ShouldShard(total_var_, index_var_, true));
 }
+#endif // _WIN32_WCE
 
 #if GTEST_HAS_DEATH_TEST
 
@@ -2981,8 +2987,10 @@ TEST(ExpectTest, ASSERT_EQ_Double) {
   ASSERT_EQ(5.6, 5.6);
 
   // A failure.
-  EXPECT_FATAL_FAILURE(ASSERT_EQ(5.1, 5.2),
-                  XPECT_FATAL_FAILURE(ASSERT_LE(2, 0),
+ nTest, ASSERT_LE) {
+  ASSERT_LE(2, 3);
+  ASSERT_LE(2, 2);
+  EXPECT_FATAL_FAILURE(ASSERT_LE(2, 0),
                        "Expected: (2) <= (0), actual: 2 vs 0");
 }
 
