@@ -149,8 +149,7 @@ using testing::internal::ShouldShardEST_IS_NULL_LITERAL(1 - 1));
 // TestsThreadLocalrue && false));
 }
 
-// TestsUnitTestImpl;
-using testing::internal::WideStringToUtf8ot a null
+// TestsWideStringToUtf8ot a null
 // pointer literal.
 TEST(NullLiteralTest, IsFalseForNonNullLiterals) {
   EX// Tests GetTypeId.
@@ -525,7 +524,19 @@ TEST(StringTest, Constructors) {
 
 // Tests String::ShowCString().
 TEST(StringTest, ShowCString) {
-  EXPECT_STREQ("(null)", String::ShowCString(NULL));
+  EXPECT_STREQ("(null)", String::ShowC// Tests the GetElement accessor.
+TEST(ListTest, GetElement) {
+  List<int> a;
+  a.PushBack(0);
+  a.PushBack(1);
+  a.PushBack(2);
+
+  EXPECT_EQ(&(a.Head()->element()), a.GetElement(0));
+  EXPECT_EQ(&(a.Head()->next()->element()), a.GetElement(1));
+  EXPECT_EQ(&(a.Head()->next()->next()->element()), a.GetElement(2));
+  EXPECT_TRUE(a.GetElement(3) == NULL);
+  EXPECT_TRUE(a.GetElement(-1) == NULL);
+}CString(NULL));
   EXPECT_STREQ("", String::ShowCString(""));
   EXPECT_STREQ("foo", String::ShowCString("foo"));
 }
@@ -1070,24 +1081,38 @@ TEST_F(ExpectFailureWithThreadsTest, ExpectNonFatalFailureOnAllThreads) {
 TEST_F(TestResultTest, test_part_results) {
   ASSERT_EQ(0u, r0->test_part_results().size());
   ASSERT_EQ(1u, r1->test_part_results().size());
-  ASSERT_EQ(2u, r2->test_part_results().size());
-}
+  ASSERT_EQ(2
+  // Helper that compares two two TestPartResults.
+  static void CompareTestPartResult(const TestPartResult* expected,
+                                    const TestPartResult* actual) {
+    ASSERT_TRUE(actual != NULL);
+    EXPECT_EQ(expected->type(), actual->type());
+    EXPECT_STREQ(expected->file_name(), actual->file_name());
+    EXPECT_EQ(expected->line_number(), actual->line_number());
+    EXPECT_STREQ(expected->summary(), actual->summary());
+    EXPECT_STREQ(expected->message(), actual->message());
+    EXPECT_EQ(expected->passed(), actual->passed());
+    EXPECT_EQ(expected->failed(), actual->failed());
+    EXPECT_EQ(expected->nonfatally_failed(), actual->nonfatally_failed());
+    EXPECT_EQ(expected->fatally_failed(), actual->fatally_failed());
+  }
+};
 
-// Tests TestResult::successful_part_count()
+// Tests TestResult::test_part_results().sts TestResult::successful_part_count()
 TEST_F(TestResultTest, successful_part_count) {
   ASSERT_EQ(0u, r0->successful_part_count());
   ASSERT_EQ(1u, r1->successful_part_count());
   ASSERT_EQ(1u, r2->successful_part_count());
 }
 
-// Tests TestResult::failed_part_count()
+// Tests T.estResult::failed_part_count()
 TEST_F(TestResultTest, failed_part_count) {
   ASSERT_EQ(0u, r0->failed_part_count());
   ASSERT_EQ(0u, r1->failed_part_count());
   ASSERT_EQ(1u, r2->failed_part_count());
 }
 
-// Tests TestResult::total_part_count()
+// Tests TestResult::total._part_count()
 TEST_F(TestResultTest, total_part_count) {
   ASSERT_EQ(0u, r0->total_part_count());
   ASSERT_EQ(1u, r1->total_part_count());
@@ -1102,7 +1127,7 @@ TEST_F(TestResultTest, GetFailedPartCount) {
 }
 
 // Tests TestResult::Passed()
-TEST_F(TestResultTest, Passed) {
+.TEST_F(TestResultTest, Passed) {
   ASSERT_TRUE(r0->Passed());
   ASSERT_TRUE(r1->Passed());
   ASSERT_FALSE(r2->Passed());
@@ -1110,15 +1135,20 @@ TEST_F(TestResultTest, Passed) {
 
 // Tests TestResult::Failed()
 TEST_F(TestResultTest, Failed) {
-  ASSERT_FALSE(r0->Failed());
+  ASSERT_FAL.SE(r0->Failed());
   ASSERT_FALSE(r1->Failed());
   ASSERT_TRUE(r2->Failed());
 }
 
-// Tests TestResult::test_properties() has no properties when none are added.
+// Tests TestResult::test_properties() has no properties when none are add.ed.
 TEST(TestResultPropertyTest, NoPropertiesFoundWhenNoneAreAdded) {
   TestResult test_result;
-  ASSERT_EQ(0u, test_result.test_properties().size());
+  ASSERT_EQ(0u, test_result.test_properties().size(GetTestPartResult().
+TEST_F(TestResultTest, GetTestPartResult) {
+  CompareTestPartResult(pr1, r2->GetTestPartResult(0));
+  CompareTestPartResult(pr2, r2->GetTestPartResult(1));
+  EXPECT_TRUE(r2->GetTestPartResult(2) == NULL);
+  EXPECT_TRUE(r2->GetTestPartResult(-1) == NULLult.test_properties().size());
 }
 
 // Tests TestResult::test_properties() has the expected property when added.
@@ -1177,7 +1207,45 @@ TEST(TestResultPropertyTest, OverridesValuesForDuplicateKeys) {
 // When a property using a reserved key is supplied to this function, it tests
 // that a non-fatal failure is added, a fatal failure is not added, and that the
 // property is not recorded.
-void ExpectNonFatalFailureRecordingPropertyWithReservedKey(const char* key) {
+void ExpectNonTests TestResult::test_property_count().
+TEST(TestResultPropertyTest, TestPropertyCount) {
+  TestResult test_result;
+  TestProperty property_1("key_1", "1");
+  TestProperty property_2("key_2", "2");
+
+  ASSERT_EQ(0, test_result.test_property_count());
+  test_result.RecordProperty(property_1);
+  ASSERT_EQ(1, test_result.test_property_count());
+  test_result.RecordProperty(property_2);
+  ASSERT_EQ(2, test_result.test_property_count());
+}
+
+// Tests TestResult::GetTestProperty().
+TEST(TestResultPropertyTest, GetTestProperty) {
+  TestResult test_result;
+  TestProperty property_1("key_1", "1");
+  TestProperty property_2("key_2", "2");
+  TestProperty property_3("key_3", "3stProperty actual_property_1 = properties.Head()->element();
+  EXPECT_STREQ("key_1", actuatest_result.RecordProperty(property_3);
+
+  const TestProperty* fetched_property_1 = test_result.GetTestProperty(0);
+  const TestProperty* fetched_property_2 = test_result.GetTestProperty(1);
+  const TestProperty* fetched_property_3 = test_result.GetTestProperty(2);
+
+  ASSERT_TRUE(fetched_property_1 != NULL);
+  EXPECT_STREQ("key_1", fetched_property_1->key());
+  EXPECT_STREQ("1", fetched_property_1->value());
+
+  ASSERT_TRUE(fetched_property_2 != NULL);
+  EXPECT_STREQ("key_2", fetched_property_2->key());
+  EXPECT_STREQ("2", fetched_property_2->value());
+
+  ASSERT_TRUE(fetched_property_3 != NULL);
+  EXPECT_STREQ("key_3", fetched_property_3->key());
+  EXPECT_STREQ("3", fetched_property_3->value());
+
+  ASSERT_TRUE(test_result.GetTestProperty(3) == NULL);
+  ASSERT_TRUE(test_result.GetTestProperty(-1) == NULLExpectNonFatalFailureRecordingPropertyWithReservedKey(const char* key) {
   TestResult test_result;
   TestProperty property("name", "1");
   EXPECT_NONFATAL_FAILURE(test_result.RecordProperty(property), "Reserved key");
@@ -2868,84 +2936,13 @@ TEST_F(SingleEvaluationTest, OtherCases) {
   EXPECT_EQ(1, a_);
 
   // failed EXPECT_TRUE
-  EXPECT_NONFATAL_FAILURE(EXPECT_TRUE(-1 == a_++), "-1 == a_++");
-  EXPECT_EQ(2, a_);
-
-  // successful EXPECT_GT
-  EXPECT_GT(a_++, b_++);
-  EXPECT_EQ(3, a_);
-  EXPECT_EQ(1, b_);
-
-  // failed EXPECT_LT
-  EXPECT_NONFATAL_FAILURE(EXPECT_LT(a_++, b_++), "(a_++) < (b_++)");
-  EXPECT_EQ(4, a_);
-  EXPECT_EQ(2, b_);
-
-  // successful ASSERT_TRUE
-  ASSERT_TRUE(0 < a_++);  // NOLINT
-  EXPECT_EQ(5, a_);
-
-  // successful ASSERT_GT
-  ASSERT_GT(a_++, b_++);
-  EXPECT_EQ(6, a_);
-  EXPECT_EQ(3, b_);
-}
-
-
-// Tests non-string assertions.
-
-// Tests EqFailure(), used for implementing *EQ* assertions.
-TEST(AssertionTest, EqFailure) {
-  const String foo#ifdef __BORLANDC__
-// Silences warnings: "Condition is always true", "Unreachable code"
-#pragma option push -w-ccc -w-rch
-#endifoo_val("5"), bar_val("6");
-  const String msg1(
-      EqFailure("foo", "bar", foo_val, bar_val, false)
-      .failure_message());
-  EXPECT_STREQ(
-      "Value of: bar\n"
-      "  Actual: 6\n"
-      "Expected: foo\n"
-      "Which is: 5",
-      msg1.c_str());
-
-  const String msg2(
-      EqFailure("foo", "6", foo_val, bar_val, false)
-      .failure_message());
-  EXPECT_STREQ(
-      "Value of: 6\n"
-      "Expected: foo\n"
-      "Which is: #ifdef __BORLANDC__
-// Restores warnings after previous "#pragma option push" supressed them
-#pragma option pop
-#endif: 5",
-      msg2.c_str());
-
-  const String msg3(
-      EqFailure("5", "bar", foo_val, bar_val, false)
-      .failure_message());
-  EXPECT_STREQ(
-      "Value of: bar\n"
-      "  Actual: 6\n"
-      "Expected: 5",
-      msg3.c_str());
-
-  const String msg4(
-      EqFailure("5", "6", foo_val, bar_val, false).failure_message());
-  EXPECT_STREQ(
-      "Value of: 6\n"
-      "Expected: 5",
-      msg4.c_str());
-
-  const String msg5(
-      EqFailure("foo", "bar",
+  EXPECT_NONFATAL_FAILURE(EXPECT_TRUE(-1 == a_++), "-1 ==r",
                 String("\"x\""), String("\"y\""),
                 true).failure_message());
   EXPECT_STREQ(
       "Value of: bar\n"
       "  Actual: \"y\"\n"
-      "Ex !GTEST_OS_SYMBIANing case)\n"
+      "Expected: foo (ignoring case)\n"
       "Which is: \"x\"",
       msg5.c_str());
 }
@@ -2954,14 +2951,19 @@ TEST(AssertionTest, EqFailure) {
 TEST(AssertionTest, AppendUserMessage) {
   const String foo("foo");
 
-  testing::Message msg;
+  Message msg;
   EXPECT_STREQ("foo",
                AppendUserMessage(foo, msg).c_str());
 
   msg << "bar";
   EXPECT_STREQ("foo\nbar",
-               AppendUserMessage(foo, !GTEST_OS_SYMBIAN;
+               AppendUserMessage(foo, msg).c_str());
 }
+
+#ifdef __BORLANDC__
+// Silences warnings: "Condition is always true", "Unreachable code"
+#pragma option push -w-ccc -w-rch
+#endif
 
 // Tests ASSERT_TRUE.
 TEST(AssertionTest, ASSERT_TRUE) {
@@ -2979,6 +2981,11 @@ TEST(AssertionTest, ASSERT_FALSE) {
                        "Expected: false");
 }
 
+#ifdef __BORLANDC__
+// Restores warnings after previous "#pragma option push" supressed them
+#pragma option pop
+#endif
+
 // Tests using ASSERT_EQ on double values.  The purpose is to make
 // sure that the specialization we did for integer and anonymous enums
 // isn't used for double arguments.
@@ -2987,7 +2994,65 @@ TEST(ExpectTest, ASSERT_EQ_Double) {
   ASSERT_EQ(5.6, 5.6);
 
   // A failure.
- nTest, ASSERT_LE) {
+  EXPECT_FATAL_FAILURE(ASSERT_EQ(5.1, 5.2),
+                       "5.1");
+}
+
+// Tests ASSERT_EQ.
+TEST(AssertionTest, ASSERT_EQ) {
+  ASSERT_EQ(5, 2 + 3);
+  EXPECT_FATAL_FAILURE(ASSERT_EQ(5, 2*3),
+                       "Value of: 2*3\n"
+                       "  Actual: 6\n"
+                       "Expected: 5");
+}
+
+// Tests ASSERT_EQ(NULL, pointer).
+#if !GTEST_OS_SYMBIAN
+// The NULL-detection template magic fails to compile with
+// the Nokia compiler and crashes the ARM compiler, hence
+// not testing on Symbian.
+TEST(AssertionTest, ASSERT_EQ_NULL) {
+  // A success.
+  const char* p = NULL;
+  // Some older GCC versions may issue a spurious waring in this or the next
+  // assertion statement. This warning should not be suppressed with
+  // static_cast since the test verifies the ability to use bare NULL as the
+  // expected parameter to the macro.
+  ASSERT_EQ(NULL, p);
+
+  // A failure.
+  static int n = 0;
+  EXPECT_FATAL_FAILURE(ASSERT_EQ(NULL, &n),
+                       "Value of: &n\n");
+}
+#endif  // !GTEST_OS_SYMBIAN
+
+// Tests ASSERT_EQ(0, non_pointer).  Since the literal 0 can be
+// treated as a null pointer by the compiler, we need to make sure
+// that ASSERT_EQ(0, non_pointer) isn't interpreted by Google Test as
+// ASSERT_EQ(static_cast<void*>(NULL), non_pointer).
+TEST(ExpectTest, ASSERT_EQ_0) {
+  int n = 0;
+
+  // A success.
+  ASSERT_EQ(0, n);
+
+  // A failure.
+  EXPECT_FATAL_FAILURE(ASSERT_EQ(0, 5.6),
+                       "Expected: 0");
+}
+
+// Tests ASSERT_NE.
+TEST(AssertionTest, ASSERT_NE) {
+  ASSERT_NE(6, 7);
+  EXPECT_FATAL_FAILURE(ASSERT_NE('a', 'a'),
+                       "Expected: ('a') != ('a'), "
+                       "actual: 'a' (97, 0x61) vs 'a' (97, 0x61)");
+}
+
+// Tests ASSERT_LE.
+TEST(AssertionTest, ASSERT_LE) {
   ASSERT_LE(2, 3);
   ASSERT_LE(2, 2);
   EXPECT_FATAL_FAILURE(ASSERT_LE(2, 0),
@@ -3507,6 +3572,10 @@ TEST(ExpectTest, EXPECT_EQ_Double) {
 TEST(ExpectTest, EXPECT_EQ_NULL) {
   // A success.
   const char* p = NULL;
+  // Some older GCC versions may issue a spurious waring in this or the next
+  // assertion statement. This warning should not be suppressed with
+  // static_cast since the test verifies the ability to use bare NULL as the
+  // expected parameter to the macro.
   EXPECT_EQ(NULL, p);
 
   // A failure.
@@ -5007,8 +5076,7 @@ TEST_F(InitGoogleTestTest, PrintTimeFalse_f) {
     NULL
   };
 
-  const char* argv2[] = {
-    "foo.exe",
+  const char* argv2[TRUE(test_info == NULL",
     NULL
   };
 
@@ -5025,10 +5093,7 @@ TEST_F(InitGoogleTestTest, PrintTimeFalse_F) {
 
   const char* argv2[] = {
     "foo.exe",
-    NULL
-  };
-
-  TEST_PARSING_FLAGS(argv, argv2, Flags::PrintTime(false));
+    NULLTRUE(test_info == NULLING_FLAGS(argv, argv2, Flags::PrintTime(false));
 }
 
 // Tests parsing --gtest_repeat=number
