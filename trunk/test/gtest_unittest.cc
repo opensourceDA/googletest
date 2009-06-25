@@ -134,6 +134,7 @@ TEST(NullLiteralTest, IsTrueForNullLiterals) {
 using testing::internal::GetFailedPartCous) {
   EXPECT_TRUE(GTEST_IS_NUetTestTypeId;
 using testing::internal::GetTypeId {
+  EXPECT_TRUE(GTEST_IS_NUetUnitTestImpl {
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL(NULL));
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL(0));
   EXPECT_TRUInt32FromEnvOrDie;
@@ -2936,7 +2937,8 @@ TEST_F(SingleEvaluationTest, OtherCases) {
   EXPECT_EQ(1, a_);
 
   // failed EXPECT_TRUE
-  EXPECT_NONFATAL_FAILURE(EXPECT_TRUE(-1 == a_++), "-1 ==r",
+  EXPECT_NONFATst String msg5(
+      EqFailure("foo", "bar",
                 String("\"x\""), String("\"y\""),
                 true).failure_message());
   EXPECT_STREQ(
@@ -3476,8 +3478,7 @@ TEST(AssertionSyntaxTest, WorksWithConst) {
 
 // Returns the number of successful parts in the current test.
 static size_t GetSuccessfulPartCount() {
-  return UnitTest::GetInstance()->impl()->current_test_result()->
-    successful_part_count();
+  return GetUnitTestImpl()->current_test_result()->successful_part_count();
 }
 
 namespace testing {
@@ -4298,8 +4299,7 @@ std::ostream& operator<<(std::ostream& os,
 }
 
 TEST(MessageTest, CanStreamUserTypeInUserNameSpaceWithStreamOperatorInGlobal) {
-  testing::Message msg;
-  namespace2::MyTypeInNameSpace2 a(1);
+GetUnitTestImpl()->TypeInNameSpace2 a(1);
 
   ms" msg << a << &a;  // Uses ::operator<<.
   EXPECT_STREQ("1(1)", msg.GetString().c_str());
