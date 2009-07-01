@@ -79,7 +79,29 @@ TEST(CommandLineFlagsTest, CanBeAccessedInCodeOnceGTestHIsIncluded) {
 namespace testing {
 namespace internal {
 const char* FormatTimeInMillisAsSeconds(TimeInMillis ms);
+
 bool ParseInt32Flag(const char* str, const char* flag, Int32* value);
+
+// TestResult contains some private methods that should be hidden from
+// Google Test user but are required for testing. This class allow our tests
+// to access them.
+class TestResultAccessor {
+ public:
+  static void RecordProperty(TestResult* test_result,
+                             const TestProperty& property) {
+    test_result->RecordProperty(property);
+  }
+
+  static void ClearTestPartResults(TestResult* test_result) {
+    test_result->ClearTestPartResults();
+  }
+
+  static const List<testing::TestPartResult>& test_part_results(
+      const TestResult& test_result) {
+    return test_result.test_part_results();
+  }
+};
+
 }  // namespace internal
 }  // namespace testing
 
@@ -126,7 +148,6 @@ namespace {
 // NULL testing does not work with Symbian compilers.
 
 // Tests that GTEST_IS_NULL_LITERALkTestTypeIdInGoogleests that GTEST_IS_NULL_LITERAL(x) is true when x is a null
-// pointer liteClearCurrentTestPartResultsx is a null
 // pointer liteCodePointToUtf8x is a null
 // pointer literal.
 TEST(NullLiteralTest, IsTrueForNullLiterals) {
@@ -143,8 +164,10 @@ using testing::internal::ShouldRunTestOnShard;
 using testing::internal::ShouldShardEST_IS_NULL_LITERAL(1 - 1));
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL(0U));
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL(0L));
-  EXPECT_TRUE(GTEST_IS_NULL_LITERAL(false));
-  EXPECT_TRUE(GTEST_IS_NULL_LITERAL(true && false));
+  EXPECT_TRUE(GTEST_IS_NULL_LITERAL(fCase;
+using testing::internal::TestProperty;
+using testing::internal::TestResult;
+using testing::internal::TestResultAccessorrue && false));
 }
 
 // TestsThreadLocalrue && false));
@@ -153,7 +176,10 @@ using testing::internal::ShouldShardEST_IS_NULL_LITERAL(1 - 1));
 // TestsWideStringToUtf8ot a null
 // pointer literal.
 TEST(NullLiteralTest, IsFalseForNonNullLiterals) {
-  EX// Tests GetTypeId.
+  EXstatic void ClearCurrentTestPartResults() {
+  TestResultAccessor::ClearTestPartResults(
+      GetUnitTestImpl()->current_test_result());
+}EX// Tests GetTypeId.
 
 TEST(GetTypeIdTest, ReturnsSameValueForSameType) {
   EXPECT_EQ(GetTypeId<int>(), GetTypeId<int>());
@@ -1061,11 +1087,9 @@ TEST_F(ExpectFailureWithThreadsTest, ExpectNonFatalFailureOnAllThreads) {
     // r0 is an empty TestResult.
 
     // r1 contains a single SUCCESS TestPartResult.
-    list1->PushBack(*pr1);
-
-    // r2 contains a SUCCESS, and a FAILURE.
-    list2->PushBack(*pr1);
-    list2->PushBack(*pr2);
+ TestResultAccessor::test_part_results(*r1));
+    list2 = const_cast<List<TestPartResult> *>(
+        &TestResultAccessor::test_part_results(*r22->PushBack(*pr2);
   }
 
   virtual void TearDown() {
@@ -1099,42 +1123,40 @@ TEST_F(TestResultTest, test_part_results) {
   }
 };
 
-// Tests TestResult::test_part_results().sts TestResult::successful_part_count()
-TEST_F(TestResultTest, successful_part_count) {
-  ASSERT_EQ(0u, r0->successful_part_count());
-  ASSERT_EQ(1u, r1->successful_part_count());
-  ASSERT_EQ(1u, r2->successful_part_count());
+// Tests TestResult::total_part_count().
+TEST_F(TestResultTest, test_part_results) {
+  ASSERT_EQ(0, r0->total_part_count());
+  ASSERT_EQ(1, r1->total_part_count());
+  ASSERT_EQ(2, r2->total_part_count());
 }
 
-// Tests T.estResult::failed_part_count()
-TEST_F(TestResultTest, failed_part_count) {
-  ASSERT_EQ(0u, r0->failed_part_count());
-  ASSERT_EQ(0u, r1->failed_part_count());
+// Tests TestResult::successful_part_count().
+TEST_F(TestResultTest, successful_part_count) {
+  ASSERT_EQ(0, r0->successful_part_count());
+  ASSERT_EQ(1, r1->successful_part_count());
+  ASSERT_EQ(1));
   ASSERT_EQ(1u, r2->failed_part_count());
 }
 
 // Tests TestResult::total._part_count()
 TEST_F(TestResultTest, total_part_count) {
-  ASSERT_EQ(0u, r0->total_part_count());
-  ASSERT_EQ(1u, r1->total_part_count());
-  ASSERT_EQ(2u, r2->total_part_count());
+ , r0->failed_part_count());
+  ASSERT_EQ(0, r1->failed_part_count());
+  ASSERT_EQ(1SERT_EQ(2u, r2->total_part_count());
 }
 
 testing::internal::GetFailedPartCount().
 TEST_F(TestResultTest, GetFailedPartCount) {
-  ASSERT_EQ(0u, GetFailedPartCount(r0));
-  ASSERT_EQ(0u, GetFailedPartCount(r1));
-  ASSERT_EQ(1u, GetFailedPartCount(r2rt_count());
+  ASSERT_EQ(0, GetFailedPartCount(r0));
+  ASSERT_EQ(0, GetFailedPartCount(r1));
+  ASSERT_EQ(1, GetFailedPartCount(r2rt_count());
 }
 
 // Tests TestResult::Passed()
 .TEST_F(TestResultTest, Passed) {
-  ASSERT_TRUE(r0->Passed());
-  ASSERT_TRUE(r1->Passed());
-  ASSERT_FALSE(r2->Passed());
-}
-
-// Tests TestResult::Failed()
+  ASSERT_TRUE(r0->Passed, r0->total_part_count());
+  ASSERT_EQ(1, r1->total_part_count());
+  ASSERT_EQ(2ult::Failed()
 TEST_F(TestResultTest, Failed) {
   ASSERT_FAL.SE(r0->Failed());
   ASSERT_FALSE(r1->Failed());
@@ -1149,44 +1171,39 @@ TEST_F(TestResultTest, GetTestPartResult) {
   CompareTestPartResult(pr1, r2->GetTestPartResult(0));
   CompareTestPartResult(pr2, r2->GetTestPartResult(1));
   EXPECT_TRUE(r2->GetTestPartResult(2) == NULL);
-  EXPECT_TRUE(r2->GetTestPartResult(-1) == NULLult.test_properties().size());
+  EXPECT_TRUE(r2->GetTestPartResult(-1) == NULLult.test_properties().sizestResult::test_properties() has the expected property when added.
+TEST(TestResultPropertyTest, OnePropertyFoundWhenAdded) {
+  TestResult test_re, test_result.test_property_count());
 }
 
-// Tests TestResult::test_properties() has the expected property when added.
-TEST(TestResultPropertyTest, OnePropertyFoundWhenAdded) {
-  TestResult test_result;
-  TestProperty property("key_1", "1");
-  test_result.RecordProperty(property);
+// Tests TestResult;
   const List<TestProperty>& properties = test_result.test_properties();
   ASSERT_EQ(1u, properties.size());
-  TestProperty actual_property = properties.Head()->element();
-  EXPECT_STREQ("key_1", actual_property.key());
-  EXPECT_STREQ("1", actual_property.value());
+  TestProperty actual_property = properties.Head()->elTestResultAccessor::RecordProperty(&test_result, property);
+  ASSERT_EQ(1, test_result.test_property_count());
+  const TestProperty* actual_property = test_result.GetTestProperty(0);
+  EXPECT_STREQ("key_1", actual_property->key());
+  EXPECT_STREQ("1", actual_property->value());
 }
 
-// Tests TestResult::test_properties() has multiple properties when added.
-TEST(TestResultPropertyTest, MultiplePropertiesFoundWhenAdded) {
-  TestResult test_result;
-  TestProperty property_1("key_1", "1");
-  TestProperty property_2("key_2", "2");
+// Tests TestResult2", "2");
   test_result.RecordProperty(property_1);
   test_result.RecordProperty(property_2);
   const List<TestProperty>& properties = test_result.test_properties();
   ASSERT_EQ(2u, properties.size());
-  TestProperty actual_property_1 = properties.Head()->element();
-  EXPECT_STREQ("key_1", actual_property_1.key());
-  EXPECT_STREQ("1", actual_property_1.value());
+  TestPropTestResultAccessor::RecordProperty(&test_result, property_1);
+  TestResultAccessor::RecordProperty(&test_result, property_2);
+  ASSERT_EQ(2, test_result.test_property_count());
+  const TestProperty* actual_property_1 = test_result.GetTestProperty(0);
+  EXPECT_STREQ("key_1", actual_property_1->key());
+  EXPECT_STREQ("1", actual_property_1->value());
 
-  TestProperty actual_property_2 = properties.Last()->element();
-  EXPECT_STREQ("key_2", actual_property_2.key());
-  EXPECT_STREQ("2", actual_property_2.value());
+  const TestProperty* actual_property_2 = test_result.GetTestProperty(1);
+  EXPECT_STREQ("key_2", actual_property_2->key());
+  EXPECT_STREQ("2", actual_property_2->value());
 }
 
-// Tests TestResult::test_properties() overrides values for duplicate keys.
-TEST(TestResultPropertyTest, OverridesValuesForDuplicateKeys) {
-  TestResult test_result;
-  TestProperty property_1_1("key_1", "1");
-  TestProperty property_2_1("key_2", "2");
+// Tests TestResult::RecordProperty("key_2", "2");
   TestProperty property_1_2("key_1", "12");
   TestProperty property_2_2("key_2", "22");
   test_result.RecordProperty(property_1_1);
@@ -1194,31 +1211,19 @@ TEST(TestResultPropertyTest, OverridesValuesForDuplicateKeys) {
   test_result.RecordProperty(property_1_2);
   test_result.RecordProperty(property_2_2);
 
-  const List<TestProperty>& properties = test_result.test_properties();
-  ASSERT_EQ(2u, properties.size());
-  TestProperty actual_property_1 = properties.Head()->element();
-  EXPECT_STREQ("key_1", actual_property_1.key());
-  EXPECT_STREQ("12", actual_property_1.value());
+  const List<TestPropertyTestResultAccessor::RecordProperty(&test_result, property_1_1);
+  TestResultAccessor::RecordProperty(&test_result, property_2_1);
+  TestResultAccessor::RecordProperty(&test_result, property_1_2);
+  TestResultAccessor::RecordProperty(&test_result, property_2_2);
 
-  TestProperty actual_property_2 = properties.Last()->element();
-  EXPECT_STREQ("key_2", actual_property_2.key());
-  EXPECT_STREQ("22", actual_property_2.value());
-}
-
-// When a property using a reserved key is supplied to this function, it tests
-// that a non-fatal failure is added, a fatal failure is not added, and that the
-// property is not recorded.
-void ExpectNonTests TestResult::test_property_count().
-TEST(TestResultPropertyTest, TestPropertyCount) {
-  TestResult test_result;
-  TestProperty property_1("key_1", "1");
-  TestProperty property_2("key_2", "2");
-
-  ASSERT_EQ(0, test_result.test_property_count());
-  test_result.RecordProperty(property_1);
-  ASSERT_EQ(1, test_result.test_property_count());
-  test_result.RecordProperty(property_2);
   ASSERT_EQ(2, test_result.test_property_count());
+  const TestProperty* actual_property_1 = test_result.GetTestProperty(0);
+  EXPECT_STREQ("key_1", actual_property_1->key());
+  EXPECT_STREQ("12", actual_property_1->value());
+
+  const TestProperty* actual_property_2 = test_result.GetTestProperty(1);
+  EXPECT_STREQ("key_2", actual_property_2->key());
+  EXPECT_STREQ("22", actual_property_2->value());
 }
 
 // Tests TestResult::GetTestProperty().
@@ -1226,8 +1231,9 @@ TEST(TestResultPropertyTest, GetTestProperty) {
   TestResult test_result;
   TestProperty property_1("key_1", "1");
   TestProperty property_2("key_2", "2");
-  TestProperty property_3("key_3", "3stProperty actual_property_1 = properties.Head()->element();
-  EXPECT_STREQ("key_1", actuatest_result.RecordProperty(property_3);
+  TestProperty property_3("key_3", "3stPropTestResultAccessor::RecordProperty(&test_result, property_1);
+  TestResultAccessor::RecordProperty(&test_result, property_2);
+  TestResultAccessor::RecordProperty(&test_result, property_3);
 
   const TestProperty* fetched_property_1 = test_result.GetTestProperty(0);
   const TestProperty* fetched_property_2 = test_result.GetTestProperty(1);
@@ -1253,9 +1259,10 @@ TEST(TestResultPropertyTest, GetTestProperty) {
   ASSERT_TRUE(test_result.test_properties().IsEmpty()) << "Not recorded";
 }
 
-// Attempting to recording akeyrty with the Reserved literal "name"
-// should add a non-fatal failure and the property should not be recorded.
-TEST(TestResultPropertyTest, AddFailureWhenUsingReservedKeyCalledName) {
+// Attempting to recording akeyrty with the Reserved literal "nam
+      TestResultAccessor::RecordProperty(&test_result, property),
+      "Reserved key");
+  ASSERT_EQ(0, test_result.test_property_count AddFailureWhenUsingReservedKeyCalledName) {
   ExpectNonFatalFailureRecordingPropertyWithReservedKey("name");
 }
 
@@ -2922,22 +2929,26 @@ TEST_F(SingleEvaluationTest, ASSERT_STR) {
   EXPECT_EQ(s2_ + 2, p2_);
 }
 
-// Tests that when ASSERT_NE fails, it evaluates its arguments exactly
-// once.
-TEST_F(SingleEvaluationTest, FailedASSERT_NE) {
-  EXPECT_FATAL_FAILURE(CompareAndIncrementInts(), "(a_++) != (b_++)");
-  EXPECT_EQ(1, a_);
-  EXPECT_EQ(1, b_);
-}
+// Tests that when ASSERT_NE fails, it evaluates   "Which is: 5",
+      msg2.c_str());
 
-// Tests that assertion arguments are evaluated exactly once.
-TEST_F(SingleEvaluationTest, OtherCases) {
-  // successful EXPECT_TRUE
-  EXPECT_TRUE(0 == a_++);  // NOLINT
-  EXPECT_EQ(1, a_);
+  const String msg3(
+      EqFailure("5", "bar", foo_val, bar_val, false)
+      .failure_message());
+  EXPECT_STREQ(
+      "Value of: bar\n"
+      "  Actual: 6\n"
+      "Expected: 5",
+      msg3.c_str());
 
-  // failed EXPECT_TRUE
-  EXPECT_NONFATst String msg5(
+  const String msg4(
+      EqFailure("5", "6", foo_val, bar_val, false).failure_message());
+  EXPECT_STREQ(
+      "Value of: 6\n"
+      "Expected: 5",
+      msg4.c_str());
+
+  const String msg5(
       EqFailure("foo", "bar",
                 String("\"x\""), String("\"y\""),
                 true).failure_message());
@@ -4298,36 +4309,36 @@ std::ostream& operator<<(std::ostream& os,
   return os << "(" << pointer->x() << ")";
 }
 
-TEST(MessageTest, CanStreamUserTypeInUserNameSpaceWithStreamOperatorInGlobal) {
-GetUnitTestImpl()->TypeInNameSpace2 a(1);
+TEST(MessageTest, Canconst TestInfo* GetTestInfo(const char* test_name) {
+    const TestCase* const test_case = GetUnitTestImpl()->
+        GetTestCase("TestInfoTest", "", NULL, NULL);
 
-  ms" msg << a << &a;  // Uses ::operator<<.
-  EXPECT_STREQ("1(1)", msg.GetString().c_str());
+    for (int i = 0; i < test_case->total_test_count(); ++i) {
+      const TestInfo* const test_info = test_case->GetTestInfo(i);
+      if (strcmp(test_name, test_info->name()) == 0)
+        return test_info;
+    }
+    return NULLT_STREQ("1(1)", msg.GetString().c_str());
 }
 
 // Tests streaming NULL pointers to testing::Message.
 TEST(MessageTest, NullPointers) {
   testing::Message msg;
   char* const p1 = NULL;
-  unsigned char* const p2 = NULL;
-  int* p3 = NULL;
+  unsigned char* const p2 = NULLconst TestInfop3 = NULL;
   double* p4 = NULL;
   bool* p5 = NULL;
   testing::Message* p6 = NULL;
 
   msg << p1 << p2 << p3 << p4 << p5 << p6;
   ASSERT_STREQ("(null)(null)(null)(null)(null)(null)",
-               msg.GetString().c_str());
-}
+               msg.GetString().cconst TestInfo* const test_info = GetTestInfo("result");
 
-// Tests streaming wide strings to testing::Message.
-TEST(MessageTest, WideStrings) {
-  using testing::Message;
-
-  // Streams a NULL of type const wchar_t*.
+  // Initially, there is no TestPartResult for this test.
+  ASSERT_EQ(0  // Streams a NULL of type const wchar_t*.
   const wchar_t* const_wstr = NULL;
   EXPECT_STREQ("(null)",
-               (Message() << const_wstr).GetString().c_str());
+              (Message() << const_wstr).GetString().c_str());
 
   // Streams a NULL of type wchar_t*.
   wchar_t* wstr = NULL;
