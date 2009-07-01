@@ -76,6 +76,16 @@ TEST(CommandLineFlagsTest, CanBeAccessedInCodeOnceGTestHIsIncluded) {
 #include <map>
 #endif
 
+// GTEST_EXPECT_DEATH_IF_SUPPORTED_(statement, regex) expands to a
+// real death test if death tests are supported; otherwise it expands
+// to empty.
+#if GTEST_HAS_DEATH_TEST
+#define GTEST_EXPECT_DEATH_IF_SUPPORTED_(statement, regex) \
+    EXPECT_DEATH(statement, regex)
+#else
+#define GTEST_EXPECT_DEATH_IF_SUPPORTED_(statement, regex)
+#endif
+
 namespace testing {
 namespace internal {
 const char* FormatTimeInMillisAsSeconds(TimeInMillis ms);
@@ -446,32 +456,55 @@ TEST(WideStringToUtf8Test, ConcatenatesCodepointsCorrectly) {
 #endif  // !GTEST_WIDE_STRING_USES_UTF16_()->element());
 }
 
-// Tests List::PopFront().
+/class template.
+
+// Tests List::Clear().
+TEST(ListTest, Clear) {
+  List<int> a;
+  a.PushBack(1);
+  a.Clear();
+  EXPECT_EQ(0, a.size());
+
+  a.PushBack(2);
+  a.PushBack(3);
+  a.Clear();
+  EXPECT_EQ(0, a.size());
+}
+
+// Tests List::PushBack().
+TEST(ListTest, PushBack) {
+  List<char> a;
+  a.PushBack('a');
+  ASSERT_EQ(1, a.size());
+  EXPECT_EQ('a', a.GetElement(0));
+
+  a.PushBack('b');
+  ASSERT_EQ(2, a.size());
+  EXPECT_EQ('a', a.GetElement(0));
+  EXPECT_EQ('b', a.GetElement(1));
+}opFront().
 TEST(ListTest, PopFront) {
   List<int> a;
 
-  // Popping on an empty list should fail.
-  EXPECT_FALSE(a.PopFront(NULL));
+  // Popping on an empty list sh, a.size());
 
-  // Popping again on an empty list should fail, and the result element
-  // shouldn't be overwritten.
-  int element = 1;
+  // Calls PushFront() on an empty list.
+  a.PushFront(1);
+  ASSERT_EQ(1, a.size());
+  EXPECT_EQ(1, a.GetElement(0
   EXPECT_FALSE(a.PopFront(&element));
   EXPECT_EQ(1, element);
 
-  a.PushFront(2);
+  a.PushFront(2, a.size());
+  EXPECT_EQ(2, a.GetElement(0));
+  EXPECT_EQ(1, a.GetElement(1));
+
+  // Calls PushFront() on a list with more than one elements.
   a.PushFront(3);
-
-  // PopFront() should pop the element in the front of the list.
-  EXPECT_TRUE(a.PopFront(&element));
-  EXPECT_EQ(3, element);
-
-  // After popping the last element, the list should be empty.
-  EXPECT_TRUE(a.PopFront(NULL));
-  EXPECT_EQ(0u, a.size());
-}
-
-// Tests inserting at the beginning using List::InsertAfter().
+  ASSERT_EQ(3, a.size());
+  EXPECT_EQ(3, a.GetElement(0));
+  EXPECT_EQ(2, a.GetElement(1));
+  EXPECT_EQ(1, a.GetElement(2 using List::InsertAfter().
 TEST(ListTest, InsertAfterAtBeginning) {
   List<int> a;
   ASSERT_EQ(0u, a.size());
@@ -492,35 +525,36 @@ TEST(ListTest, InsertAfterAtBeginning) {
   a.InsertAfter(NULL, 3);
   ASSERT_EQ(3u, a.size());
   EXPECT_EQ(3, a.Head()->element());
-  EXPECT_EQ(2, a.Head()->next()->element());
-  EXPECT_EQ(1, a.Last()->element());
+  EXPECT, a.size());
+}
+
+// Tests inserting at the beginning using List::Insert().
+TEST(ListTest, InsertAtBeginning) {
+  List<int> a;
+  ASSERT_EQ(0, a.size());
+
+  // Inserts into an empty list.
+  a.Insert(1, 0);
+  ASSERT_EQ(1, a.size());
+  EXPECT_EQ(1, a.GetElement(0));
+
+  // Inserts at the beginning of a singleton list.
+  a.Insert(2, 0);
+  ASSERT_EQ(2, a.size());
+  EXPECT_EQ(2, a.GetElement(0));
+  EXPECT_EQ(1, a.GetElement(1));
+
+  // Inserts at the beginning of a list with more than one elements.
+  a.Insert(3, 0);
+  ASSERT_EQ(3, a.size());
+  EXPECT_EQ(3, a.GetElement(0));
+  EXPECT_EQ(2, a.GetElement(1));
+  EXPECT_EQ(1, a.GetElement(2));
 }
 
 // Tests inserting at a location other than the beginning using
-// List::InsertAfter().
-TEST(ListTest, InsertAfterNotAtBeginning) {
-  // Prepares a singleton list.
-  List<int> a;
-  a.PushBack(1);
-
-  // Inserts at the end of a singleton list.
-  a.InsertAfter(a.Last(), 2);
-  ASSERT_EQ(2u, a.size());
-  EXPECT_EQ(1, a.Head()->element());
-  EXPECT_EQ(2, a.Last()->element());
-
-  // Inserts at the end of a list with more than one elements.
-  a.InsertAfter(a.Last(), 3);
-  ASSERT_EQ(3u, a.size());
-  EXPECT_EQ(1, a.Head()->element());
-  EXPECT_EQ(2, a.Head()->next()->element());
-  EXPECT_EQ(3, a.Last()->element());
-
-  // Inserts in the middle of a list.
-  a.InsertAfter(a.Head(), 4);
-  ASSERT_EQ(4u, a.size());
-  EXPECT_EQ(1, a.Head()->element());
-  EXPECT_EQ(4, a.Head()->next()->element());
+// List::Insert().
+TEST(ListTest, Insertement());
   EXPECT_EQ(2, a.Head()->next()->next()->element());
   EXPECT_EQ(3, a.Last()->element());
 }
@@ -528,41 +562,54 @@ TEST(ListTest, InsertAfterNotAtBeginning) {
 
 // Tests the String class.
 
-// Tests String's constructors.
-TEST(StringTest, Constructors) {
-  // Default ctor.
-  String s1;
-  // We aren't using EXPECT_EQ(NULL, s1.c_str()) because comparing
-  // pointers with NULL isn't supported on all platforms.
-  EXPECT_TRUE(NULL == s1.c_str());
+// Tes(2, a.size());
+  ASSERT_EQ(2, a.size());
+  EXPECT_EQ(1, a.GetElement(0));
+  EXPECT_EQ(2, a.GetElement(1T_EQ(NULL, s1.c_str()) because comparing
+  // pointers with NULL isn't support(3, a.size());
+  ASSERT_EQ(3, a.size());
+  EXPECT_EQ(1, a.GetElement(0));
+  EXPECT_EQ(2, a.GetElement(1));
+  EXPECT_EQ(3, a.GetElement(2));
 
-  // Implicitly constructs from a C-string.
-  String s2 = "Hi";
-  EXPECT_STREQ("Hi", s2.c_str());
-
-  // Constructs from a C-string and a length.
-  String s3("hello", 3);
-  EXPECT_STREQ("hel", s3.c_str());
-
-  // Copy ctor.
-  String s4 = s3;
-  EXPECT_STREQ("hel", s4.c_str());
+  // Inserts in the middle of a list.
+  a.Insert(4, 1);
+  ASSERT_EQ(4, a.size());
+  EXPECT_EQ(1, a.GetElement(0));
+  EXPECT_EQ(4, a.GetElement(1));
+  EXPECT_EQ(2, a.GetElement(2));
+  EXPECT_EQ(3, a.GetElement(3));
 }
 
-// Tests String::ShowCString().
-TEST(StringTest, ShowCString) {
-  EXPECT_STREQ("(null)", String::ShowC// Tests the GetElement accessor.
-TEST(ListTest, GetElement) {
+// Tests List::GetElementOr().
+TEST(ListTest, GetElementOr) {
+  List<char> a;
+  EXPECT_EQ('x', a.GetElementOr(0, 'x'));
+
+  a.PushBack('a');
+  a.PushBack('b');
+  EXPECT_EQ('a', a.GetElementOr(0, 'x'));
+  EXPECT_EQ('b', a.GetElementOr(1, 'x'));
+  EXPECT_EQ('x', a.GetElementOr(-2, 'x'));
+  EXPECT_EQ('x', a.GetElementOr(2, 'x'));
+}
+
+// Tests the GetElement accessor.
+TEST(ListDeathTest, GetElement) {
   List<int> a;
   a.PushBack(0);
   a.PushBack(1);
   a.PushBack(2);
 
-  EXPECT_EQ(&(a.Head()->element()), a.GetElement(0));
-  EXPECT_EQ(&(a.Head()->next()->element()), a.GetElement(1));
-  EXPECT_EQ(&(a.Head()->next()->next()->element()), a.GetElement(2));
-  EXPECT_TRUE(a.GetElement(3) == NULL);
-  EXPECT_TRUE(a.GetElement(-1) == NULL);
+  EXPECT_EQ(0, a.GetElement(0));
+  EXPECT_EQ(1, a.GetElement(1));
+  EXPECT_EQ(2, a.GetElement(2));
+  GTEST_EXPECT_DEATH_IF_SUPPORTED_(
+      a.GetElement(3),
+      "Invalid list index 3: must be in range \\[0, 2\\]\\.");
+  GTEST_EXPECT_DEATH_IF_SUPPORTED_(
+      a.GetElement(-1),
+      "Invalid list index -1: must be in range \\[0, 2\\]\\.");
 }CString(NULL));
   EXPECT_STREQ("", String::ShowCString(""));
   EXPECT_STREQ("foo", String::ShowCString("foo"));
@@ -1108,18 +1155,17 @@ TEST_F(TestResultTest, test_part_results) {
   ASSERT_EQ(1u, r1->test_part_results().size());
   ASSERT_EQ(2
   // Helper that compares two two TestPartResults.
-  static void CompareTestPartResult(const TestPartResult* expected,
-                                    const TestPartResult* actual) {
-    ASSERT_TRUE(actual != NULL);
-    EXPECT_EQ(expected->type(), actual->type());
-    EXPECT_STREQ(expected->file_name(), actual->file_name());
-    EXPECT_EQ(expected->line_number(), actual->line_number());
-    EXPECT_STREQ(expected->summary(), actual->summary());
-    EXPECT_STREQ(expected->message(), actual->message());
-    EXPECT_EQ(expected->passed(), actual->passed());
-    EXPECT_EQ(expected->failed(), actual->failed());
-    EXPECT_EQ(expected->nonfatally_failed(), actual->nonfatally_failed());
-    EXPECT_EQ(expected->fatally_failed(), actual->fatally_failed());
+  static void CompareTestPartResult(const TestPartResult& expected,
+                                    const TestPartResult& actual) {
+    EXPECT_EQ(expected.type(), actual.type());
+    EXPECT_STREQ(expected.file_name(), actual.file_name());
+    EXPECT_EQ(expected.line_number(), actual.line_number());
+    EXPECT_STREQ(expected.summary(), actual.summary());
+    EXPECT_STREQ(expected.message(), actual.message());
+    EXPECT_EQ(expected.passed(), actual.passed());
+    EXPECT_EQ(expected.failed(), actual.failed());
+    EXPECT_EQ(expected.nonfatally_failed(), actual.nonfatally_failed());
+    EXPECT_EQ(expected.fatally_failed(), actual.fatally_failed());
   }
 };
 
@@ -1167,11 +1213,18 @@ TEST_F(TestResultTest, Failed) {
 TEST(TestResultPropertyTest, NoPropertiesFoundWhenNoneAreAdded) {
   TestResult test_result;
   ASSERT_EQ(0u, test_result.test_properties().size(GetTestPartResult().
-TEST_F(TestResultTest, GetTestPartResult) {
-  CompareTestPartResult(pr1, r2->GetTestPartResult(0));
-  CompareTestPartResult(pr2, r2->GetTestPartResult(1));
-  EXPECT_TRUE(r2->GetTestPartResult(2) == NULL);
-  EXPECT_TRUE(r2->GetTestPartResult(-1) == NULLult.test_properties().sizestResult::test_properties() has the expected property when added.
+
+typedef TestResultTest TestResultDeathTest;
+
+TEST_F(TestResultDeathTest, GetTestPartResult) {
+  CompareTestPartResult(*pr1, r2->GetTestPartResult(0));
+  CompareTestPartResult(*pr2, r2->GetTestPartResult(1));
+  GTEST_EXPECT_DEATH_IF_SUPPORTED_(
+      r2->GetTestPartResult(2),
+      "Invalid list index 2: must be in range \\[0, 1\\]\\.");
+  GTEST_EXPECT_DEATH_IF_SUPPORTED_(
+      r2->GetTestPartResult(-1),
+      "Invalid list index -1: must be in range \\[0, 1\\]\\."ult.test_properties().sizestResult::test_properties() has the expected property when added.
 TEST(TestResultPropertyTest, OnePropertyFoundWhenAdded) {
   TestResult test_re, test_result.test_property_count());
 }
@@ -1181,9 +1234,9 @@ TEST(TestResultPropertyTest, OnePropertyFoundWhenAdded) {
   ASSERT_EQ(1u, properties.size());
   TestProperty actual_property = properties.Head()->elTestResultAccessor::RecordProperty(&test_result, property);
   ASSERT_EQ(1, test_result.test_property_count());
-  const TestProperty* actual_property = test_result.GetTestProperty(0);
-  EXPECT_STREQ("key_1", actual_property->key());
-  EXPECT_STREQ("1", actual_property->value());
+  const TestProperty& actual_property = test_result.GetTestProperty(0);
+  EXPECT_STREQ("key_1", actual_property.key());
+  EXPECT_STREQ("1", actual_property.value());
 }
 
 // Tests TestResult2", "2");
@@ -1194,13 +1247,13 @@ TEST(TestResultPropertyTest, OnePropertyFoundWhenAdded) {
   TestPropTestResultAccessor::RecordProperty(&test_result, property_1);
   TestResultAccessor::RecordProperty(&test_result, property_2);
   ASSERT_EQ(2, test_result.test_property_count());
-  const TestProperty* actual_property_1 = test_result.GetTestProperty(0);
-  EXPECT_STREQ("key_1", actual_property_1->key());
-  EXPECT_STREQ("1", actual_property_1->value());
+  const TestProperty& actual_property_1 = test_result.GetTestProperty(0);
+  EXPECT_STREQ("key_1", actual_property_1.key());
+  EXPECT_STREQ("1", actual_property_1.value());
 
-  const TestProperty* actual_property_2 = test_result.GetTestProperty(1);
-  EXPECT_STREQ("key_2", actual_property_2->key());
-  EXPECT_STREQ("2", actual_property_2->value());
+  const TestProperty& actual_property_2 = test_result.GetTestProperty(1);
+  EXPECT_STREQ("key_2", actual_property_2.key());
+  EXPECT_STREQ("2", actual_property_2.value());
 }
 
 // Tests TestResult::RecordProperty("key_2", "2");
@@ -1217,17 +1270,17 @@ TEST(TestResultPropertyTest, OnePropertyFoundWhenAdded) {
   TestResultAccessor::RecordProperty(&test_result, property_2_2);
 
   ASSERT_EQ(2, test_result.test_property_count());
-  const TestProperty* actual_property_1 = test_result.GetTestProperty(0);
-  EXPECT_STREQ("key_1", actual_property_1->key());
-  EXPECT_STREQ("12", actual_property_1->value());
+  const TestProperty& actual_property_1 = test_result.GetTestProperty(0);
+  EXPECT_STREQ("key_1", actual_property_1.key());
+  EXPECT_STREQ("12", actual_property_1.value());
 
-  const TestProperty* actual_property_2 = test_result.GetTestProperty(1);
-  EXPECT_STREQ("key_2", actual_property_2->key());
-  EXPECT_STREQ("22", actual_property_2->value());
+  const TestProperty& actual_property_2 = test_result.GetTestProperty(1);
+  EXPECT_STREQ("key_2", actual_property_2.key());
+  EXPECT_STREQ("22", actual_property_2.value());
 }
 
 // Tests TestResult::GetTestProperty().
-TEST(TestResultPropertyTest, GetTestProperty) {
+TEST(TestResultPropertyDeathTest, GetTestProperty) {
   TestResult test_result;
   TestProperty property_1("key_1", "1");
   TestProperty property_2("key_2", "2");
@@ -1235,24 +1288,25 @@ TEST(TestResultPropertyTest, GetTestProperty) {
   TestResultAccessor::RecordProperty(&test_result, property_2);
   TestResultAccessor::RecordProperty(&test_result, property_3);
 
-  const TestProperty* fetched_property_1 = test_result.GetTestProperty(0);
-  const TestProperty* fetched_property_2 = test_result.GetTestProperty(1);
-  const TestProperty* fetched_property_3 = test_result.GetTestProperty(2);
+  const TestProperty& fetched_property_1 = test_result.GetTestProperty(0);
+  const TestProperty& fetched_property_2 = test_result.GetTestProperty(1);
+  const TestProperty& fetched_property_3 = test_result.GetTestProperty(2);
 
-  ASSERT_TRUE(fetched_property_1 != NULL);
-  EXPECT_STREQ("key_1", fetched_property_1->key());
-  EXPECT_STREQ("1", fetched_property_1->value());
+  EXPECT_STREQ("key_1", fetched_property_1.key());
+  EXPECT_STREQ("1", fetched_property_1.value());
 
-  ASSERT_TRUE(fetched_property_2 != NULL);
-  EXPECT_STREQ("key_2", fetched_property_2->key());
-  EXPECT_STREQ("2", fetched_property_2->value());
+  EXPECT_STREQ("key_2", fetched_property_2.key());
+  EXPECT_STREQ("2", fetched_property_2.value());
 
-  ASSERT_TRUE(fetched_property_3 != NULL);
-  EXPECT_STREQ("key_3", fetched_property_3->key());
-  EXPECT_STREQ("3", fetched_property_3->value());
+  EXPECT_STREQ("key_3", fetched_property_3.key());
+  EXPECT_STREQ("3", fetched_property_3.value());
 
-  ASSERT_TRUE(test_result.GetTestProperty(3) == NULL);
-  ASSERT_TRUE(test_result.GetTestProperty(-1) == NULLExpectNonFatalFailureRecordingPropertyWithReservedKey(const char* key) {
+  GTEST_EXPECT_DEATH_IF_SUPPORTED_(
+      test_result.GetTestProperty(3),
+      "Invalid list index 3: must be in range \\[0, 2\\]\\.");
+  GTEST_EXPECT_DEATH_IF_SUPPORTED_(
+      test_result.GetTestProperty(-1),
+      "Invalid list index -1: must be in range \\[0, 2\\]\\."ExpectNonFatalFailureRecordingPropertyWithReservedKey(const char* key) {
   TestResult test_result;
   TestProperty property("name", "1");
   EXPECT_NONFATAL_FAILURE(test_result.RecordProperty(property), "Reserved key");
@@ -1500,28 +1554,25 @@ TEST(Int32FromEnvOrDieTest, ParsesAndReturnsValidValue) {
   SetEnv(GTEST_FLAG_PREFIX_UPPER_ "UnsetVar", "-123");
   EXPECT_EQ(-123, Int32FromEnvOrDie(GTEST_FLAG_PREFIX_UPPER_ "UnsetVar", 333));
 }
-#endif // _WIN32_WCE
-
-#if GTEST_HAS_DEATH_TEST
+#endif  // _WIN32_WCE
 
 // Tests that Int32FromEnvOrDie() aborts with an error message
 // if the variable is not an Int32.
 TEST(Int32FromEnvOrDieDeathTest, AbortsOnFailure) {
   SetEnv(GTEST_FLAG_PREFIX_UPPER_ "VAR", "xxx");
-  EXPECT_DEATH({Int32FromEnvOrDie(GTEST_FLAG_PREFIX_UPPER_ "VAR", 123);},
-               ".*");
+  GTEST_EXPECT_DEATH_IF_SUPPORTED_(
+      Int32FromEnvOrDie(GTEST_FLAG_PREFIX_UPPER_ "VAR", 123),
+      ".*");
 }
 
 // Tests that Int32FromEnvOrDie() aborts with an error message
 // if the variable cannot be represnted by an Int32.
 TEST(Int32FromEnvOrDieDeathTest, AbortsOnInt32Overflow) {
   SetEnv(GTEST_FLAG_PREFIX_UPPER_ "VAR", "1234567891234567891234");
-  EXPECT_DEATH({Int32FromEnvOrDie(GTEST_FLAG_PREFIX_UPPER_ "VAR", 123);},
-               ".*");
+  GTEST_EXPECT_DEATH_IF_SUPPORTED_(
+      Int32FromEnvOrDie(GTEST_FLAG_PREFIX_UPPER_ "VAR", 123),
+      ".*");
 }
-
-#endif  // GTEST_HAS_DEATH_TEST
-
 
 // Tests that ShouldRunTestOnShard() selects all tests
 // where there is 1 shard.
@@ -1587,34 +1638,33 @@ TEST_F(ShouldShardTest, WorksWhenShardEnvVarsAreValid) {
   EXPECT_TRUE(ShouldShard(total_var_, index_var_, false));
   EXPECT_FALSE(ShouldShard(total_var_, index_var_, true));
 }
-#endif // _WIN32_WCE
-
-#if GTEST_HAS_DEATH_TEST
+#endif  // _WIN32_WCE
 
 // Tests that we exit in error if the sharding values are not valid.
-TEST_F(ShouldShardTest, AbortsWhenShardingEnvVarsAreInvalid) {
+
+typedef ShouldShardTest ShouldShardDeathTest;
+
+TEST_F(ShouldShardDeathTest, AbortsWhenShardingEnvVarsAreInvalid) {
   SetEnv(index_var_, "4");
   SetEnv(total_var_, "4");
-  EXPECT_DEATH({ShouldShard(total_var_, index_var_, false);},
-               ".*");
+  GTEST_EXPECT_DEATH_IF_SUPPORTED_(ShouldShard(total_var_, index_var_, false),
+                                   ".*");
 
   SetEnv(index_var_, "4");
   SetEnv(total_var_, "-2");
-  EXPECT_DEATH({ShouldShard(total_var_, index_var_, false);},
-               ".*");
+  GTEST_EXPECT_DEATH_IF_SUPPORTED_(ShouldShard(total_var_, index_var_, false),
+                                   ".*");
 
   SetEnv(index_var_, "5");
   SetEnv(total_var_, "");
-  EXPECT_DEATH({ShouldShard(total_var_, index_var_, false);},
-               ".*");
+  GTEST_EXPECT_DEATH_IF_SUPPORTED_(ShouldShard(total_var_, index_var_, false),
+                                   ".*");
 
   SetEnv(index_var_, "");
   SetEnv(total_var_, "5");
-  EXPECT_DEATH({ShouldShard(total_var_, index_var_, false);},
-               ".*");
+  GTEST_EXPECT_DEATH_IF_SUPPORTED_(ShouldShard(total_var_, index_var_, false),
+                                   ".*");
 }
-
-#endif  // GTEST_HAS_DEATH_TEST
 
 // Tests that ShouldRunTestOnShard is a partition when 5
 // shards are used.
@@ -2909,27 +2959,30 @@ TEST_F(NoFatalFailureTest, MessageIsStreamable) {
                       gtest_failures.GetTestPartResult(0).message());
   EXPECT_PRED_FORMAT2(testing::IsSubstring, "my message",
                       gtest_failures.GetTestPartResult(1).message());
-}rementCharPtrs(),
-                       "p2_++");
-  EXPECT_EQ(s1_ + 1, p1_);
-  EXPECT_EQ(s2_ + 1, p2_);
 }
 
-// Tests that string assertion arguments are evaluated exactly once.
-TEST_F(SingleEvaluationTest, ASSERT_STR) {
-  // successful EXPECT_STRNE
-  EXPECT_STRNE(p1_++, p2_++);
-  EXPECT_EQ(s1_ + 1, p1_);
-  EXPECT_EQ(s2_ + 1, p2_);
+// Tests non-string assertions.
 
-  // failed EXPECT_STRCASEEQ
-  EXPECT_NONFATAL_FAILURE(EXPECT_STRCASEEQ(p1_++, p2_++),
-                          "ignoring case");
-  EXPECT_EQ(s1_ + 2, p1_);
-  EXPECT_EQ(s2_ + 2, p2_);
-}
+// Tests EqFailure(), used for implementing *EQ* assertions.
+TEST(AssertionTest, EqFailure) {
+  const String foo_val("5"), bar_val("6");
+  const String msg1(
+      EqFailure("foo", "bar", foo_val, bar_val, false)
+      .failure_message());
+  EXPECT_STREQ(
+      "Value of: bar\n"
+      "  Actual: 6\n"
+      "Expected: foo\n"
+      "Which is: 5",
+      msg1.c_str());
 
-// Tests that when ASSERT_NE fails, it evaluates   "Which is: 5",
+  const String msg2(
+      EqFailure("foo", "6", foo_val, bar_val, false)
+      .failure_message());
+  EXPECT_STREQ(
+      "Value of: 6\n"
+      "Expected: foo\n"
+      "Which is: 5",
       msg2.c_str());
 
   const String msg3(
@@ -3498,31 +3551,31 @@ namespace testing {
 TEST(SuccessfulAssertionTest, SUCCEED) {
   SUCCEED();
   SUCCEED() << "OK";
-  EXPECT_EQ(2u, GetSuccessfulPartCount());
+  EXPECT_EQ(2, GetSuccessfulPartCount());
 }
 
 // Tests that Google Test doesn't track successful EXPECT_*.
 TEST(SuccessfulAssertionTest, EXPECT) {
   EXPECT_TRUE(true);
-  EXPECT_EQ(0u, GetSuccessfulPartCount());
+  EXPECT_EQ(0, GetSuccessfulPartCount());
 }
 
 // Tests that Google Test doesn't track successful EXPECT_STR*.
 TEST(SuccessfulAssertionTest, EXPECT_STR) {
   EXPECT_STREQ("", "");
-  EXPECT_EQ(0u, GetSuccessfulPartCount());
+  EXPECT_EQ(0, GetSuccessfulPartCount());
 }
 
 // Tests that Google Test doesn't track successful ASSERT_*.
 TEST(SuccessfulAssertionTest, ASSERT) {
   ASSERT_TRUE(true);
-  EXPECT_EQ(0u, GetSuccessfulPartCount());
+  EXPECT_EQ(0, GetSuccessfulPartCount());
 }
 
 // Tests that Google Test doesn't track successful ASSERT_STR*.
 TEST(SuccessfulAssertionTest, ASSERT_STR) {
   ASSERT_STREQ("", "");
-  EXPECT_EQ(0u, GetSuccessfulPartCount());
+  EXPECT_EQ(0, GetSuccessfulPartCount());
 }
 
 }  // namespace testing
