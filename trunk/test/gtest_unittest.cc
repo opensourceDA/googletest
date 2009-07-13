@@ -106,7 +106,7 @@ class TestResultAccessor {
     test_result->ClearTestPartResults();
   }
 
-  static const List<testing::TestPartResult>& test_part_results(
+  static const Vector<testing::TestPartResult>& test_part_results(
       const TestResult& test_result) {
     return test_result.test_part_results();
   }
@@ -169,7 +169,6 @@ using testing::internal::GetTypeId {
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL(NULL));
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL(0));
   EXPECT_TRUInt32FromEnvOrDie;
-using testing::internal::List;
 using testing::internal::ShouldRunTestOnShard;
 using testing::internal::ShouldShardEST_IS_NULL_LITERAL(1 - 1));
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL(0U));
@@ -181,6 +180,9 @@ using testing::internal::TestResultAccessorrue && false));
 }
 
 // TestsThreadLocalrue && false));
+}
+
+// TestsVectorrue && false));
 }
 
 // TestsWideStringToUtf8ot a null
@@ -453,14 +455,11 @@ TEST(WideStringToUtf8Test, ConcatenatesCodepointsCorrectly) {
       "\xEC\x9D\x8D" "\n" "\xD5\xB6" "\xE0\xA3\x93",
       WideStringToUtf8(L"\xC74D\n\x576\x8D3", -1).c_str());
 }
-#endif  // !GTEST_WIDE_STRING_USES_UTF16_()->element());
-}
+#endif  // !GTEST_WIDE_STRING_USES_UTF16_()->element());Vector class template.
 
-/class template.
-
-// Tests List::Clear().
-TEST(ListTest, Clear) {
-  List<int> a;
+// Tests Vector::Clear().
+TEST(VectorTest, Clear) {
+  Vector<int> a;
   a.PushBack(1);
   a.Clear();
   EXPECT_EQ(0, a.size());
@@ -471,9 +470,9 @@ TEST(ListTest, Clear) {
   EXPECT_EQ(0, a.size());
 }
 
-// Tests List::PushBack().
-TEST(ListTest, PushBack) {
-  List<char> a;
+// Tests Vector::PushBack().
+TEST(VectorTest, PushBack) {
+  Vector<char> a;
   a.PushBack('a');
   ASSERT_EQ(1, a.size());
   EXPECT_EQ('a', a.GetElement(0));
@@ -483,35 +482,35 @@ TEST(ListTest, PushBack) {
   EXPECT_EQ('a', a.GetElement(0));
   EXPECT_EQ('b', a.GetElement(1));
 }opFront().
-TEST(ListTest, PopFront) {
-  List<int> a;
+Vector::PushFront().
+TEST(VectorTest, PushFront) {
+  Vector<int> a;
+  ASSERT_EQ(0, a.size());
 
-  // Popping on an empty list sh, a.size());
-
-  // Calls PushFront() on an empty list.
+  // Calls PushFront() on an empty Vector.
   a.PushFront(1);
   ASSERT_EQ(1, a.size());
   EXPECT_EQ(1, a.GetElement(0
   EXPECT_FALSE(a.PopFront(&element));
-  EXPECT_EQ(1, element);
+  EXVector_EQ(1, element);
 
   a.PushFront(2, a.size());
   EXPECT_EQ(2, a.GetElement(0));
   EXPECT_EQ(1, a.GetElement(1));
 
-  // Calls PushFront() on a list with more than one elements.
+  // Calls PushFront() on a Vector with more than one elements.
   a.PushFront(3);
   ASSERT_EQ(3, a.size());
   EXPECT_EQ(3, a.GetElement(0));
   EXPECT_EQ(2, a.GetElement(1));
-  EXPECT_EQ(1, a.GetElement(2 using List::InsertAfter().
-TEST(ListTest, InsertAfterAtBeginning) {
-  List<int> a;
-  ASSERT_EQ(0u, a.size());
+  EXPECT_EQ(1, a.GetElement(2 using List::InsVector::PopFront().
+TEST(VectorTest, PopFront) {
+  Vector<int> a;
 
-  // Inserts into an empty list.
-  a.InsertAfter(NULL, 1);
-  ASSERT_EQ(1u, a.size());
+  // Popping on an empty Vector should fail.
+  EXPECT_FALSE(a.PopFront(NULL));
+
+  // Popping again on an empty Vectorize());
   EXPECT_EQ(1, a.Head()->element());
   ASSERT_EQ(a.Head(), a.Last());
 
@@ -519,32 +518,31 @@ TEST(ListTest, InsertAfterAtBeginning) {
   a.InsertAfter(NULL, 2);
   ASSERT_EQ(2u, a.size());
   EXPECT_EQ(2, a.Head()->element());
-  EXPECT_EQ(1, a.Last()->element());
+  EXPECT_EQ(1, a.Last()->elVectort());
 
   // Inserts at the beginning of a list with more than one elements.
   a.InsertAfter(NULL, 3);
-  ASSERT_EQ(3u, a.size());
+  ASVector_EQ(3u, a.size());
   EXPECT_EQ(3, a.Head()->element());
   EXPECT, a.size());
 }
 
-// Tests inserting at the beginning using List::Insert().
-TEST(ListTest, InsertAtBeginning) {
-  List<int> a;
+// Tests inserting at the beginning using Vector::Insert().
+TEST(VectorTest, InsertAtBeginning) {
+  Vector<int> a;
   ASSERT_EQ(0, a.size());
 
-  // Inserts into an empty list.
+  // Inserts into an empty Vector.
   a.Insert(1, 0);
   ASSERT_EQ(1, a.size());
-  EXPECT_EQ(1, a.GetElement(0));
-
-  // Inserts at the beginning of a singleton list.
-  a.Insert(2, 0);
-  ASSERT_EQ(2, a.size());
+  EXPECT_EQ(1, a.GetElement(0
+  EXPECT_Inserts at the beginning of a singleton Vector.
+  a.Insert(2, 0
+  a.PushFront(2, a.size());
   EXPECT_EQ(2, a.GetElement(0));
   EXPECT_EQ(1, a.GetElement(1));
 
-  // Inserts at the beginning of a list with more than one elements.
+  // Inserts at the beginning of a Vector with more than one elements.
   a.Insert(3, 0);
   ASSERT_EQ(3, a.size());
   EXPECT_EQ(3, a.GetElement(0));
@@ -553,26 +551,25 @@ TEST(ListTest, InsertAtBeginning) {
 }
 
 // Tests inserting at a location other than the beginning using
-// List::Insert().
-TEST(ListTest, Insertement());
-  EXPECT_EQ(2, a.Head()->next()->next()->element());
-  EXPECT_EQ(3, a.Last()->element());
-}
+// Vector::Insert().
+TEST(VectorTest, InsertNotAtBeginning) {
+  // Prepares a singleton Vector.
+  Vector<int> a;
+  a.PushBack(1);
 
-
-// Tests the String class.
+  // Inserts at the end of a singleton Vectorass.
 
 // Tes(2, a.size());
   ASSERT_EQ(2, a.size());
   EXPECT_EQ(1, a.GetElement(0));
-  EXPECT_EQ(2, a.GetElement(1T_EQ(NULL, s1.c_str()) because comparing
+  EXPECT_EQ(2, a.GetElement(1T_EQ(NULL, s1.c_str()) because comVectorng
   // pointers with NULL isn't support(3, a.size());
   ASSERT_EQ(3, a.size());
   EXPECT_EQ(1, a.GetElement(0));
   EXPECT_EQ(2, a.GetElement(1));
   EXPECT_EQ(3, a.GetElement(2));
 
-  // Inserts in the middle of a list.
+  // Inserts in the middle of a Vector.
   a.Insert(4, 1);
   ASSERT_EQ(4, a.size());
   EXPECT_EQ(1, a.GetElement(0));
@@ -581,9 +578,9 @@ TEST(ListTest, Insertement());
   EXPECT_EQ(3, a.GetElement(3));
 }
 
-// Tests List::GetElementOr().
-TEST(ListTest, GetElementOr) {
-  List<char> a;
+// Tests Vector::GetElementOr().
+TEST(VectorTest, GetElementOr) {
+  Vector<char> a;
   EXPECT_EQ('x', a.GetElementOr(0, 'x'));
 
   a.PushBack('a');
@@ -594,9 +591,71 @@ TEST(ListTest, GetElementOr) {
   EXPECT_EQ('x', a.GetElementOr(2, 'x'));
 }
 
+// Tests Vector::Erase().
+TEST(VectorDeathTest, Erase) {
+  Vector<int> a;
+
+  // Tests erasing from an empty vector.
+  GTEST_EXPECT_DEATH_IF_SUPPORTED_(
+      a.Erase(0),
+      "Invalid Vector index 0: must be in range \\[0, -1\\]\\.");
+
+  // Tests erasing from a singleton vector.
+  a.PushBack(0);
+
+  a.Erase(0);
+  EXPECT_EQ(0, a.size());
+
+  // Tests Erase parameters beyond the bounds of the vector.
+  Vector<int> a1;
+  a1.PushBack(0);
+  a1.PushBack(1);
+  a1.PushBack(2);
+
+  GTEST_EXPECT_DEATH_IF_SUPPORTED_(
+      a1.Erase(3),
+      "Invalid Vector index 3: must be in range \\[0, 2\\]\\.");
+  GTEST_EXPECT_DEATH_IF_SUPPORTED_(
+      a1.Erase(-1),
+      "Invalid Vector index -1: must be in range \\[0, 2\\]\\.");
+
+  // Tests erasing at the end of the vector.
+  Vector<int> a2;
+  a2.PushBack(0);
+  a2.PushBack(1);
+  a2.PushBack(2);
+
+  a2.Erase(2);
+  ASSERT_EQ(2, a2.size());
+  EXPECT_EQ(0, a2.GetElement(0));
+  EXPECT_EQ(1, a2.GetElement(1));
+
+  // Tests erasing in the middle of the vector.
+  Vector<int> a3;
+  a3.PushBack(0);
+  a3.PushBack(1);
+  a3.PushBack(2);
+
+  a3.Erase(1);
+  ASSERT_EQ(2, a3.size());
+  EXPECT_EQ(0, a3.GetElement(0));
+  EXPECT_EQ(2, a3.GetElement(1));
+
+  // Tests erasing at the beginning of the vector.
+  Vector<int> a4;
+  a4.PushBack(0);
+  a4.PushBack(1);
+  a4.PushBack(2);
+
+  a4.Erase(0);
+  ASSERT_EQ(2, a4.size());
+  EXPECT_EQ(1, a4.GetElement(0));
+  EXPECT_EQ(2, a4.GetElement(1));
+}
+
 // Tests the GetElement accessor.
 TEST(ListDeathTest, GetElement) {
-  List<int> a;
+  Vector<int> a;
   a.PushBack(0);
   a.PushBack(1);
   a.PushBack(2);
@@ -606,10 +665,10 @@ TEST(ListDeathTest, GetElement) {
   EXPECT_EQ(2, a.GetElement(2));
   GTEST_EXPECT_DEATH_IF_SUPPORTED_(
       a.GetElement(3),
-      "Invalid list index 3: must be in range \\[0, 2\\]\\.");
+      "Invalid Vector index 3: must be in range \\[0, 2\\]\\.");
   GTEST_EXPECT_DEATH_IF_SUPPORTED_(
       a.GetElement(-1),
-      "Invalid list index -1: must be in range \\[0, 2\\]\\.");
+      "Invalid Vector index -1: must be in range \\[0, 2\\]\\.");
 }CString(NULL));
   EXPECT_STREQ("", String::ShowCString(""));
   EXPECT_STREQ("foo", String::ShowCString("foo"));
@@ -1107,7 +1166,7 @@ TEST_F(ExpectFailureWithThreadsTest, ExpectNonFatalFailureOnAllThreads) {
 #endif  // GTEST_IS_THREADSAFE && GTEST_HAS_PTHREADsult(testing::TPRT_SUCCESS,
                                       "foo/bar.cc",
                                       10,
-                                      "Success!");
+              Vector<TestPartResult> TPRVectorcess!");
 
     // pr2 is for fatal failure.
     pr2 = new TestPartResult(testing::TPRT_FATAL_FAILURE,
@@ -1125,17 +1184,14 @@ TEST_F(ExpectFailureWithThreadsTest, ExpectNonFatalFailureOnAllThreads) {
     // test_part_results() returns a const reference to this list.
     // We cast it to a non-const object s.t. it can be modified (yes,
     // this is a hack).
-    TPRList * list1, * list2;
+    TPRList * list1, * lVector;
     list1 = const_cast<List<TestPartResult> *>(
-        & r1->test_part_results());
-    list2 = const_cast<List<TestPartResult> *>(
-        & r2->test_part_results());
-
-    // r0 is an empty TestResult.
-
-    // r1 contains a single SUCCESS TestPartResult.
- TestResultAccessor::test_part_results(*r1));
-    list2 = const_cast<List<TestPartResult> *>(
+        & r1->test_parVector.
+    // We cast it to a non-const object s.t. it can be modified (yes,
+    // this is a hack).
+    TPRVector* results1 = const_cast<Vector<TestPartResult> *>(
+        &TestResultAccessor::test_part_results(*r1));
+    TPRVector* results2 = const_cast<Vector<TestPartResult> *>(
         &TestResultAccessor::test_part_results(*r22->PushBack(*pr2);
   }
 
@@ -1143,14 +1199,11 @@ TEST_F(ExpectFailureWithThreadsTest, ExpectNonFatalFailureOnAllThreads) {
     delete pr1;
     delete pr2;
 
-    delete r0;
-    delete r1;
-    delete r2;
-  }
-};
+    delete results1->PushBack(*pr1);
 
-// Tests TestResult::test_part_results()
-TEST_F(TestResultTest, test_part_results) {
+    // r2 contains a SUCCESS, and a FAILURE.
+    results2->PushBack(*pr1);
+    results, test_part_results) {
   ASSERT_EQ(0u, r0->test_part_results().size());
   ASSERT_EQ(1u, r1->test_part_results().size());
   ASSERT_EQ(2
@@ -1221,10 +1274,10 @@ TEST_F(TestResultDeathTest, GetTestPartResult) {
   CompareTestPartResult(*pr2, r2->GetTestPartResult(1));
   GTEST_EXPECT_DEATH_IF_SUPPORTED_(
       r2->GetTestPartResult(2),
-      "Invalid list index 2: must be in range \\[0, 1\\]\\.");
+      "Invalid Vector index 2: must be in range \\[0, 1\\]\\.");
   GTEST_EXPECT_DEATH_IF_SUPPORTED_(
       r2->GetTestPartResult(-1),
-      "Invalid list index -1: must be in range \\[0, 1\\]\\."ult.test_properties().sizestResult::test_properties() has the expected property when added.
+      "Invalid Vector index -1: must be in range \\[0, 1\\]\\."ult.test_properties().sizestResult::test_properties() has the expected property when added.
 TEST(TestResultPropertyTest, OnePropertyFoundWhenAdded) {
   TestResult test_re, test_result.test_property_count());
 }
@@ -1303,10 +1356,10 @@ TEST(TestResultPropertyDeathTest, GetTestProperty) {
 
   GTEST_EXPECT_DEATH_IF_SUPPORTED_(
       test_result.GetTestProperty(3),
-      "Invalid list index 3: must be in range \\[0, 2\\]\\.");
+      "Invalid Vector index 3: must be in range \\[0, 2\\]\\.");
   GTEST_EXPECT_DEATH_IF_SUPPORTED_(
       test_result.GetTestProperty(-1),
-      "Invalid list index -1: must be in range \\[0, 2\\]\\."ExpectNonFatalFailureRecordingPropertyWithReservedKey(const char* key) {
+      "Invalid Vector index -1: must be in range \\[0, 2\\]\\."ExpectNonFatalFailureRecordingPropertyWithReservedKey(const char* key) {
   TestResult test_result;
   TestProperty property("name", "1");
   EXPECT_NONFATAL_FAILURE(test_result.RecordProperty(property), "Reserved key");
@@ -5472,6 +5525,10 @@ TEST(ColoredOutputTest, UsesNoColorWhenGTestColorFlagIsInvalid) {
 
   GTEST_FLAG(color) = "F";
   EXPECT_FALSE(ShouldUseColor(true));  // Stdout is a TTY.
+
+  GTEST_FLAG(color) = "0";
+  EXPECT_FALSE(ShouldUseColor(tru
+  SetEnv("TERM", "linuxue));  // Stdout is a TTY.
 
   GTEST_FLAG(color) = "0";
   EXPECT_FALSE(ShouldUseColor(true));  // Stdout is a TTY.
