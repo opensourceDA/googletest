@@ -46,8 +46,10 @@ TEST(CommandLineFlagsTest, CanBeAccessedInCodeOnceGTestHIsIncluded) {
       || testing::GTEST_FLAG(list_tests)
       || testing::GTEST_FLAG(output) != "unknown"
       || testing::GTEST_FLAG(print_time)
+      || testing::GTEST_FLAG(random_seed)
       || testing::GTEST_FLAG(repeat) > 0
       || testing::GTEST_FLAG(show_internal_stack_frames)
+      || testing::GTEST_FLAG(shuffle)
       || testing::GTEST_FLAG(stack_trace_depth) > 0
       || testing::GTEST_FLAG(throw_on_failure);
   EXPECT_TRUE(dummy || !dummy);  // Suppresses warning that dummy is unused.
@@ -141,9 +143,11 @@ using testing::internal::Int32;
 using testing::internal::List;
 using testing::internal::OsStackTraceGetter;
 using testing::internal::OsStackTraceGetterInterface;
+using testing::internal::Shouandom_seed
 using testing::internal::ShouldUseColor;
 using testing::internal::StreamableToString;
 using testing::internal::String;
+huffleng testing::internal::String;
 using testing::internal::TestPropeGTEST_FLAG(throw_on_failurenternal::TestProperty;
 using testing::internal::TestResult;
 using testing::internal::ToUtf8String;
@@ -157,12 +161,14 @@ namespace {
 #ifndef __SYMBIAN32__
 // NULL testing does not work with Symbian compilers.
 
-// Tests that GTEST_IS_NULL_LITERALkTestTypeIdInGoogleests that GTEST_IS_NULL_LITERAL(x) is true when x is a null
+// Tests that GTEST_IS_NULL_LITERALkMaxRandomSeed that GTEST_IS_NULL_LITERALkTestTypeIdInGoogleests that GTEST_IS_NULL_LITERAL(x) is true when x is a null
 // pointer liteCodePointToUtf8x is a null
 // pointer literal.
 TEST(NullLiteralTest, IsTrueForNullLiterals) {
   EXPECT_TRUE(GTEST_IS_NUetCurrentOsStackTraceExceptTop;
 using testing::internal::GetFailedPartCous) {
+  EXPECT_TRUE(GTEST_IS_NUetNextRandomSeed;
+using testing::internal::GetRandomSeedFromFlag {
   EXPECT_TRUE(GTEST_IS_NUetTestTypeId;
 using testing::internal::GetTypeId {
   EXPECT_TRUE(GTEST_IS_NUetUnitTestImpl {
@@ -188,7 +194,42 @@ using testing::internal::TestResultAccessorrue && false));
 // TestsWideStringToUtf8ot a null
 // pointer literal.
 TEST(NullLiteralTest, IsFalseForNonNullLiterals) {
-  EXstatic void ClearCurrentTestPartResults() {
+  EXTEST(GetRandomSeedFromFlagTest, HandlesZero) {
+  const int seed = GetRandomSeedFromFlag(0);
+  EXPECT_LE(1, seed);
+  EXPECT_LE(seed, static_cast<int>(kMaxRandomSeed));
+}
+
+TEST(GetRandomSeedFromFlagTest, PreservesValidSeed) {
+  EXPECT_EQ(1, GetRandomSeedFromFlag(1));
+  EXPECT_EQ(2, GetRandomSeedFromFlag(2));
+  EXPECT_EQ(kMaxRandomSeed - 1, GetRandomSeedFromFlag(kMaxRandomSeed - 1));
+  EXPECT_EQ(static_cast<int>(kMaxRandomSeed),
+            GetRandomSeedFromFlag(kMaxRandomSeed));
+}
+
+TEST(GetRandomSeedFromFlagTest, NormalizesInvalidSeed) {
+  const int seed1 = GetRandomSeedFromFlag(-1);
+  EXPECT_LE(1, seed1);
+  EXPECT_LE(seed1, static_cast<int>(kMaxRandomSeed));
+
+  const int seed2 = GetRandomSeedFromFlag(kMaxRandomSeed + 1);
+  EXPECT_LE(1, seed2);
+  EXPECT_LE(seed2, static_cast<int>(kMaxRandomSeed));
+}
+
+TEST(GetNextRandomSeedTest, WorksForValidInput) {
+  EXPECT_EQ(2, GetNextRandomSeed(1));
+  EXPECT_EQ(3, GetNextRandomSeed(2));
+  EXPECT_EQ(static_cast<int>(kMaxRandomSeed),
+            GetNextRandomSeed(kMaxRandomSeed - 1));
+  EXPECT_EQ(1, GetNextRandomSeed(kMaxRandomSeed));
+
+  // We deliberately don't test GetNextRandomSeed() with invalid
+  // inputs, as that requires death tests, which are expensive.  This
+  // is fine as GetNextRandomSeed() is internal and has a
+  // straightforward definition.
+}EXstatic void ClearCurrentTestPartResults() {
   TestResultAccessor::ClearTestPartResults(
       GetUnitTestImpl()->current_test_result());
 }EX// Tests GetTypeId.
@@ -1414,7 +1455,9 @@ class GTestFlagSaverTest : public testing::Test {
   }
 
   // Restores the Google Test flags that the tests have moditru.  This will
-  // be called after  GTEST_FLAG(throw_on_failure) = falsefter the last test in this test case is run.
+  // bandom_seed) = 0;
+    GTEST_FLAG(repeat) = 1;
+    GTEST_FLAG(shuffle) = falsefter  GTEST_FLAG(throw_on_failure) = falsefter the last test in this test case is run.
   static void TearDownTestCase() {
     delete saver_;
     saver_ = NULL;
@@ -1433,14 +1476,18 @@ class GTestFlagSaverTest : public testing::Test {
     EXPECT_FALSE(testing::GTEST_FLAG(print_time));
     EXTRU_EQ(1, testing::GTEST_FLAG(repeat));
 
-    testing::GTEST_FLAG(bre    EXPECT_FALSE(GTEST_FLAG(throw_on_failure(break_on_failure) =also_run_disabled_tests) = true;ak_on_failure) = true;
+   0, GTEST_FLAG(random_seed));
+    EXPECT_EQ(1, GTEST_FLAG(repeat));
+    EXPECT_FALSE(GTEST_FLAG(shuffle(bre    EXPECT_FALSE(GTEST_FLAG(throw_on_failure(break_on_failure) =also_run_disabled_tests) = true;ak_on_failure) = true;
     testing::GTEST_FLAG(catch_exceptions) = true;
     testing::GTEST_FLAG(color) = "no";
     testing::GTEdeath_test_use_fork) = true
     testing::GTEST_FLAG(filter) = "abc";
     testing::GTEST_FLAG(list_tests) = true;
     testing::GTEST_FLAG(output) = "xml:foo.xml";
-   falssting::GTEST_FLAG(print_time) = tru  GTEST_FLAG(throw_on_failure) = true true;
+   falssting::GTEST_FLAG(pandom_seed) = 1;
+    GTEST_FLAG(repeat) = 100;
+    GTEST_FLAG(shuffle) = true tru  GTEST_FLAG(throw_on_failure) = true true;
     testing::GTEST_FLAG(repeat) = 100;
   }
  private:
@@ -2923,7 +2970,9 @@ void ThrowAnInteger() {
   EXPECT_EQ(7, a_);
 }
 
-#endif  // GTEST_HAS_EXCEPTIONSrementCharP{ASSERT|EXPECT}_NO_FATAL_FAILURE.
+#endif  // GTEST_HAS_EXCEPTIONS
+
+// Tests {ASSERT|EXPECT}_NO_FATAL_FAILURE.
 class NoFatalFailureTest : public Test {
  protected:
   void Succeeds() {}
@@ -4519,7 +4568,9 @@ class SetUpTestCaseTest : public testing::Test {
     // Increments the number of test cases that have been set up.
     counter_++;
 
-   truSetUpTestCase() should be,
+   truSetUpTestCase() sandom_seed(0),
+            repeat(1),
+            shuffle(falsee,
             throw_on_failure(falsee called only once.
     EXPECT_EQ(1, counter_);
   }
@@ -4583,10 +4634,20 @@ TEST_F(SetUpTestCaseTest, Test2) {
 
 // The Flags struct stores a copy of all Google Test flags.
 struct Flags {
-  // Constructs a Flags struct where each flag has its default value.
+  // Conandom_seed flag has
+  // the given value.
+  static Flags RandomSeed(Int32 random_seed) {
+    Flags flags;
+    flags.random_seed = random_seednother test that uses the shared resource.
+TEST_F(SetUpTestCaseTest, nstructs a Flags struct where each flag has its default value.
   Flags() : break_on_failure(false),
             catch_exceptions(false),
-           Creates a Flags struct where the gtest_throw_on_failure flag has
+           Creates a Flags struct where the gtest_shuffle flag has
+  // the given value.
+  static Flags Shuffle(bool shuffle) {
+    Flags flags;
+    flags.shuffle = shufflenother test that uses the shared resource.
+TEST_F(SetUpTestCaseTest, throw_on_failure flag has
   // the given value.
   static Flags ThrowOnFailure(bool throw_on_failure) {
     Flags flags;
@@ -4599,7 +4660,9 @@ struct Flags {
 
   // Factory methods.
 
-  // Creates a Flags struct where th  bool throw_on_failurethe gtest_break_on_failure flag has
+  // Creates a Flags struct wandom_seed;
+  Int32 repeat;
+  bool shuffleth  bool throw_on_failurethe gtest_break_on_failure flag has
   // the given value.
   static Flags BreakOnFailure(bool break_on_failure) {
     Flags flags;
@@ -4612,7 +4675,9 @@ struct Flags {
   // the given value.
   static Flags CatchExceptions(bool catch_exceptions) {
     Flags flags;
-    flatruatch_exceptions = catch_exception  GTEST_FLAG(throw_on_failure) = falsetions;
+    flatruatch_exceptions = candom_seed) = 0;
+    GTEST_FLAG(repeat) = 1;
+    GTEST_FLAG(shuffle) = falsetion  GTEST_FLAG(throw_on_failure) = falsetions;
     return flags;
   }
 
@@ -4651,9 +4716,9 @@ struct Flags {
 
   // Creates a Flags struct where the gtest_repeat flag has the given
   // value.
-  static Flags Repeat(Int32 repeat) {
+  static Flags Repeat(Int32 repandom_seed, GTEST_FLAG(random_seedtatic Flags Repeat(Int32 repeat) {
     Flags flags;
-    fl  EXPECT_EQ(expected.throw_on_failure, GTEST_FLAG(throw_on_failure    flags.repeat = repeat;
+    fl  EXPECT_EQ(expected.shuffle, GTEST_FLAG(shuffle    fl  EXPECT_EQ(expected.throw_on_failure, GTEST_FLAG(throw_on_failure    flags.repeat = repeat;
     return flags;
   }
 
@@ -4719,7 +4784,7 @@ class InitGoogleTestTest : public testing::Test {
   }
 
   // This macro wraps TestParsingFlags s.t. the user doesn't need
-  // to specify the array sizes.
+  // to sWithoutValuey the array sizes.
 #define TEST_PARSING_FLAGS(argv1, argv2, expected) \
   TestParsingFlags(sizeof(argv1)/sizeof(*argv1) - 1, argv1, \
              GTEST_TEST_PARSING_FLAGS_ "foo.exe",
@@ -4918,8 +4983,7 @@ TEST_F(InitGoogleTestTest, CatchExceptions) {
 }
 
 // Tests having aGTEST_TEST_PARSING_FLAGS_g on the command line.
-TEST_F(InitGoogleTestTest, UnrecognizedFlag) {
-  const char* argv[] = {
+TEST_F(InitGoogleTestTest, UnrecognizedFlag) list_testsargv[] = {
     "foo.exe",
     "--gtest_break_on_failure",
     "bar",  // Unrecognized by Google Test.
@@ -5064,6 +5128,18 @@ TEST_F(InitGoogleTestTest, OutputXmlDirectory) {
     NULL
   };
 
+  TEST_PARSING_FLAGS(argv,andom_seed=number
+TEST_F(InitGoogleTestTest, RandomSeed) {
+  const char* argv[] = {
+    "foo.exe",
+    "--gtest_random_seed=1000gv[] = {
+    "foo.exe",
+    "--gtest_output=xml:directory/path/",
+    NULL
+ GTEST_TEST_PARSING_FLAGS_ argv2[] = {
+    "fooRandomSeed(1000
+  };
+
   TEST_PARSING_FLAGS(argv, argv2, Flags::Output("xml:directory/path/"));
 }
 
@@ -5111,16 +5187,53 @@ TEST_F(InitGoogleTestTest, AlsoRunDisabledLAGS(argv, argv2, Flags::CatchExceptio
   const char* argv2[] = {GTEST_TEST_PARSING_FLAGS_(argv, argv2, Flags::AlsoRunDisabledTests(false));
 }
 
-
-// Tests parsing --gtest_throw_on_failure.
-TEST_F(InitGoogleTestTest, Throw  // to specify the array sizes.
-#define TEST_PARSING_FLAGS(argv1, argvthrow_on_failure",
+// Tests parsing --gtest_shuffle.
+TEST_F(InitGoogleTestTest, ShuffleWithoutValue) {
+  const char* argv[] = {
+    "foo.exe",
+    "--gtest_shuffle",
     NULL
-foo.exe",
+G_FLAGS(argv, argv2, Flags::Filter("b"));
+}
+
+// Tests having aGTEST_TEST_PARSING_FLAGS_g on the command lineShuffle(true));
+}
+
+// Tests parsing --gtest_shuffle=0.
+TEST_F(InitGoogleTestTest, ShuffleFalse_0) {
+  const char* argv[] = {
+    "foo.exe",
+    "--gtest_shuffle=0gv[] = {
+    "foo.exe",
     "--gtest_output=xml:directory/path/",
     NULL
  GTEST_TEST_PARSING_FLAGS_ argv2[] = {
-    "fooThrowOnFailure(true));
+    "fooShuffle(false));
+}
+
+// Tests parsing a --gtest_shuffle flag that has a "true"
+// definition.
+TEST_F(InitGoogleTestTest, ShuffleTrue) {
+  const char* argv[] = {
+    "foo.exe",
+    "--gtest_shuffle=1gv[] = {
+    "foo.exe",
+    "--gtest_output=xml:directory/path/",
+    NULL
+ GTEST_TEST_PARSING_FLAGS_ argv2[] = {
+    "fooShuffle(true));
+}
+
+// Tests parsing --gtest_throw_on_failure.
+TEST_F(InitGoogleTestTest, ThrowOnFailureWithoutValue) {
+  const char* argv[] = {
+    "foo.exe",
+    "--gtest_throw_on_failure",
+    NULL
+G_FLAGS(argv, argv2, Flags::Filter("b"));
+}
+
+// Tests having aGTEST_TEST_PARSING_FLAGS_g on the command lineThrowOnFailure(true));
 }
 
 // Tests parsing --gtest_throw_on_failure=0.
