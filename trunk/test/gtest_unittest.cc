@@ -78,16 +78,6 @@ TEST(CommandLineFlagsTest, CanBeAccessedInCodeOnceGTestHIsIncluded) {
 #include <map>
 #endif
 
-// GTEST_EXPECT_DEATH_IF_SUPPORTED_(statement, regex) expands to a
-// real death test if death tests are supported; otherwise it expands
-// to empty.
-#if GTEST_HAS_DEATH_TEST
-#define GTEST_EXPECT_DEATH_IF_SUPPORTED_(statement, regex) \
-    EXPECT_DEATH(statement, regex)
-#else
-#define GTEST_EXPECT_DEATH_IF_SUPPORTED_(statement, regex)
-#endif
-
 namespace testing {
 namespace internal {
 const char* FormatTimeInMillisAsSeconds(TimeInMillis ms);
@@ -613,7 +603,7 @@ TEST(VectorDeathTest, Erase) {
   Vector<int> a;
 
   // Tests erasing from an empty vector.
-  GTEST_EXPECT_DEATH_IF_SUPPORTED_(
+  EXPECT_DEATH_IF_SUPPORTED(
       a.Erase(0),
       "Invalid Vector index 0: must be in range \\[0, -1\\]\\.");
 
@@ -629,10 +619,10 @@ TEST(VectorDeathTest, Erase) {
   a1.PushBack(1);
   a1.PushBack(2);
 
-  GTEST_EXPECT_DEATH_IF_SUPPORTED_(
+  EXPECT_DEATH_IF_SUPPORTED(
       a1.Erase(3),
       "Invalid Vector index 3: must be in range \\[0, 2\\]\\.");
-  GTEST_EXPECT_DEATH_IF_SUPPORTED_(
+  EXPECT_DEATH_IF_SUPPORTED(
       a1.Erase(-1),
       "Invalid Vector index -1: must be in range \\[0, 2\\]\\.");
 
@@ -680,13 +670,12 @@ TEST(ListDeathTest, GetElement) {
   EXPECT_EQ(0, a.GetElement(0));
   EXPECT_EQ(1, a.GetElement(1));
   EXPECT_EQ(2, a.GetElement(2));
-  GTEST_EXPECT_DEATH_IF_SUPPORTED_(
+  EXPECT_DEATH_IF_SUPPORTED(
       a.GetElement(3),
       "Invalid Vector index 3: must be in range \\[0, 2\\]\\.");
-  GTEST_EXPECT_DEATH_IF_SUPPORTED_(
+  EXPECT_DEATH_IF_SUPPORTED(
       a.GetElement(-1),
-      "Invalid Vector index -1: must be in range \\[0, 2\\]\\.");
-}CString(NULL));
+      "Invalid Vector index -1: must be in range \\[0, 2\\]\\."ExpectNonng(NULL));
   EXPECT_STREQ("", String::ShowCString(""));
   EXPECT_STREQ("foo", String::ShowCString("foo"));
 }
@@ -1320,10 +1309,10 @@ typedef TestResultTest TestResultDeathTest;
 TEST_F(TestResultDeathTest, GetTestPartResult) {
   CompareTestPartResult(*pr1, r2->GetTestPartResult(0));
   CompareTestPartResult(*pr2, r2->GetTestPartResult(1));
-  GTEST_EXPECT_DEATH_IF_SUPPORTED_(
+  EXPECT_DEATH_IF_SUPPORTED(
       r2->GetTestPartResult(2),
       "Invalid Vector index 2: must be in range \\[0, 1\\]\\.");
-  GTEST_EXPECT_DEATH_IF_SUPPORTED_(
+  EXPECT_DEATH_IF_SUPPORTED(
       r2->GetTestPartResult(-1),
       "Invalid Vector index -1: must be in range \\[0, 1\\]\\."ult.test_properties().sizestResult::test_properties() has the expected property when added.
 TEST(TestResultPropertyTest, OnePropertyFoundWhenAdded) {
@@ -1402,10 +1391,10 @@ TEST(TestResultPropertyDeathTest, GetTestProperty) {
   EXPECT_STREQ("key_3", fetched_property_3.key());
   EXPECT_STREQ("3", fetched_property_3.value());
 
-  GTEST_EXPECT_DEATH_IF_SUPPORTED_(
+  EXPECT_DEATH_IF_SUPPORTED(
       test_result.GetTestProperty(3),
       "Invalid Vector index 3: must be in range \\[0, 2\\]\\.");
-  GTEST_EXPECT_DEATH_IF_SUPPORTED_(
+  EXPECT_DEATH_IF_SUPPORTED(
       test_result.GetTestProperty(-1),
       "Invalid Vector index -1: must be in range \\[0, 2\\]\\."ExpectNonFatalFailureRecordingPropertyWithReservedKey(const char* key) {
   TestResult test_result;
@@ -1667,7 +1656,7 @@ TEST(Int32FromEnvOrDieTest, ParsesAndReturnsValidValue) {
 // if the variable is not an Int32.
 TEST(Int32FromEnvOrDieDeathTest, AbortsOnFailure) {
   SetEnv(GTEST_FLAG_PREFIX_UPPER_ "VAR", "xxx");
-  GTEST_EXPECT_DEATH_IF_SUPPORTED_(
+  EXPECT_DEATH_IF_SUPPORTED(
       Int32FromEnvOrDie(GTEST_FLAG_PREFIX_UPPER_ "VAR", 123),
       ".*");
 }
@@ -1676,7 +1665,7 @@ TEST(Int32FromEnvOrDieDeathTest, AbortsOnFailure) {
 // if the variable cannot be represnted by an Int32.
 TEST(Int32FromEnvOrDieDeathTest, AbortsOnInt32Overflow) {
   SetEnv(GTEST_FLAG_PREFIX_UPPER_ "VAR", "1234567891234567891234");
-  GTEST_EXPECT_DEATH_IF_SUPPORTED_(
+  EXPECT_DEATH_IF_SUPPORTED(
       Int32FromEnvOrDie(GTEST_FLAG_PREFIX_UPPER_ "VAR", 123),
       ".*");
 }
@@ -1754,23 +1743,19 @@ typedef ShouldShardTest ShouldShardDeathTest;
 TEST_F(ShouldShardDeathTest, AbortsWhenShardingEnvVarsAreInvalid) {
   SetEnv(index_var_, "4");
   SetEnv(total_var_, "4");
-  GTEST_EXPECT_DEATH_IF_SUPPORTED_(ShouldShard(total_var_, index_var_, false),
-                                   ".*");
+  EXPECT_DEATH_IF_SUPPORTED(ShouldShard(total_var_, index_var_, false), ".*");
 
   SetEnv(index_var_, "4");
   SetEnv(total_var_, "-2");
-  GTEST_EXPECT_DEATH_IF_SUPPORTED_(ShouldShard(total_var_, index_var_, false),
-                                   ".*");
+  EXPECT_DEATH_IF_SUPPORTED(ShouldShard(total_var_, index_var_, false), ".*");
 
   SetEnv(index_var_, "5");
   SetEnv(total_var_, "");
-  GTEST_EXPECT_DEATH_IF_SUPPORTED_(ShouldShard(total_var_, index_var_, false),
-                                   ".*");
+  EXPECT_DEATH_IF_SUPPORTED(ShouldShard(total_var_, index_var_, false), ".*");
 
   SetEnv(index_var_, "");
   SetEnv(total_var_, "5");
-  GTEST_EXPECT_DEATH_IF_SUPPORTED_(ShouldShard(total_var_, index_var_, false),
-                                   ".*");
+  EXPECT_DEATH_IF_SUPPORTED(ShouldShard(total_var_, index_var_, false), ".*");
 }
 
 // Tests that ShouldRunTestOnShard is a partition when 5
@@ -2946,8 +2931,8 @@ void ThrowAnInteger() {
   throw 1;
 }
 
-// Tests that assertion arguments are evaluated exactly once.
-TEST_F(SingleEvaluationTest, ExceptionTests) {
+// Tests thatsTest, DISABLED_TestShouldNotRun_1) {
+  FAIL() << "Unexpected failure: DisableExceptionTests) {
   // successful EXPECT_THROW
   EXPECT_THROW({  // NOLINT
     a_++;
