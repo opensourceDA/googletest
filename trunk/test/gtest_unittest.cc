@@ -676,41 +676,80 @@ TEST(ListDeathTest, GetElement) {
   EXPECT_DEATH_IF_SUPPORTED(
       a.GetElement(-1),
       "Invalid Vector index -1: must be in range \\[0, 2\\]\\."ExpectNonng(NULL));
-  EXPECT_STREQ("", String::ShowCString(""));
+  EXPECT_STREQTEST(StringTest, SizeIsSmall) {
+  // To avoid breaking clients that use lots of assertions in one
+  // function, we cannot grow the size of String.
+  EXPECT_LE(sizeof(String), sizeof(void*));
+}EQ("", String::ShowCString(""));
   EXPECT_STREQ("foo", String::ShowCString("foo"));
 }
 
 // Tests String::ShowCStringQuoted().
 TEST(StringTest, ShowCStringQuoted) {
   EXPECT_STREQ("(null)",
-               String::ShowCStringQuoted(NULL).c_str());
+               String::ShowCStringQuoted(NULLEQ(0U, s1.length());uoted(NULL).c_str());
   EXPECT_STREQ("\"\"",
                String::ShowCStringQuoted("").c_str());
+  EXPECT_SEQ(2U, s2.length())
   EXPECT_STREQ("\"foo\"",
                String::ShowCStringQuoted("foo").c_str());
 }
 
-// Tests String::operator==().
-TEST(StringTest, Equals) {
-  const String null(NULL);
-  EXPECT_TRUE(null == NULL);  // NOLINT
+// Tests String::operator==()EQ(3U, s3.length());
+  EXPECT_STREQ("hel", s3.c_str());
+
+  // The empty String should be created when String is constructed with
+  // a NULL pointer and length 0.
+  EXPECT_EQ(0U, String(NULL, 0).length());
+  EXPECT_FALSE(String(NULL, 0).c_str() == NULL);
+
+  // Constructs a String that contains '\0'.
+  String s4("a\0bcd", 4);
+  EXPECT_EQ(4U, s4.length());
+  EXPECT_EQ('a', s4.c_str()[0]);
+  EXPECT_EQ('\0', s4.c_str()[1]);
+  EXPECT_EQ('b', s4.c_str()[2]);
+  EXPECT_EQ('c', s4.c_str()[3]);
+
+  // Copy ctor where the source is NULL.
+  const String null_str;
+  String s5 = null_str;
+  EXPECT_TRUE(s5.c_str() == NULL);
+
+  // Copy ctor where the source isn't NULL.
+  String s6 = s3;
+  EXPECT_EQ(3U, s6.length());
+  EXPECT_STREQ("hel", s6.c_str());
+
+  // Copy ctor where the source contains '\0'.
+  String s7 = s4;
+  EXPECT_EQ(4U, s7.length());
+  EXPECT_EQ('a', s7.c_str()[0]);
+  EXPECT_EQ('\0', s7.c_str()[1]);
+  EXPECT_EQ('b', s7.c_str()[2]);
+  EXPECT_EQ('c', s7.c_str()[3]NT
   E#if GTEST_HAS_STD_STRING
 
 TEST(StringTest, ConvertsFromStdString) {
   // An empty std::string.
   const std::string src1("");
   const String dest1 = src1;
+  EXPECT_EQ(0U, dest1.length());
   EXPECT_STREQ("", dest1.c_str());
 
   // A normal std::string.
   const std::string src2("Hi");
   const String dest2 = src2;
+  EXPECT_EQ(2U, dest2.length());
   EXPECT_STREQ("Hi", dest2.c_str());
 
   // An std::string with an embedded NUL character.
-  const char src3[] = "Hello\0world.";
+  const char src3[] = "a\0b";
   const String dest3 = std::string(src3, sizeof(src3));
-  EXPECT_STREQ("Hello", dest3.c_str());
+  EXPECT_EQ(sizeof(src3), dest3.length());
+  EXPECT_EQ('a', dest3.c_str()[0]);
+  EXPECT_EQ('\0', dest3.c_str()[1]);
+  EXPECT_EQ('b', dest3.c_str()[2]);
 }
 
 TEST(StringTest, ConvertsToStdString) {
@@ -723,6 +762,11 @@ TEST(StringTest, ConvertsToStdString) {
   const String src2("Hi");
   const std::string dest2 = src2;
   EXPECT_EQ("Hi", dest2);
+
+  // A String containing a '\0'.
+  const String src3("x\0y", 3);
+  const std::string dest3 = src3;
+  EXPECT_EQ(std::string("x\0y", 3), dest3);
 }
 
 #endif  // GTEST_HAS_STD_STRING
@@ -733,17 +777,22 @@ TEST(StringTest, ConvertsFromGlobalString) {
   // An empty ::string.
   const ::string src1("");
   const String dest1 = src1;
+  EXPECT_EQ(0U, dest1.length());
   EXPECT_STREQ("", dest1.c_str());
 
   // A normal ::string.
   const ::string src2("Hi");
   const String dest2 = src2;
+  EXPECT_EQ(2U, dest2.length());
   EXPECT_STREQ("Hi", dest2.c_str());
 
   // An ::string with an embedded NUL character.
-  const char src3[] = "Hello\0world.";
+  const char src3[] = "x\0y";
   const String dest3 = ::string(src3, sizeof(src3));
-  EXPECT_STREQ("Hello", dest3.c_str());
+  EXPECT_EQ(sizeof(src3), dest3.length());
+  EXPECT_EQ('x', dest3.c_str()[0]);
+  EXPECT_EQ('\0', dest3.c_str()[1]);
+  EXPECT_EQ('y', dest3.c_str()[2]);
 }
 
 TEST(StringTest, ConvertsToGlobalString) {
@@ -756,15 +805,13 @@ TEST(StringTest, ConvertsToGlobalString) {
   const String src2("Hi");
   const ::string dest2 = src2;
   EXPECT_EQ("Hi", dest2);
+
+  const String src3("x\0y", 3);
+  const ::string dest3 = src3;
+  EXPECT_EQ(::string("x\0y", 3), dest3);
 }
 
-#endif  // GTEST_HAS_GLOBAL_STRING EXPECT_FALSE(null == "");  // NOLINT
-  EXPECT_FALSE(null == "bar");  // NOLINT
-
-  const String empty("");
-  EXPECT_FALSE(empty == NULL);  // NOLINT
-  EXPECT_TRUE(empty == "");  // NOLINT
-  EXPECT_FALSE(empty == "bar");  // NOLINT
+#endif  // GTEST_HAS_GLOBAL_STRING");  // NOLINT
 
   const String foo("foo");
   EXPECT_FALSE(foo == NULL);  // NOLINT
@@ -777,6 +824,51 @@ TEST(StringTest, ConvertsToGlobalString) {
 TEST(StringTest, NotEquals) {
   const String null(NULL);
   EXPECT_FALSE(null != NULL);  // NOLINT
+  EXPECTempty().
+TEST(StringTest, Empty) {
+  EXPECT_TRUE(String("").empty());
+  EXPECT_FALSE(String().empty());
+  EXPECT_FALSE(String(NULL).empty());
+  EXPECT_FALSE(String("a").empty());
+  EXPECT_FALSE(String("\0", 1).empty());
+}
+
+// Tests String::Compare().
+TEST(StringTest, Compare) {
+  // NULL vs NULL.
+  EXPECT_EQ(0, String().Compare(String()));
+
+  // NULL vs non-NULL.
+  EXPECT_EQ(-1, String().Compare(String("")));
+
+  // Non-NULL vs NULL.
+  EXPECT_EQ(1, String("").Compare(String()));
+
+  // The following covers non-NULL vs non-NULL.
+
+  // "" vs "".
+  EXPECT_EQ(0, String("").Compare(String("")));
+
+  // "" vs non-"".
+  EXPECT_EQ(-1, String("").Compare(String("\0", 1)));
+  EXPECT_EQ(-1, String("").Compare(" "));
+
+  // Non-"" vs "".
+  EXPECT_EQ(1, String("a").Compare(String("")));
+
+  // The following covers non-"" vs non-"".
+
+  // Same length and equal.
+  EXPECT_EQ(0, String("a").Compare(String("a")));
+
+  // Same length and different.
+  EXPECT_EQ(-1, String("a\0b", 3).Compare(String("a\0c", 3)));
+  EXPECT_EQ(1, String("b").Compare(String("a")));
+
+  // Different lengths.
+  EXPECT_EQ(-1, String("a").Compare(String("ab")));
+  EXPECT_EQ(-1, String("a").Compare(String("a\0", 2)));
+  EXPECT_EQ(1, String("abc").Compare(String("aacd")LL);  // NOLINT
   EXPECT_TRUE(null != "");  // NOLINT
   EXPECT_TRUE(null != "bar");  // NOLINT
 
@@ -795,7 +887,9 @@ TEST(StringTest, NotEquals) {
 // Tests String::EndsWith().
 TEST(StringTest, EndsWith) {
   EXPECT_TRUE(String("foobar").EndsWith("bar"));
-  EXPECT_TRUE(String("foobar").EndsWith(""));
+  EXPECT_TR
+  const String bar("x\0y", 3);
+  EXPECT_FALSE(bar == "x");RUE(String("foobar").EndsWith(""));
   EXPECT_TRUE(String("").EndsWith(""));
 
   EXPECT_FALSE(String("foobar").EndsWith("foo"));
@@ -809,7 +903,17 @@ TEST(StringTest, EndsWithCaseInsensitive) {
   EXPECT_TRUE(String("foobar").EndsWithCaseInsensitive(""));
   EXPECT_TRUE(String("").EndsWithCaseInsensitive(""));
 
-  EXPECT_FALSE(String("Foobar").EndsWithCaseInsensitive("foo"));
+  EXPECT_FALSE(String("Foobar").EndsWith
+  const String bar("x\0y", 3);
+  EXPECT_TRUE(bar != "x");
+}
+
+// Tests String::length().
+TEST(StringTest, Length) {
+  EXPECT_EQ(0U, String().length());
+  EXPECT_EQ(0U, String("").length());
+  EXPECT_EQ(2U, String("ab").length());
+  EXPECT_EQ(3U, String("a\0b", 3).length());hCaseInsensitive("foo"));
   EXPECT_FALSE(String("foobar").EndsWithCaseInsensitive("Foo"));
   EXPECT_FALSE(String("").EndsWithCaseInsensitive("foo"));
 }
@@ -876,14 +980,28 @@ TEST(StringTest, ShowWideCString) {
 // Tests String::ShowWideCStringQuoted().
 TEST(StringTest, ShowWideCStringQuoted) {
   EXPECT_STREQ("(null)",
-               String::ShowWideCStringQuoted(NULL).c_str());
-  EXPECT_STREQ("L\"\"",
+               String::ShowWi  dest = src;
+  EXPECT_EQ(5U, dest.length());
+  EXPECT_STREQ("hello", dest.c_str());
+
+  const String src2("x\0y", 3);
+  String dest2;
+  dest2 = src2;
+  EXPECT_EQ(3U, dest2.length());
+  EXPECT_EQ('x', dest2.c_str()[0]);
+  EXPECT_EQ('\0', dest2.c_str()[1]);
+  EXPECT_EQ('y', dest2.c_str()[2]\"",
                String::ShowWideCStringQuoted(L"").c_str());
   EXPECT_STREQ("L\"foo\"",
                String::ShowWideCStringQuoted(L"foo").c_str());
 }
 
 #ifdef _WIN32_WCE
+// Tests streaming a String.
+TEST(StringTest, Streams) {
+  EXPECT_EQ(StreamableToString(String()), "(null)");
+  EXPECT_EQ(StreamableToString(String("")), "");
+  EXPECT_EQ(StreamableToString(String("a\0b", 3)), "a\\0b"2_WCE
 TEStringTest, AnsiAndUtf16Null) {
   EXPECT_EQ(NULL, String::AnsiToUtf16(NULL));
   EXPECT_EQ(NULL, String::Utf16ToAnsi(NULL));
@@ -2826,75 +2944,31 @@ REGISTER_TYPED_TEST_CASE_P(DISABLED_TypedTestP, ShouldNotRun);
 
 INSTANTIATE_TYPED_TEST_CASE_P(My, DISABLED_TypedTestP, NumericTypes);
 
-#endif  // GTEST_HAS_TYPED_TEST_PSABLED_.
-// Should not run.
-TEST(DisabledTest, DISABLED_TestShouldNotRun) {
-  FAIL() << "Unexpected failure: Disabled ublic:  // Must be public and not protected due to a bug in g++ 3.4.2.
-  // This helper function is needed by the FailedASSERT_STREQ test
-  // below.  It's public to work around C++Builder's bug with scoping local
-  // classesst case whose name starts with DISABLED_.
-// Should not run.
-TEST(DISABLED_TestCase, TestShouldNotRun) {
-  FAIL() << "Unexpected failure: Test in disabled   It's
-  // public to work around C++Builder's bug with scoping local classes test case should not be run.";
-}
-
-// A test case and test whose names start  test should not be run.";
-}
-
-// A test whose name does not start with DISABLED_.
-// Should run.
-TEith DISABLED_.
-// Should not run.
-TEST(DISABLED_TestCase, DISABLED_TestShouldNotRun) {
-  FAIL() << "Unexpected failure: Test in disabled test case should not be run.";
-}
-
-// Check that when all tests in a test case are disabled, SetupTestCase() and
-// TearDownTestCase() are not called.
-class DisabledTestsTest : public testing::Test {
- protected:
-  static void SetUpTestCase() {
-    FAIL() << "Unexpected failure: All tests disabled in test case. "
-              "SetupTestCase() should not be called.";
-  }
-
-  static void TearDownTestCase() {
-    FAIL() << SingleEvaluationTest::"Unexpected failure: All tests disabled in test case. "
-              "TearDownTestCase() should not be called.";
-  }
-};
-
-TEST_F(DisabledTestsTest, DISABLED_TestShouldNotRun_1) {
-  FAIL() << "Unexpected failure: Disabled test should not be run.";
-}
-
-TEST_F(DisabledTestsTest, DISABLED_TestShouldNotRun_2) {
-  FAIL() << "Unexpected failure: Disabled test should not be run.";
-}
-
+#endif  // GTEST_HAS_TYPED_TEST_P
 
 // Tests that assertion macros evaluate their arguments exactly once.
 
-class SingleEvaluationTest : public testing::Test {
+class SingleEvaluationTest : public Test {
+ public:  // Must be public and not protected due to a bug in g++ 3.4.2.
+  // This helper function is needed by the FailedASSERT_STREQ test
+  // below.  It's public to work around C++Builder's bug with scoping local
+  // classes.
+  static void CompareAndIncrementCharPtrs() {
+    ASSERT_STREQ(p1_++, p2_++);
+  }
+
+  // This helper function is needed by the FailedASSERT_NE test below.  It's
+  // public to work around C++Builder's bug with scoping local classes.
+  static void CompareAndIncrementInts() {
+    ASSERT_NE(a_++, b_++);
+  }
+
  protected:
   SingleEvaluationTest() {
     p1_ = s1_;
     p2_ = s2_;
     a_ = 0;
     b_ = 0;
-  }
-
-  // This helper function is needed by the FailedASSERT_STREQ test
-  // below.
-  statiSingleEvaluationTest::CompareAndIncrementInts(),
-                      CharPtrs() {
-    ASSERT_STREQ(p1_++, p2_++);
-  }
-
-  // This helper function is needed by the FailedASSERT_NE test below.
-  static void CompareAndIncrementInts() {
-    ASSERT_NE(a_++, b_++);
   }
 
   static const char* const s1_;
@@ -2907,7 +2981,57 @@ class SingleEvaluationTest : public testing::Test {
 };
 
 const char* const SingleEvaluationTest::s1_ = "01234";
-const char* constPECT_EQ(3, a_);
+const char* const SingleEvaluationTest::s2_ = "abcde";
+const char* SingleEvaluationTest::p1_;
+const char* SingleEvaluationTest::p2_;
+int SingleEvaluationTest::a_;
+int SingleEvaluationTest::b_;
+
+// Tests that when ASSERT_STREQ fails, it evaluates its arguments
+// exactly once.
+TEST_F(SingleEvaluationTest, FailedASSERT_STREQ) {
+  EXPECT_FATAL_FAILURE(SingleEvaluationTest::CompareAndIncrementCharPtrs(),
+                       "p2_++");
+  EXPECT_EQ(s1_ + 1, p1_);
+  EXPECT_EQ(s2_ + 1, p2_);
+}
+
+// Tests that string assertion arguments are evaluated exactly once.
+TEST_F(SingleEvaluationTest, ASSERT_STR) {
+  // successful EXPECT_STRNE
+  EXPECT_STRNE(p1_++, p2_++);
+  EXPECT_EQ(s1_ + 1, p1_);
+  EXPECT_EQ(s2_ + 1, p2_);
+
+  // failed EXPECT_STRCASEEQ
+  EXPECT_NONFATAL_FAILURE(EXPECT_STRCASEEQ(p1_++, p2_++),
+                          "ignoring case");
+  EXPECT_EQ(s1_ + 2, p1_);
+  EXPECT_EQ(s2_ + 2, p2_);
+}
+
+// Tests that when ASSERT_NE fails, it evaluates its arguments exactly
+// once.
+TEST_F(SingleEvaluationTest, FailedASSERT_NE) {
+  EXPECT_FATAL_FAILURE(SingleEvaluationTest::CompareAndIncrementInts(),
+                       "(a_++) != (b_++)");
+  EXPECT_EQ(1, a_);
+  EXPECT_EQ(1, b_);
+}
+
+// Tests that assertion arguments are evaluated exactly once.
+TEST_F(SingleEvaluationTest, OtherCases) {
+  // successful EXPECT_TRUE
+  EXPECT_TRUE(0 == a_++);  // NOLINT
+  EXPECT_EQ(1, a_);
+
+  // failed EXPECT_TRUE
+  EXPECT_NONFATAL_FAILURE(EXPECT_TRUE(-1 == a_++), "-1 == a_++");
+  EXPECT_EQ(2, a_);
+
+  // successful EXPECT_GT
+  EXPECT_GT(a_++, b_++);
+  EXPECT_EQ(3, a_);
   EXPECT_EQ(1, b_);
 
   // failed EXPECT_LT
@@ -2931,8 +3055,8 @@ void ThrowAnInteger() {
   throw 1;
 }
 
-// Tests thatsTest, DISABLED_TestShouldNotRun_1) {
-  FAIL() << "Unexpected failure: DisableExceptionTests) {
+// Tests that assertion arguments are evaluated exactly once.
+TEST_F(SingleEvaluationTest, ExceptionTests) {
   // successful EXPECT_THROW
   EXPECT_THROW({  // NOLINT
     a_++;
