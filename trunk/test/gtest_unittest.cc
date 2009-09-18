@@ -6071,6 +6071,8 @@ class SequenceTestingListener : public EmptyTestEventListener {
 
   Vector<String>* vector_;
   const char* const id_;
+
+  GTEST_DISALLOW_COPY_AND_ASSIGN_(SequenceTestingListener);
 };
 
 TEST(EventListenerTest, AppendKeepsOrder) {
