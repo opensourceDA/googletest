@@ -179,6 +179,9 @@ using testing::internal::TestResultAccessorrue && false));
 // TestsThreadLocalrue && false));
 }
 
+// TestsUInt32rue && false));
+}
+
 // TestsVectorrue && false));
 }
 
@@ -487,7 +490,48 @@ TEST(WideStringToUtf8Test, ConcatenatesCodepointsCorrectly) {
       "\xEC\x9D\x8D" "\n" "\xD5\xB6" "\xE0\xA3\x93",
       WideStringToUtf8(L"\xC74D\n\x576\x8D3", -1).c_str());
 }
-#endif  // !GTEST_WIDE_STRING_USES_UTF16_()->element());Vector class template.
+#endif  // !GTEST_WIDE_STRING_USES_UTF16_()->element());Random class.
+
+TEST(RandomDeathTest, GeneratesCrashesOnInvalidRange) {
+  testing::internal::Random random(42);
+  EXPECT_DEATH_IF_SUPPORTED(
+      random.Generate(0),
+      "Cannot generate a number in the range \\[0, 0\\)");
+  EXPECT_DEATH_IF_SUPPORTED(
+      random.Generate(testing::internal::Random::kMaxRange + 1),
+      "Generation of a number in \\[0, 2147483649\\) was requested, "
+      "but this can only generate numbers in \\[0, 2147483648\\)");
+}
+
+TEST(RandomTest, GeneratesNumbersWithinRange) {
+  const UInt32 kRange = 10000;
+  testing::internal::Random random(12345);
+  for (int i = 0; i < 10; i++) {
+    EXPECT_LT(random.Generate(kRange), kRange) << " for iteration " << i;
+  }
+
+  testing::internal::Random random2(testing::internal::Random::kMaxRange);
+  for (int i = 0; i < 10; i++) {
+    EXPECT_LT(random2.Generate(kRange), kRange) << " for iteration " << i;
+  }
+}
+
+TEST(RandomTest, RepeatsWhenReseeded) {
+  const int kSeed = 123;
+  const int kArraySize = 10;
+  const UInt32 kRange = 10000;
+  UInt32 values[kArraySize];
+
+  testing::internal::Random random(kSeed);
+  for (int i = 0; i < kArraySize; i++) {
+    values[i] = random.Generate(kRange);
+  }
+
+  random.Reseed(kSeed);
+  for (int i = 0; i < kArraySize; i++) {
+    EXPECT_EQ(values[i], random.Generate(kRange)) << " for iteration " << i;
+  }
+}()->element());Vector class template.
 
 // Tests Vector::Clear().
 TEST(VectorTest, Clear) {
@@ -2875,20 +2919,19 @@ FAILURE(EXPECT_DOUBLE_EQ(nan1_, nan1_),
                           "which exceeds 0.1");
 #else  // !__SYMBIAN32__
   EXPECT_NONFATAL_FAILURE(EXPECT_NEAR(1.0, 1.2, 0values_.close_to_positive_zero                   "The difference between 1.0 and 1.2 is 0.2, "
-                          "which exceeds 0.1");
-  // To work around a bug in gcc 2.95.0, there is intentionally no
-  // space after the first comma in the previous statement.
-#endif  // __SYMBIAN32__
-}
+      leTest, DoubleLEFails) {
+  // When val1 is greater than val2 by a large margin,
+  EXPECT_NONFATAL_FAILURE(EXPECT_PRED_FORMAT2(DoubleLE, 2.0, 1.0),
+                          "(2.0) <= (1.0)");
 
-// Tests ASSERT_NEAR.
-TEST_F(DoubleTest, ASSERT_NEAR) {
-  ASSERT_NEAR(-1.0, -1.1, 0.2);
-  ASSERT_NEAR(2.0, 3.0, 1.0values_.further_from_one, 1.0);
+  // or by a small yet non-negligible margin,
+  EXPECT_NONFATAL_FAILURE({  // NOLINT
+    EXPECT_PRED_FORMAT2(DoubleLE, values_.further_from_one, 1.0);
   }, "(values_.further_from_one) <= (1.0)");
 
 #if !GTEST_OS_SYMBIAN && !defined(__BORLANDC__)
-  // Nokia's STLport crashes if we try to output infinity or NaN.   // C++Builder gives bad results for ordered comparisons involving NaNs
+  // Nokia's STLport crashes if we try to output infinity or NaN.
+  // C++Builder gives bad results for ordered comparisons involving NaNs
   // due to compiler bugs.
   EXPECT_NONFATAL_FAILURE({  // NOLINT
     EXPECT_PRED_FORMAT2(DoubleLE, values_.nan1, values_.infinity);
@@ -2899,14 +2942,17 @@ TEST_F(DoubleTest, ASSERT_NEAR) {
   EXPECT_FATAL_FAILURE({  // NOLINT
     ASSERT_PRED_FORMAT2(DoubleLE, values_.nan1, values_.nan1);
   }, "(values_.nan1) <= (values_.nan1)");
-#endif  // !GTEST_OS_SYMBIAN && !defined(__BORLANDC__)              "which exceeds 0.1");
-  // To work around a bug in gcc 2.95.0, there is intentionally no
-  // space after the first comma in the previous statement.
-#endif  // __SYMBIAN32__
+#endif  // !GTEST_OS_SYMBIAN && !defined(__BORLANDC__)
 }
 
-// Tests the cases where DoubleLE() should succeed.
-TEST_F(DoubleTet be run.";
+
+// Verifies that a test or test case whose name starts with DISABLED_ is
+// not run.
+
+// A test whose name starts with DISABLED_.
+// Should not run.
+TEST(DisabledTest, DISABLED_TestShouldNotRun) {
+  FAIL() << "Unexpected failure: Disabled test should not be run.";
 }
 
 // A test whose name does not start with DISABLED_.
