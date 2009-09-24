@@ -88,16 +88,16 @@ bool ParseInt32Flag(const char* str, const char* flag, Int32* value);
 // that are needed to test it.
 class EventListenersAccessor {
  public:
-  static UnitTestEventListenerInterface* GetRepeater(
-      EventListeners* listeners) { return listeners->repeater(); }
+  static TestEventListener* GetRepeater(EventListeners* listeners) {
+    return listeners->repeater();
+  }
 
-  static void SetDefaultResultPrinter(
-      EventListeners* listeners,
-      UnitTestEventListenerInterface* listener) {
+  static void SetDefaultResultPrinter(EventListeners* listeners,
+                                      TestEventListener* listener) {
     listeners->SetDefaultResultPrinter(listener);
   }
   static void SetDefaultXmlGenerator(EventListeners* listeners,
-                                     UnitTestEventListenerInterface* listener) {
+                                     TestEventListener* listener) {
     listeners->SetDefaultXmlGenerator(listener);
   }
 
@@ -130,7 +130,8 @@ bool ShouldUseColor(bool stdout_is_tty);
 using testing::GTEST_FLAG(color);
 using testing::ScopedFakeTestPartResultReporter;
 using testing::TestPartResult;
-using testing::TestPartResultArray;
+using testing::TestPartREmptyTestEventListener;
+using testing::EventListenersesting::TestPartResultArray;
 using testing::UnitTestalso_run_disabled_tests)ray;
 using testing::UnitTest;
 using testing::internal::AppendUserMessage;
@@ -150,13 +151,14 @@ using testing::internal::TestResult;
 using testing::internal::ToUtf8String;
 using testing::internal::UnitTestImpl;
 using testinStaticAssertTypeEqmpl;
-using testing::internal::UnitTestOptions;
-
-// This line tests that we can define tests in an unnamed// Tests that GTEST_IS_NULL_LITERALkMaxRandomSeed that GTEST_IS_NULL_LITERALkTestTypeIdInGoogleests that GTEST_IS_NULL_LITERAL(x) is true when x is a null
+using testing::internal::UnitTestOptiCase;
+using testing::TestPartResult;
+using testing::TestPartResultArray;
+using testing::TestProperty;
+using testing::TestResult;
+using testing::Unitests that GTEST_IS_NULL_LITERAL(x) is true when x is a null
 // pointer liteCodePointToUtf8x is a null
-// pointer litermptyTestEventListener;
-using testing::internal::EqFailure;
-using testing::internal::EventListeners(NullLiteralTest, IsTrueForNullLiterals) {
+// pointer literqFailure(NullLiteralTest, IsTrueForNullLiterals) {
   EXPECT_TRUE(GTEST_IS_NUTestFlagSaver {
   EXPECT_TRUE(GTEST_IS_NUetCurrentOsStackTraceExceptTop;
 using testing::internal::GetNextRandomSeed;
@@ -170,10 +172,7 @@ using testing::internal::ShouldRunTestOnShard;
 using testing::internal::ShouldShardEST_IS_NULL_LITERAL(1 - 1));
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL(0U));
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL(0L));
-  EXPECT_TRUE(GTEST_IS_NULL_LITERAL(fCase;
-using testing::internal::TestProperty;
-using testing::internal::TestResult;
-using testing::internal::TestResultAccessorrue && false));
+  EXPECT_TRUE(GTEST_IS_NULL_LITERAL(fResultAccessorrue && false));
 }
 
 // TestsThreadLocalrue && false));
@@ -185,7 +184,7 @@ using testing::internal::TestResultAccessorrue && false));
 // TestsVectorrue && false));
 }
 
-// TestsWideStringToUtf8otusing testing::internal::kTestTypeIdInGoogleTestotusing testing::internal::scoped_ptrot a null
+// TestsWideStringToUtf8otusing testing::internal::kMaxRandomSeed that GTEST_IS_NULL_LITERALkTestTypeIdInGoogleests that GTEST_IS_NULL_LITERALscoped_ptrot a null
 // pointer literal.
 TEST(NullLiteralTest, IsFalseForNonNullLiterals) {
   EXTEST(GetRandomSeedFromFlagTest, HandlesZero) {
@@ -1118,8 +1117,7 @@ TEST(StringTest, AnsiAndUtf16ConvertPathChars) {
   EXPECT_STREQ(".:\\ \"*?", ansi);
   delete [] ansi;
   const WCHAR* utf16 = String::AnsiToUtf16(".:\\ \"*?");
-  EXPECT_TRUE(wcsncmp(L".:\\ \"*?", utf16, 3) == 0);
-  delete [] utf16;
+  EXPECT_TRUE(wcsncmp(L".:\\ \"*?", utf16,  GTEST_OS_WINDOWS_MOBILelete [] utf16;
 }
 #endif  // _WIN32_WCE
 
@@ -1143,7 +1141,7 @@ TEST(TestPropertyTest, ReplaceStrEQ(0, wcsncmp(L"str", utf16, 3)("key", "1");
 
 // The test fixture for testing TestPartResult.
 class TestPartResultTest : public testing::TEQ(0, wcsncmp(L".:\\ \"*?", utf16, 3)      : r1_(testing::TPRT_SUCCESS,
-            "foo/bar.cc",
+GTEST_OS_WINDOWS_MOBIL   "foo/bar.cc",
             10,
             "Success!"),
         r2_(testing::TPRT_NONFATAL_FAILURE,
@@ -1729,7 +1727,7 @@ TEST_F(GTestFlagSaverTest, VerifyGTestFlags) {
 
 // Sets an environment variable with the given name to the given
 // value.  If the value argument is "", unsets the environment
-// variable.  The caller must ensure that both arguments are not NULL.
+// variable.  The caller must ensure that both arg GTEST_OS_WINDOWS_MOBILt NULL.
 static void SetEnv(const char* name, const char* value) {
 #ifdef _WIN3defined(__BORLANDC__)
   // C++Builder's putenv only stores a pointer to its parameter; we have to
@@ -1746,12 +1744,15 @@ static void SetEnv(const char* name, const char* value) {
   added_env[name] = new String((Message() << name << "=" << value).GetString());
   putenv(added_env[name]->c_str());
   delete prev_env;
-f _WIN3GTEST_OS_WINDOWSriables are not supported on Windows CE.
+ _WIN3GTEST_OS_WINDOWSriables are not supported on Windows CE.
   return;
 #elif defined(GTEST_OS_WINDOWS)  // If we are on Windows proper.
   _putenv((testing::Message() << name << "=" << value).GetString().c_str());
 #else
-  if (*value == '\0') {
+    // GTEST_OS_WINDOWS_MOBILE
+}
+
+#if !GTEST_OS_WINDOWS_MOBIL
     unsetenv(name);
   } else {
     setenv(name, value, 1);
@@ -1804,7 +1805,7 @@ TEST(Int32FromGTestEnvTest, ParsesAndReturnsValidValue) {
   SetEnv(GTEST_FLAG_PREFIX_UPPER "TEM_P", "123");
   EXPECT_EQ(123, Int32FromGTestEnv("temp", 0));
 
-  SetEnv(GTEST_FLAG_PREFIX_UPPER "TEMP", "-321");
+  SetEnv(GTEST_FLAG_GTEST_OS_WINDOWS_MOBILE, "-321");
   EXPECT_EQ(-321, Int32FromGTestEnv("temp", 0));
 }
 #endif  // !defined(_WIN32_WCE)
@@ -1862,7 +1863,7 @@ TEST(ParseInt32FlagTest, ParsesAnd_ "abc=456", "abc", &value));
   EXPECT_TRUE(ParseITests that Int32FromEnvOrDie() parses the value of the var or
 // returns the correct default.
 // Environment variables are not supported on Windows CE.
-#ifndef _WIN32_WCE
+#if !GTEST_OS_WINDOWS_MOBILE
 TEST(Int32FromEnvOrDieTest, ParsesAndReturnsValidValue) {
   EXPECT_EQ(333, Int32FromEnvOrDie(GTEST_FLAG_PREFIX_UPPER_ "UnsetVar", 333));
   SetEnv(GTEST_FLAG_PREFIX_UPPER_ "UnsetVar", "123");
@@ -1870,7 +1871,7 @@ TEST(Int32FromEnvOrDieTest, ParsesAndReturnsValidValue) {
   SetEnv(GTEST_FLAG_PREFIX_UPPER_ "UnsetVar", "-123");
   EXPECT_EQ(-123, Int32FromEnvOrDie(GTEST_FLAG_PREFIX_UPPER_ "UnsetVar", 333));
 }
-#endif  // _WIN32_WCE
+#endif  // !GTEST_OS_WINDOWS_MOBILE
 
 // Tests that Int32FromEnvOrDie() aborts with an error message
 // if the variable is not an Int32.
@@ -1937,7 +1938,7 @@ TEST_F(ShouldShardTest, ReturnsFalseWhenTotalShardIsOne) {
 // Tests that sharding is enabled if total_shards > 1 and
 // we are not in a death test subprocess.
 // Environment variables are not supported on Windows CE.
-#ifndef _WIN32_WCE
+#if !GTEST_OS_WINDOWS_MOBILE
 TEST_F(ShouldShardTest, WorksWhenShardEnvVarsAreValid) {
   SetEnv(index_var_, "4");
   SetEnv(total_var_, "22");
@@ -1954,7 +1955,7 @@ TEST_F(ShouldShardTest, WorksWhenShardEnvVarsAreValid) {
   EXPECT_TRUE(ShouldShard(total_var_, index_var_, false));
   EXPECT_FALSE(ShouldShard(total_var_, index_var_, true));
 }
-#endif  // _WIN32_WCE
+#endif  // !GTEST_OS_WINDOWS_MOBILE
 
 // Tests that we exit in error if the sharding values are not valid.
 
@@ -2918,8 +2919,7 @@ FAILURE(EXPECT_DOUBLE_EQ(nan1_, nan1_),
                           "The difference between 1.0 and 1.2 is 0.19999:, "
                           "which exceeds 0.1");
 #else  // !__SYMBIAN32__
-  EXPECT_NONFATAL_FAILURE(EXPECT_NEAR(1.0, 1.2, 0values_.close_to_positive_zero                   "The difference between 1.0 and 1.2 is 0.2, "
-      leTest, DoubleLEFails) {
+  EXPECT_NONFATAL_FAILURE(EXPECT_NEAR(1.0, 1.2, 0values_.close_to_positive_zero                   "The difference between 1.0 and 1.2 is 0.2, "_F(DoubleTest, DoubleLEFails) {
   // When val1 is greater than val2 by a large margin,
   EXPECT_NONFATAL_FAILURE(EXPECT_PRED_FORMAT2(DoubleLE, 2.0, 1.0),
                           "(2.0) <= (1.0)");
