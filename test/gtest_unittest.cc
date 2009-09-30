@@ -174,7 +174,18 @@ using testing::internal::ShouldShardEST_IS_NULL_LITERAL(1 - 1));
 // TestsVectorrue && false));
 }
 
-// TestsWideStringToUtf8otusing testing::internal::kMaxRandomSeed that GTEST_IS_NULL_LITERALkTestTypeIdInGoogleests that GTEST_IS_NULL_LITERALscoped_ptrot a null
+// TestsWideStringToUtf8otusing testing::internal::kMaxRandomSeed that GTEST_IS_NULL_LITERALkTestTypeIdInGoogleests that GTEST_IS_NULL_LITERALscoped_ptrot class TestingVector : public Vector<int> {
+};
+
+::std::ostream& operator<<(::std::ostream& os,
+                           const TestingVector& vector) {
+  os << "{ ";
+  for (int i = 0; i < vector.size(); i++) {
+    os << vector.GetElement(i) << " ";
+  }
+  os << "}";
+  return os;
+}t a null
 // pointer literal.
 TEST(NullLiteralTest, IsFalseForNonNullLiterals) {
   EXTEST(GetRandomSeedFromFlagTest, HandlesZero) {
@@ -656,6 +667,53 @@ TEST(VectorTest, GetElementOr) {
   EXPECT_EQ('x', a.GetElementOr(2, 'x'));
 }
 
+TEST(VectorTest, Swap) {
+  Vector<int> a;
+  a.PushBack(0);
+  a.PushBack(1);
+  a.PushBack(2);
+
+  // Swaps an element with itself.
+  a.Swap(0, 0);
+  ASSERT_EQ(0, a.GetElement(0));
+  ASSERT_EQ(1, a.GetElement(1));
+  ASSERT_EQ(2, a.GetElement(2));
+
+  // Swaps two different elements where the indices go up.
+  a.Swap(0, 1);
+  ASSERT_EQ(1, a.GetElement(0));
+  ASSERT_EQ(0, a.GetElement(1));
+  ASSERT_EQ(2, a.GetElement(2));
+
+  // Swaps two different elements where the indices go down.
+  a.Swap(2, 0);
+  ASSERT_EQ(2, a.GetElement(0));
+  ASSERT_EQ(0, a.GetElement(1));
+  ASSERT_EQ(1, a.GetElement(2));
+}
+
+TEST(VectorTest, Clone) {
+  // Clones an empty Vector.
+  Vector<int> a;
+  scoped_ptr<Vector<int> > empty(a.Clone());
+  EXPECT_EQ(0, empty->size());
+
+  // Clones a singleton.
+  a.PushBack(42);
+  scoped_ptr<Vector<int> > singleton(a.Clone());
+  ASSERT_EQ(1, singleton->size());
+  EXPECT_EQ(42, singleton->GetElement(0));
+
+  // Clones a Vector with more elements.
+  a.PushBack(43);
+  a.PushBack(44);
+  scoped_ptr<Vector<int> > big(a.Clone());
+  ASSERT_EQ(3, big->size());
+  EXPECT_EQ(42, big->GetElement(0));
+  EXPECT_EQ(43, big->GetElement(1));
+  EXPECT_EQ(44, big->GetElement(2));
+}
+
 // Tests Vector::Erase().
 TEST(VectorDeathTest, Erase) {
   Vector<int> a;
@@ -719,21 +777,250 @@ TEST(VectorDeathTest, Erase) {
 }
 
 // Tests the GetElement accessor.
-TEST(ListDeathTest, GetElement) {
+TEST(VectorDeathTest, GetElement) {
+  Vector<int> a;
+  a.PushBack(0);
+  a.PushBack(1);
+  a.PushBack(2);
+  const Vector<int>& b = a;
+
+  EXPECT_EQ(0, b.GetElement(0));
+  EXPECT_EQ(1, b.GetElement(1));
+  EXPECT_EQ(2, b.GetElement(2));
+  EXPECT_DEATH_IF_SUPPORTED(
+      b.GetElement(3),
+      "Invalid Vector index 3: must be in range \\[0, 2\\]\\.");
+  EXPECT_DEATH_IF_SUPPORTED(
+      b.GetElement(-1),
+      "Invalid Vector index -1: must be in range \\[0, 2\\]\\.");
+}
+
+// Tests the GetMutableElement accessor.
+TEST(VectorDeathTest, GetMutableElement) {
   Vector<int> a;
   a.PushBack(0);
   a.PushBack(1);
   a.PushBack(2);
 
-  EXPECT_EQ(0, a.GetElement(0));
-  EXPECT_EQ(1, a.GetElement(1));
-  EXPECT_EQ(2, a.GetElement(2));
+  EXPECT_EQ(0, a.GetMutableElement(0));
+  EXPECT_EQ(1, a.GetMutableElement(1));
+  EXPECT_EQ(2, a.GetMutableElement(2));
+
+  a.GetMutableElement(0) = 42;
+  EXPECT_EQ(42, a.GetMutableElement(0));
+  EXPECT_EQ(1, a.GetMutableElement(1));
+  EXPECT_EQ(2, a.GetMutableElement(2));
+
   EXPECT_DEATH_IF_SUPPORTED(
-      a.GetElement(3),
+      a.GetMutableElement(3),
       "Invalid Vector index 3: must be in range \\[0, 2\\]\\.");
   EXPECT_DEATH_IF_SUPPORTED(
-      a.GetElement(-1),
-      "Invalid Vector index -1: must be in range \\[0, 2\\]\\."ExpectNonng(NULL));size of the AssertHelper class.
+      a.GetMutableElement(-1),
+      "Invalid Vector index -1: must be in range \\[0, 2\\]\\.");
+}
+
+TEST(VectorDeathTest, Swap) {
+  Vector<int> a;
+  a.PushBack(0);
+  a.PushBack(1);
+  a.PushBack(2);
+
+  EXPECT_DEATH_IF_SUPPORTED(
+      a.Swap(-1, 1),
+      "Invalid first swap element -1: must be in range \\[0, 2\\]");
+  EXPECT_DEATH_IF_SUPPORTED(
+      a.Swap(3, 1),
+      "Invalid first swap element 3: must be in range \\[0, 2\\]");
+  EXPECT_DEATH_IF_SUPPORTED(
+      a.Swap(1, -1),
+      "Invalid second swap element -1: must be in range \\[0, 2\\]");
+  EXPECT_DEATH_IF_SUPPORTED(
+      a.Swap(1, 3),
+      "Invalid second swap element 3: must be in range \\[0, 2\\]");
+}
+
+TEST(VectorDeathTest, ShuffleRange) {
+  Vector<int> a;
+  a.PushBack(0);
+  a.PushBack(1);
+  a.PushBack(2);
+  testing::internal::Random random(1);
+
+  EXPECT_DEATH_IF_SUPPORTED(
+      a.ShuffleRange(&random, -1, 1),
+      "Invalid shuffle range start -1: must be in range \\[0, 3\\]");
+  EXPECT_DEATH_IF_SUPPORTED(
+      a.ShuffleRange(&random, 4, 4),
+      "Invalid shuffle range start 4: must be in range \\[0, 3\\]");
+  EXPECT_DEATH_IF_SUPPORTED(
+      a.ShuffleRange(&random, 3, 2),
+      "Invalid shuffle range finish 2: must be in range \\[3, 3\\]");
+  EXPECT_DEATH_IF_SUPPORTED(
+      a.ShuffleRange(&random, 3, 4),
+      "Invalid shuffle range finish 4: must be in range \\[3, 3\\]");
+}
+
+class VectorShuffleTest : public Test {
+ protected:
+  static const int kVectorSize = 20;
+
+  VectorShuffleTest() : random_(1) {
+    for (int i = 0; i < kVectorSize; i++) {
+      vector_.PushBack(i);
+    }
+  }
+
+  static bool VectorIsCorrupt(const TestingVector& vector) {
+    if (kVectorSize != vector.size()) {
+      return true;
+    }
+
+    bool found_in_vector[kVectorSize] = { false };
+    for (int i = 0; i < vector.size(); i++) {
+      const int e = vector.GetElement(i);
+      if (e < 0 || e >= kVectorSize || found_in_vector[e]) {
+        return true;
+      }
+      found_in_vector[e] = true;
+    }
+
+    // Vector size is correct, elements' range is correct, no
+    // duplicate elements.  Therefore no corruption has occurred.
+    return false;
+  }
+
+  static bool VectorIsNotCorrupt(const TestingVector& vector) {
+    return !VectorIsCorrupt(vector);
+  }
+
+  static bool RangeIsShuffled(const TestingVector& vector, int begin, int end) {
+    for (int i = begin; i < end; i++) {
+      if (i != vector.GetElement(i)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static bool RangeIsUnshuffled(
+      const TestingVector& vector, int begin, int end) {
+    return !RangeIsShuffled(vector, begin, end);
+  }
+
+  static bool VectorIsShuffled(const TestingVector& vector) {
+    return RangeIsShuffled(vector, 0, vector.size());
+  }
+
+  static bool VectorIsUnshuffled(const TestingVector& vector) {
+    return !VectorIsShuffled(vector);
+  }
+
+  testing::internal::Random random_;
+  TestingVector vector_;
+};  // class VectorShuffleTest
+
+const int VectorShuffleTest::kVectorSize;
+
+TEST_F(VectorShuffleTest, HandlesEmptyRange) {
+  // Tests an empty range at the beginning...
+  vector_.ShuffleRange(&random_, 0, 0);
+  ASSERT_PRED1(VectorIsNotCorrupt, vector_);
+  ASSERT_PRED1(VectorIsUnshuffled, vector_);
+
+  // ...in the middle...
+  vector_.ShuffleRange(&random_, kVectorSize/2, kVectorSize/2);
+  ASSERT_PRED1(VectorIsNotCorrupt, vector_);
+  ASSERT_PRED1(VectorIsUnshuffled, vector_);
+
+  // ...at the end...
+  vector_.ShuffleRange(&random_, kVectorSize - 1, kVectorSize - 1);
+  ASSERT_PRED1(VectorIsNotCorrupt, vector_);
+  ASSERT_PRED1(VectorIsUnshuffled, vector_);
+
+  // ...and past the end.
+  vector_.ShuffleRange(&random_, kVectorSize, kVectorSize);
+  ASSERT_PRED1(VectorIsNotCorrupt, vector_);
+  ASSERT_PRED1(VectorIsUnshuffled, vector_);
+}
+
+TEST_F(VectorShuffleTest, HandlesRangeOfSizeOne) {
+  // Tests a size one range at the beginning...
+  vector_.ShuffleRange(&random_, 0, 1);
+  ASSERT_PRED1(VectorIsNotCorrupt, vector_);
+  ASSERT_PRED1(VectorIsUnshuffled, vector_);
+
+  // ...in the middle...
+  vector_.ShuffleRange(&random_, kVectorSize/2, kVectorSize/2 + 1);
+  ASSERT_PRED1(VectorIsNotCorrupt, vector_);
+  ASSERT_PRED1(VectorIsUnshuffled, vector_);
+
+  // ...and at the end.
+  vector_.ShuffleRange(&random_, kVectorSize - 1, kVectorSize);
+  ASSERT_PRED1(VectorIsNotCorrupt, vector_);
+  ASSERT_PRED1(VectorIsUnshuffled, vector_);
+}
+
+// Because we use our own random number generator and a fixed seed,
+// we can guarantee that the following "random" tests will succeed.
+
+TEST_F(VectorShuffleTest, ShufflesEntireVector) {
+  vector_.Shuffle(&random_);
+  ASSERT_PRED1(VectorIsNotCorrupt, vector_);
+  EXPECT_FALSE(VectorIsUnshuffled(vector_)) << vector_;
+
+  // Tests the first and last elements in particular to ensure that
+  // there are no off-by-one problems in our shuffle algorithm.
+  EXPECT_NE(0, vector_.GetElement(0));
+  EXPECT_NE(kVectorSize - 1, vector_.GetElement(kVectorSize - 1));
+}
+
+TEST_F(VectorShuffleTest, ShufflesStartOfVector) {
+  const int kRangeSize = kVectorSize/2;
+
+  vector_.ShuffleRange(&random_, 0, kRangeSize);
+
+  ASSERT_PRED1(VectorIsNotCorrupt, vector_);
+  EXPECT_PRED3(RangeIsShuffled, vector_, 0, kRangeSize);
+  EXPECT_PRED3(RangeIsUnshuffled, vector_, kRangeSize, kVectorSize);
+}
+
+TEST_F(VectorShuffleTest, ShufflesEndOfVector) {
+  const int kRangeSize = kVectorSize / 2;
+  vector_.ShuffleRange(&random_, kRangeSize, kVectorSize);
+
+  ASSERT_PRED1(VectorIsNotCorrupt, vector_);
+  EXPECT_PRED3(RangeIsUnshuffled, vector_, 0, kRangeSize);
+  EXPECT_PRED3(RangeIsShuffled, vector_, kRangeSize, kVectorSize);
+}
+
+TEST_F(VectorShuffleTest, ShufflesMiddleOfVector) {
+  int kRangeSize = kVectorSize/3;
+  vector_.ShuffleRange(&random_, kRangeSize, 2*kRangeSize);
+
+  ASSERT_PRED1(VectorIsNotCorrupt, vector_);
+  EXPECT_PRED3(RangeIsUnshuffled, vector_, 0, kRangeSize);
+  EXPECT_PRED3(RangeIsShuffled, vector_, kRangeSize, 2*kRangeSize);
+  EXPECT_PRED3(RangeIsUnshuffled, vector_, 2*kRangeSize, kVectorSize);
+}
+
+TEST_F(VectorShuffleTest, ShufflesRepeatably) {
+  TestingVector vector2;
+  for (int i = 0; i < kVectorSize; i++) {
+    vector2.PushBack(i);
+  }
+
+  random_.Reseed(1234);
+  vector_.Shuffle(&random_);
+  random_.Reseed(1234);
+  vector2.Shuffle(&random_);
+
+  ASSERT_PRED1(VectorIsNotCorrupt, vector_);
+  ASSERT_PRED1(VectorIsNotCorrupt, vector2);
+
+  for (int i = 0; i < kVectorSize; i++) {
+    EXPECT_EQ(vector_.GetElement(i), vector2.GetElement(i))
+        << " where i is " << i;
+  }pectNonng(NULL));size of the AssertHelper class.
 
 TEST(AssertHelperTest, AssertHelperIsSmall) {
   // To avoid breaking clients that use lots of assertions in one
@@ -2711,58 +2998,24 @@ TEST_F(DoubleTest, AlmosFloatTest, NaN) {
                           "v.nan1");
 
   EXPECT_FATAL_FAILURE(ASSERT_FLOAT_EQ(v.nan1, v.infinity),
-                       "v.infinity);
- #endif  // !GTEST_OS_SYMBIAN  EXPECT_NONFATAL_FAILURE(EXPECT_FLOAT_EQ(1.0, further_from_one_),
-                          "further_from_one_");
-}
-
-// Tests comparing numbers far apvalues_.infinity, values_.infinityt, LargeDiff) {
-  EXPECT_NONFATAL_FAILURE(EXPECT_FLOAT_EQ(2.5, 3.0),
-                          "3.0");
-}
-
-// Tests comparing values_.close_to_one).
-  EXPECT_FLOAT_EQ(values_.close_to_one, 1.0);
-
-  // We already tested EXPECT_FLOAT_EQ(1.0, values_.further_from_one).
-  EXPECT_NONFATAL_FAILURE(EXPECT_FLOAT_EQ(values_.further_from_oneclose_to_infinity_);
-  EXPECT_FLOAT_EQ(-infinity_, -close_to_infinity_);
-  EXPECT_NONFATAL_FAILURE(EXPECT_FLOAT_EQ(infinity_, -infinity_),
-                          "-infinity_");
-
-  // This is interesting as the representations of infinity_ and nan1_
-  // are only 1 DLP apart.
-  EXPECT_NONFATAL_FAILURE(EXPECT_FLOAT_EQ(infinity_, nan1_),
-                          "nan1_");
-}
-
-// Tests that comparing with NAN always returns false.
-TEST_F(FloatTest, NaN) {
-  EXPECT_NONFATAL_FAILURE(EXPECT_FLOAT_EQ(nan1_, nan1_),
-                          "nan1_");
-  EXPECT_NONFATAL_FAILURE(EXPECT_FLOAT_EQ(nan1_, nan2_),
-                          "nan2_");
-  EXPECT_NONFATAL_FAILURE(EXPECT_FLOAT_EQ(1.0, nan1_),
-                          "nan1_");
-
-  EXPECT_FATAL_FAILURE(ASSERT_FLOAT_EQ(nan1_, infinity_),
-                       "infinity_");
+                       "v.infinity");
+#endif  // !GTEST_OS_SYMBIAN
 }
 
 // Tests that *_FLOAT_EQ are reflexive.
 TEST_F(FloatTest, Reflexive) {
   EXPECT_FLOAT_EQ(0.0, 0.0);
   EXPECT_FLOAT_EQ(1.0, 1.0);
-  ASSERT_FLOAT_EQ(infinity_, infinity_);
+  ASSERT_FLOAT_EQ(values_.infinity, values_.infinity);
 }
 
 // Tests that *_FLOAT_EQ are commutative.
 TEST_F(FloatTest, Commutative) {
-  // We already tested EXPECT_FLOAT_EQ(1.0, close_to_one_).
-  EXPECT_FLOAT_EQ(close_to_one_, 1.0);
+  // We already tested EXPECT_FLOAT_EQ(1.0, values_.close_to_one).
+  EXPECT_FLOAT_EQ(values_.close_to_one, 1.0);
 
-  // We already tested EXPECT_FLOAT_EQ(1values_.close_to_positive_zero
-  EXPECT_NONFATAL_FAILURE(EXPECT_FLOAT_EQ(further_from_one_, 1.0),
+  // We already tested EXPECT_FLOAT_EQ(1.0, values_.further_from_one).
+  EXPECT_NONFATAL_FAILURE(EXPECT_FLOAT_EQ(values_.further_from_one, 1.0),
                           "1.0");
 }
 
@@ -2772,38 +3025,82 @@ TEST_F(FloatTest, EXPECT_NEAR) {
   EXPECT_NEAR(2.0f, 3.0f, 1.0f);
   EXPECT_NONFATAL_FAILURE(EXPECT_NEAR(1.0f,1.2f, 0.1f),  // NOLINT
                           "The difference between 1.0f and 1.2f is 0.2, "
-              values_.further_from_one, 1.0f);
-  }, "(values_.further_from_one) <= (1.0f)");
+                          "which exceeds 0.1f");
+  // To work around a bug in gcc 2.95.0, there is intentionally no
+  // space after the first comma in the previous line.
+}
 
-#if !GTEST_OS_SYMBIAN && !defined(__BORLANDC__)
-  // Nokia's STLport crashes if we try to output infinity or NaN.   // C++Builder gives bad results for ordered comparisons involving NaNs
-  // due to compiler bugs.-1.0f, -1.1f, 0.2f);
+// Tests ASSERT_NEAR.
+TEST_F(FloatTest, ASSERT_NEAR) {
+  ASSERT_NEAR(-1.0f, -1.1f, 0.2f);
   ASSERT_NEAR(2.0f, 3.0f, 1.0f);
-  EXPECT_FATAL_FAILvalues_.nan1, values_.infinity);
-  }, "(values_.nan1) <= (values_.infinityEAR(-1.0f, -1.1f, 0.2f);
-  ASSERT_NEAR(2.0f, 3.0f, 1.0f);
-  EXPECT_FATAL_FAILUvalues_.infinity, values_.nan1);
-  }, "(-values_.infinity) <= (values_.nan1)");               "The difference between 1.0f and 1.2f is 0.2, "
-       values_.nan1, values_.nan1);
-  }, "(values_.nan1) <= (values_.nan1)");
-#endif  // !GTEST_OS_SYMBIAN && !defined(__BORLANDC__)/ To work around a bug in gcc 2.95.0, there is intentionally no
+  EXPECT_FATAL_FAILURE(ASSERT_NEAR(1.0f,1.2f, 0.1f),  // NOLINT
+                       "The difference between 1.0f and 1.2f is 0.2, "
+                       "which exceeds 0.1f");
+  // To work around a bug in gcc 2.95.0, there is intentionally no
   // space after the first comma in the previous line.
 }
 
 // Tests the cases where FloatLE() should succeed.
 TEST_F(FloatTest, FloatLESucceeds) {
-  EXPECT_PRED_FORMAT2(testing::FloatLE, 1.0f, 2.0f);  // When val1 < val2,
-  ASSERT_PRED_FORMAT2(testing::FloatLE, 1.0f, 1.0f);  // val1 == val2,
+  EXPECT_PRED_FORMAT2(FloatLE, 1.0f, 2.0f);  // When val1 < val2,
+  ASSERT_PRED_FORMAT2(FloatLE, 1.0f, 1.0f);  // val1 == val2,
 
   // or when val1 is greater than, but almost equals to, val2.
-  EXPECT_PRED_FORMAT2(testing::FloatLE, close_to_positive_zero_, 0.0f);
+  EXPECT_PRED_FORMAT2(FloatLE, values_.close_to_positive_zero, 0.0f);
 }
 
 // Tests the cases where FloatLE() should fail.
 TEST_F(FloatTest, FloatLEFails) {
   // When val1 is greater than val2 by a large margin,
-  EXPECT_NONFATAL_FAILURE(EXPECT_PRED_FORMAT2(testing::FloatLE, 2.0f, 1.0f),
-      // In C++Builder, names within local classes (such as used by
+  EXPECT_NONFATAL_FAILURE(EXPECT_PRED_FORMAT2(FloatLE, 2.0f, 1.0f),
+                          "(2.0f) <= (1.0f)");
+
+  // or by a small yet non-negligible margin,
+  EXPECT_NONFATAL_FAILURE({  // NOLINT
+    EXPECT_PRED_FORMAT2(FloatLE, values_.further_from_one, 1.0f);
+  }, "(values_.further_from_one) <= (1.0f)");
+
+#if !GTEST_OS_SYMBIAN && !defined(__BORLANDC__)
+  // Nokia's STLport crashes if we try to output infinity or NaN.
+  // C++Builder gives bad results for ordered comparisons involving NaNs
+  // due to compiler bugs.
+  EXPECT_NONFATAL_FAILURE({  // NOLINT
+    EXPECT_PRED_FORMAT2(FloatLE, values_.nan1, values_.infinity);
+  }, "(values_.nan1) <= (values_.infinity)");
+  EXPECT_NONFATAL_FAILURE({  // NOLINT
+    EXPECT_PRED_FORMAT2(FloatLE, -values_.infinity, values_.nan1);
+  }, "(-values_.infinity) <= (values_.nan1)");
+  EXPECT_FATAL_FAILURE({  // NOLINT
+    ASSERT_PRED_FORMAT2(FloatLE, values_.nan1, values_.nan1);
+  }, "(values_.nan1) <= (values_.nan1)");
+#endif  // !GTEST_OS_SYMBIAN && !defined(__BORLANDC__)
+}
+
+// Instantiates FloatingPointTest for testing *_DOUBLE_EQ.
+typedef FloatingPointTest<double> DoubleTest;
+
+// Tests that the size of Double::Bits matches the size of double.
+TEST_F(DoubleTest, Size) {
+  TestSize();
+}
+
+// Tests comparing with +0 and -0.
+TEST_F(DoubleTest, Zeros) {
+  EXPECT_DOUBLE_EQ(0.0, -0.0);
+  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(-0.0, 1.0),
+                          "1.0");
+  EXPECT_FATAL_FAILURE(ASSERT_DOUBLE_EQ(0.0, 1.0),
+                       "1.0");
+}
+
+// Tests comparing numbers close to 0.
+//
+// This ensures that *_DOUBLE_EQ handles the sign correctly and no
+// overflow occurs when comparing numbers whose absolute value is very
+// small.
+TEST_F(DoubleTest, AlmostZeros) {
+  // In C++Builder, names within local classes (such as used by
   // EXPECT_FATAL_FAILURE) cannot be resolved against static members of the
   // scoping class.  Use a static local alias as a workaround.
   static const DoubleTest::TestValues& v(this->values_);
@@ -2822,94 +3119,105 @@ TEST_F(FloatTest, FloatLEFails) {
 TEST_F(DoubleTest, SmallDiff) {
   EXPECT_DOUBLE_EQ(1.0, values_.close_to_one);
   EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(1.0, values_.further_from_one),
-                          "values_.further_from_oneTAL_FAILURE({  // NOLINT
-    ASSERT_PRED_FORMAT2(testing::FloatLE, nan1_, nan1_);
-  }, "(nan1_) <= (nan1_)");
+                          "values_.further_from_one");
 }
 
-// Instantiates FloatingPointTest for testing *_DOUBLE_EQ.
-typedef FloatingPointTest<double> DoubleTest;
-
-// Tests that the size of Double::Bits matches the size of double.
-TEST_F(DoubleTest, Size) {
-  TestSize();
+// Tests comparing numbers far apart.
+TEST_F(DoubleTest, LargeDiff) {
+  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(2.0, 3.0),
+                          "3.0");
 }
 
-// Tests comparing with +0 values_.infinity, values_.close_to_infinity);
-  EXPECT_DOUBLE_EQ(-values_.infinity, -values_.close_to_infinityAL_#if !GTEST_OS_SYMBIAN
-  // Nokia's STLport crashes if we try to output infinity or NaN.       "1.0");
-  EXPECT_FATAL_FAILDOUBLESSERvalues_.infinity, -values_.infinity),
-                          "-values_.infinitysts comparing numbers close to 0.
+// Tests comparing with infinity.
 //
-// This ensures that *_FLOAT_EQ handles the sign correctly and no
-// overflow occurs when comparingDOUBLE_EQ(values_.infinity, values_.nan1),
+// This ensures that no overflow occurs when comparing numbers whose
+// absolute value is very large.
+TEST_F(DoubleTest, Infinity) {
+  EXPECT_DOUBLE_EQ(values_.infinity, values_.close_to_infinity);
+  EXPECT_DOUBLE_EQ(-values_.infinity, -values_.close_to_infinity);
+#if !GTEST_OS_SYMBIAN
+  // Nokia's STLport crashes if we try to output infinity or NaN.
+  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(values_.infinity, -values_.infinity),
+                          "-values_.infinity");
+
+  // This is interesting as the representations of infinity_ and nan1_
+  // are only 1 DLP apart.
+  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(values_.infinity, values_.nan1),
                           "values_.nan1");
-#endif  // !GTEST_OS_SYMBIANrs whose absolute value is very
-// small.
-TEST_F(DoubleTest, AlmostZeros) {
-  EXPECT_#if !GTEST_OS_SYMBIAN
+#endif  // !GTEST_OS_SYMBIAN
+}
+
+// Tests that comparing with NAN always returns false.
+TEST_F(DoubleTest, NaN) {
+#if !GTEST_OS_SYMBIAN
   // In C++Builder, names within local classes (such as used by
   // EXPECT_FATAL_FAILURE) cannot be resolved against static members of the
   // scoping class.  Use a static local alias as a workaround.
   static const DoubleTest::TestValues& v(this->values_);
 
-  // Nokia's STLport crashes if we try to output infinity or NaN.       "1.0");
-  EXPECT_FATAL_FAILDOUBLE_EQ(v.nan1, v.nan1),
+  // Nokia's STLport crashes if we try to output infinity or NaN.
+  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(v.nan1, v.nan1),
                           "v.nan1");
   EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(v.nan1, v.nan2), "v.nan2");
   EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(1.0, v.nan1), "v.nan1");
   EXPECT_FATAL_FAILURE(ASSERT_DOUBLE_EQ(v.nan1, v.infinity),
-                       "v.infinityativ#endif  // !GTEST_OS_SYMBIANve_zero_");
+                       "v.infinity");
+#endif  // !GTEST_OS_SYMBIAN
 }
 
-// Tests comparing numbers close to each other.
-TEST_F(DoubleTest, SmallDiff) {
-  EXPECT_DOUBLE_EQ(1.0, close_to_one_);
-  #if !GTEST_OS_SYMBIAN
-  // Nokia's STLport crashes if we try to output infinity or NaN.   ASSERT_DOUBLE_EQ(values_.infinity, values_.infinity);
-#endif  // !GTEST_OS_SYMBIAN1.0, further_from_one_),
-                          "further_from_one_");
-}
-
-// Tests comparing numbers far apart.
-TEST_F(Doublvalues_.close_to_one).
-  EXPECT_DOUBLE_EQ(values_.close_to_one, 1.0);
-
-  // We already tested EXPECT_DOUBLE_EQ(1.0, values_.further_from_one).
-  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(values_.further_from_one, 1.0),
-                         hen comparing numbers whose
-// absolute value is very large.
-TEST_F(DoubleTest, Infinity) {
-  EXPECT_DOUBLE_EQ(infinity_, close_to,
-                          "nan1_");
-}
-
-// Tests that comparing with NAN always returns false.
-TEST_F(DoubleTest, NaN) {
-  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(nan1_, nan1_),
-                          "nan1_");
-  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(nan1_, nan2_), "nan2_");
-  EXPECT_NONFATAL_FAILURE(EX}
-
-// Tests ASSERT_NEAR.
-TEST_F(DoubleTest, ASSERT_NEAR) {
-  ASSERT_NEAR(-1.0, -1.1, 0.2);
-  ASSERT_NEAR(2.0, 3.0, 1.0);EQ(infinity_, infinity_);
+// Tests that *_DOUBLE_EQ are reflexive.
+TEST_F(DoubleTest, Reflexive) {
+  EXPECT_DOUBLE_EQ(0.0, 0.0);
+  EXPECT_DOUBLE_EQ(1.0, 1.0);
+#if !GTEST_OS_SYMBIAN
+  // Nokia's STLport crashes if we try to output infinity or NaN.
+  ASSERT_DOUBLE_EQ(values_.infinity, values_.infinity);
+#endif  // !GTEST_OS_SYMBIAN
 }
 
 // Tests that *_DOUBLE_EQ are commutative.
 TEST_F(DoubleTest, Commutative) {
-  // We already teste2, "
-FAILURE(EXPECT_DOUBLE_EQ(nan1_, nan1_),
-                          "nan1_");
-  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(nan1_, nan2_), "nan2_");
-  EXPECT_NONFATAL_FAILURE(EXoating point output.
-  // TODO(mikie): fix STLport.
+  // We already tested EXPECT_DOUBLE_EQ(1.0, values_.close_to_one).
+  EXPECT_DOUBLE_EQ(values_.close_to_one, 1.0);
+
+  // We already tested EXPECT_DOUBLE_EQ(1.0, values_.further_from_one).
+  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(values_.further_from_one, 1.0),
+                          "1.0");
+}
+
+// Tests EXPECT_NEAR.
+TEST_F(DoubleTest, EXPECT_NEAR) {
+  EXPECT_NEAR(-1.0, -1.1, 0.2);
+  EXPECT_NEAR(2.0, 3.0, 1.0);
   EXPECT_NONFATAL_FAILURE(EXPECT_NEAR(1.0, 1.2, 0.1),  // NOLINT
-                          "The difference between 1.0 and 1.2 is 0.19999:, "
+                          "The difference between 1.0 and 1.2 is 0.2, "
                           "which exceeds 0.1");
-#else  // !__SYMBIAN32__
-  EXPECT_NONFATAL_FAILURE(EXPECT_NEAR(1.0, 1.2, 0values_.close_to_positive_zero                   "The difference between 1.0 and 1.2 is 0.2, "_F(DoubleTest, DoubleLEFails) {
+  // To work around a bug in gcc 2.95.0, there is intentionally no
+  // space after the first comma in the previous statement.
+}
+
+// Tests ASSERT_NEAR.
+TEST_F(DoubleTest, ASSERT_NEAR) {
+  ASSERT_NEAR(-1.0, -1.1, 0.2);
+  ASSERT_NEAR(2.0, 3.0, 1.0);
+  EXPECT_FATAL_FAILURE(ASSERT_NEAR(1.0, 1.2, 0.1),  // NOLINT
+                       "The difference between 1.0 and 1.2 is 0.2, "
+                       "which exceeds 0.1");
+  // To work around a bug in gcc 2.95.0, there is intentionally no
+  // space after the first comma in the previous statement.
+}
+
+// Tests the cases where DoubleLE() should succeed.
+TEST_F(DoubleTest, DoubleLESucceeds) {
+  EXPECT_PRED_FORMAT2(DoubleLE, 1.0, 2.0);  // When val1 < val2,
+  ASSERT_PRED_FORMAT2(DoubleLE, 1.0, 1.0);  // val1 == val2,
+
+  // or when val1 is greater than, but almost equals to, val2.
+  EXPECT_PRED_FORMAT2(DoubleLE, values_.close_to_positive_zero, 0.0);
+}
+
+// Tests the cases where DoubleLE() should fail.
+TEST_F(DoubleTest, DoubleLEFails) {
   // When val1 is greater than val2 by a large margin,
   EXPECT_NONFATAL_FAILURE(EXPECT_PRED_FORMAT2(DoubleLE, 2.0, 1.0),
                           "(2.0) <= (1.0)");
