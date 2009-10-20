@@ -2329,7 +2329,23 @@ testing::AssertionResult AssertIsEven(const char* expr, int n) {
     return testing::AssertionSuccess();
   }
 
-  testing::Message msg;
+  testing::Message  function that returns AssertionResult for use in
+// EXPECT/ASSERT_TRUE/FALSE.
+AssertionResult ResultIsEven(int n) {
+  if (IsEven(n))
+    return AssertionSuccess() << n << " is even";
+  else
+    return AssertionFailure() << n << " is odd";
+}
+
+// A predicate function that returns AssertionResult but gives no
+// explanation why it succeeds. Needed for testing that
+// EXPECT/ASSERT_FALSE handles such functions correctly.
+AssertionResult ResultIsEvenNoExplanation(int n) {
+  if (IsEven(n))
+    return AssertionSuccess();
+  else
+    return AssertionFailure() << n << " is odd"  testing::Message msg;
   msg << expr << " evaluates to " << n << ", which is not even.";
   return testing::AssertionFailure(msg);
 }
@@ -2981,10 +2997,11 @@ TEST_F(FloatTest, Zeros) {
   EXPECT_NONFATAL_FAILURE(EXPECT_FLOAT_EQ(values_.infinity, values_.nan1),
                           "values_.nan1");
 #endif  // !GTEST_OS_SYMBIANrs whose absolute value is very
-// small.
-TEST_F(DoubleTest, AlmosFloatTest, NaN) {
+/NAN always returns false.
+TEST_F(FloatTest, NaN) {
 #if !GTEST_OS_SYMBIAN
-// Nokia's STLport crashes if we try to output infinity or NaN. 
+// Nokia's STLport crashes if we try to output infinity or NaN.
+
   // In C++Builder, names within local classes (such as used by
   // EXPECT_FATAL_FAILURE) cannot be resolved against static members of the
   // scoping class.  Use a static local alias as a workaround.
@@ -3679,11 +3696,39 @@ TEST(AssertionTest, ASSERT_TRUE) {
                        "2 < 1");
 }
 
+// Tests ASSERT_TRUE(predicate) for predicates returning AssertionResult.
+TEST(AssertionTest, AssertTrueWithAssertionResult) {
+  ASSERT_TRUE(ResultIsEven(2));
+  EXPECT_FATAL_FAILURE(ASSERT_TRUE(ResultIsEven(3)),
+                       "Value of: ResultIsEven(3)\n"
+                       "  Actual: false (3 is odd)\n"
+                       "Expected: true");
+  ASSERT_TRUE(ResultIsEvenNoExplanation(2));
+  EXPECT_FATAL_FAILURE(ASSERT_TRUE(ResultIsEvenNoExplanation(3)),
+                       "Value of: ResultIsEvenNoExplanation(3)\n"
+                       "  Actual: false (3 is odd)\n"
+                       "Expected: true");
+}
+
 // Tests ASSERT_FALSE.
 TEST(AssertionTest, ASSERT_FALSE) {
   ASSERT_FALSE(2 < 1);  // NOLINT
   EXPECT_FATAL_FAILURE(ASSERT_FALSE(2 > 1),
                        "Value of: 2 > 1\n"
+                       "  Actual: true\n"
+                       "Expected: false");
+}
+
+// Tests ASSERT_FALSE(predicate) for predicates returning AssertionResult.
+TEST(AssertionTest, AssertFalseWithAssertionResult) {
+  ASSERT_FALSE(ResultIsEven(3));
+  EXPECT_FATAL_FAILURE(ASSERT_FALSE(ResultIsEven(2)),
+                       "Value of: ResultIsEven(2)\n"
+                       "  Actual: true (2 is even)\n"
+                       "Expected: false");
+  ASSERT_FALSE(ResultIsEvenNoExplanation(3));
+  EXPECT_FATAL_FAILURE(ASSERT_FALSE(ResultIsEvenNoExplanation(2)),
+                       "Value of: ResultIsEvenNoExplanation(2)\n"
                        "  Actual: true\n"
                        "Expected: false");
 }
@@ -4229,6 +4274,20 @@ TEST(ExpectTest, EXPECT_TRUE) {
                           "2 > 3");
 }
 
+// Tests EXPECT_TRUE(predicate) for predicates returning AssertionResult.
+TEST(ExpectTest, ExpectTrueWithAssertionResult) {
+  EXPECT_TRUE(ResultIsEven(2));
+  EXPECT_NONFATAL_FAILURE(EXPECT_TRUE(ResultIsEven(3)),
+                          "Value of: ResultIsEven(3)\n"
+                          "  Actual: false (3 is odd)\n"
+                          "Expected: true");
+  EXPECT_TRUE(ResultIsEvenNoExplanation(2));
+  EXPECT_NONFATAL_FAILURE(EXPECT_TRUE(ResultIsEvenNoExplanation(3)),
+                          "Value of: ResultIsEvenNoExplanation(3)\n"
+                          "  Actual: false (3 is odd)\n"
+                          "Expected: true");
+}
+
 // Tests EXPECT_FALSE.
 TEST(ExpectTest, EXPECT_FALSE) {
   EXPECT_FALSE(2 < 1);  // NOLINT
@@ -4238,6 +4297,20 @@ TEST(ExpectTest, EXPECT_FALSE) {
                           "Expected: false");
   EXPECT_NONFATAL_FAILURE(EXPECT_FALSE(2 < 3),
                           "2 < 3");
+}
+
+// Tests EXPECT_FALSE(predicate) for predicates returning AssertionResult.
+TEST(ExpectTest, ExpectFalseWithAssertionResult) {
+  EXPECT_FALSE(ResultIsEven(3));
+  EXPECT_NONFATAL_FAILURE(EXPECT_FALSE(ResultIsEven(2)),
+                          "Value of: ResultIsEven(2)\n"
+                          "  Actual: true (2 is even)\n"
+                          "Expected: false");
+  EXPECT_FALSE(ResultIsEvenNoExplanation(3));
+  EXPECT_NONFATAL_FAILURE(EXPECT_FALSE(ResultIsEvenNoExplanation(2)),
+                          "Value of: ResultIsEvenNoExplanation(2)\n"
+                          "  Actual: true\n"
+                          "Expected: false");
 }
 
 #ifdef __BORLANDC__
@@ -4844,6 +4917,63 @@ TEST_F(TestLifeCycleTest, Test2) {
 }
 
 }  // namespace
+
+// Tests that the copy constructor works when it is NOT optimized away by
+// the compiler.
+TEST(AssertionResultTest, CopyConstructorWorksWhenNotOptimied) {
+  // Checks that the copy constructor doesn't try to dereference NULL pointers
+  // in the source object.
+  AssertionResult r1 = AssertionSuccess();
+  AssertionResult r2 = r1;
+  // The following line is added to prevent the compiler from optimizing
+  // away the constructor call.
+  r1 << "abc";
+
+  AssertionResult r3 = r1;
+  EXPECT_EQ(static_cast<bool>(r3), static_cast<bool>(r1));
+  EXPECT_STREQ("abc", r1.message());
+}
+
+// Tests that AssertionSuccess and AssertionFailure construct
+// AssertionResult objects as expected.
+TEST(AssertionResultTest, ConstructionWorks) {
+  AssertionResult r1 = AssertionSuccess();
+  EXPECT_TRUE(r1);
+  EXPECT_STREQ("", r1.message());
+
+  AssertionResult r2 = AssertionSuccess() << "abc";
+  EXPECT_TRUE(r2);
+  EXPECT_STREQ("abc", r2.message());
+
+  AssertionResult r3 = AssertionFailure();
+  EXPECT_FALSE(r3);
+  EXPECT_STREQ("", r3.message());
+
+  AssertionResult r4 = AssertionFailure() << "def";
+  EXPECT_FALSE(r4);
+  EXPECT_STREQ("def", r4.message());
+
+  AssertionResult r5 = AssertionFailure(Message() << "ghi");
+  EXPECT_FALSE(r5);
+  EXPECT_STREQ("ghi", r5.message());
+}
+
+// Tests that the negation fips the predicate result but keeps the message.
+TEST(AssertionResultTest, NegationWorks) {
+  AssertionResult r1 = AssertionSuccess() << "abc";
+  EXPECT_FALSE(!r1);
+  EXPECT_STREQ("abc", (!r1).message());
+
+  AssertionResult r2 = AssertionFailure() << "def";
+  EXPECT_TRUE(!r2);
+  EXPECT_STREQ("def", (!r2).message());
+}
+
+TEST(AssertionResultTest, StreamingWorks) {
+  AssertionResult r = AssertionSuccess();
+  r << "abc" << 'd' << 0 << true;
+  EXPECT_STREQ("abcd0true", r.message());
+}
 
 // Tests streaming a user type whose definition and operator << are
 // both in the global namespace.
