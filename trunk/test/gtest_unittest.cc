@@ -1079,9 +1079,7 @@ TEST(StringTest, ShowCStringQuoted) {
   EXPECT_EQ('\0', s7.c_str()[1]);
   EXPECT_EQ('b', s7.c_str()[2]);
   EXPECT_EQ('c', s7.c_str()[3]NT
-  E#if GTEST_HAS_STD_STRING
-
-TEST(StringTest, ConvertsFromStdString) {
+  ETEST(StringTest, ConvertsFromStdString) {
   // An empty std::string.
   const std::string src1("");
   const String dest1 = src1;
@@ -1119,8 +1117,6 @@ TEST(StringTest, ConvertsToStdString) {
   const std::string dest3 = src3;
   EXPECT_EQ(std::string("x\0y", 3), dest3);
 }
-
-#endif  // GTEST_HAS_STD_STRING
 
 #if GTEST_HAS_GLOBAL_STRING
 
@@ -2712,8 +2708,7 @@ TEST(IsSubstringTest, ReturnsCorrectResultForCString) {
   EXPECT_FALSE(IsSubstring("", "", "b", NULL));
   EXPECT_FALSE(IsSubstring("", "", "needle", "haystack"));
 
-  EXPECT_TRUE(IsSubstring("", "", static_cast<const char*>(NULL), NULL));
-  EXPECT_TRUE(IsSubstring("", "", "needle", "two needles"));
+  EXPECT_TRUE(IsSubstring("", "", static_cast<const char*>(NULL), NULL));("", "", "needle", "two needles"));
 }
 
 // Tests that IsSubstring() returns the correct result when the input
@@ -2722,8 +2717,7 @@ TEST(IsSubstringTest, ReturnsCorrectResultForWideCString) {
   using ::testing::IsSubstring;
 
   EXPECT_FALSE(IsSubstring("", "", NULL, L"a"));
-  EXPECT_FALSE(IsSubstring("", "", L"b", NULL));
-  EXPECT_FALSE(IsSubstring("", "", L"needle", L"haystack"));
+  EXPECT_FALSE(I  EXPECT_FALSE(IsSubstring("", "", L"needle", L"haystack"));
 
   EXPECT_TRUE(IsSubstring("", "", static_cast<const wchar_t*>(NULL), NULL));
   EXPECT_TRUE(IsSubstring("", "", L"needle", L"two needles"));
@@ -2775,11 +2769,11 @@ TEST(IsSubstringTest, GeneratesCorrectMessageForWstring) {
 
 #endif  // GTEST_HAS_STD_WSTRING
 
-// Tests for ::testing::IsNotSubstring().
+// Tests for ::testing::IsNot// Tests that IsNot", "two needles"));
+}
 
-// Tests that IsNotSubstring() returns the correct result when the input
-// argument type is const char*.
-TEST(IsNotSubstringTest, ReturnsCorrectResultForCString) {
+// Tests that IsSubstring() returns the correct result when the input
+/Test, ReturnsCorrectResultForCString) {
   using ::testing::IsNotSubstring;
 
   EXPECT_TRUE(IsNotSubstring("", "", "needle", "haystack"));
@@ -2798,7 +2792,7 @@ TEST(IsNotSubstringTest, ReturnsCorrectResultForWideCString) {
 // Tests that IsNotSubstring() generates the correct message when the input
 // argument type is const wchar_t*.
 TEST(IsNotSubstringTest, GeneratesCorrectMessageForWideCString) {
-  EXPECT_STREQ("Value of: needle_expr\n"
+  EX\n"
                "  Actual: L\"needle\"\n"
                "Expected: not a substring of haystack_expr\n"
                "Which is: L\"two needles\"",
@@ -4465,7 +4459,6 @@ TEST(StreamableToStringTest, NullCString) {
 
 // Tests using streamable values as assertion messages.
 
-#if GTEST_HAS_STD_STRING
 // Tests using std::string as an assertion message.
 TEST(StreamableTest, string) {
   static const std::string str(
@@ -4485,8 +4478,6 @@ TEST(StreamableTest, stringWithEmbeddedNUL) {
   EXPECT_FATAL_FAILURE(FAIL() << string_with_nul,
                        "Here's a NUL\\0 and some more string");
 }
-
-#endif  // GTEST_HAS_STD_STRING
 
 // Tests that we can output a NUL char.
 TEST(StreamableTest, NULChar) {
@@ -4610,7 +4601,6 @@ TEST(EqAssertionTest, WideChar) {
                        "Value of: wchar");
 }
 
-#if GTEST_HAS_STD_STRING
 // Tests using ::std::string values in {EXPECT|ASSERT}_EQ.
 TEST(EqAssertionTest, StdString) {
   // Compares a const char* to an std::string that has identical
@@ -4640,8 +4630,6 @@ TEST(EqAssertionTest, StdString) {
                        "Value of: str3\n"
                        "  Actual: \"A \\0 in the middle\"");
 }
-
-#endif  // GTEST_HAS_STD_STRING
 
 #if GTEST_HAS_STD_WSTRING
 
