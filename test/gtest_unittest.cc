@@ -3898,7 +3898,7 @@ TEST(AssertionTest, NonFixtureSubroutine) {
 // An uncopyable class.
 class Uncopyable {
  public:
-  explicit Uncopyable(int value) : value_(value) {}
+  explicit Uncopyable(int a_value) : value_(a_value) {}
 
   int value() const { return value_; }
   bool operator==(const Uncopyable& rhs) const {
@@ -4984,7 +4984,7 @@ TEST(AssertionResultTest, StreamingWorks) {
 // both in the global namespace.
 class Base {
  public:
-  explicit Base(int x) : x_(x) {}
+  explicit Base(int an_x) : x_(an_x) {}
   int x() const { return x_; }
  private:
   int x_;
@@ -5012,19 +5012,16 @@ TEST(MessageTest, CanStreamUserTypeInGlobalNameSpace) {
 namespace {
 class MyTypeInUnnamedt objects that uses this
   // fixture.
-  ~TestLifeCycleTest() { count_--; }
-
-  // Returns the number of live test objects that uses this fixture.
-  int count() const { return count_; }
-
- private:
-  static int count_;
-};
-
-int TestLifeCycleTest::count_ = 0;
+  ~TestLifeCycleTest() { count_--; }an_x): Base(an_x) {}
+};TestLifeCycleTest::count_ = 0;
 
 // Tests the life cycle of test objects.
-TEST_F(TestLifeCycleTest, Test1) {
+TEST_F(TestLifeCycleTest, _;
+};
+std::ostream& operator<<(std::ostream& os,
+                         const Base& val) {
+  return os << val.x();
+tLifeCycleTest, Test1) {
   // There should be only one test object in this test case that's
   // currently alive.
   ASSERT_EQ(1, count());
@@ -5041,8 +5038,7 @@ TEST_F(TestLifeCycleTest, Test2) {
 }  // namespace
 
 // Tests streaming a user type whose definition and operator << are
-// both in the global namespace.
-class Base {
+// both in the global namesan_x): Base(an_ss Base {
  public:
   explicit Base(int x) : x_(x) {}
   int x() const { return x_; }
@@ -5071,8 +5067,7 @@ TEST(MessageTest, CanStreamUserTypeInGlobalNameSpace) {
 namespace {
 class MyTypeInUnnamedNameSpace : public Base {
  public:
-  explicit MyTypeInUnnamedNameSpace(int x): Base(x) {}
-};
+  explicit MyTypeInUnnamedNameSpace(int x): Baan_x): Base(an_};
 std::ostream& operator<<(std::ostream& os,
                          const MyTypeInUnnamedNameSpace& val) {
   return os << val.x();
@@ -6338,7 +6333,7 @@ TEST(ColoredOutputTest, UsesNoColorWhenGTestColorFlagIsNo) {
   EXPECT_FALSE(ShouldUseColor(false));  // Stdout is not a TTY.
 }
 
-TEST(ColoredOutputTest, UsesNoCoTTY.
+TESTlor(true));  // Stdout is a TTY.
 
   SetEnv("TERM", "xterm");  // TERM supports colors.
   EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
