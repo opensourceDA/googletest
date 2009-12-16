@@ -1678,54 +1678,7 @@ TEST(TestPropertyTest, SetValue) {
   EXPECT_STREQ("value_2", property.value());
 }
 
-// Tests the TestPartResult class.
-
-TEST(TestPartResultTest, ConstructorWorks) {
-  Message message;
-  message << "something is terribly wrong";
-  message << static_cast<const char*>(testing::internal::kStackTraceMarker);
-  message << "some unimportant stack trace";
-
-  const TestPartResult result(TestPartResult::kNonFatalFailure,
-                              "some_file.cc",
-                              42,
-                              message.GetString().c_str());
-
-  EXPECT_EQ(TestPartResult::kNonFatalFailure, result.type());
-  EXPECT_STREQ("some_file.cc", result.file_name());
-  EXPECT_EQ(42, result.line_number());
-  EXPECT_STREQ(message.GetString().c_str(), result.message());
-  EXPECT_STREQ("something is terribly wrong", result.summary());
-}
-
-TEST(TestPartResultTest, ResultAccessorsWork) {
-  const TestPartResult success(TestPartResult::kSuccess,
-                               "file.cc",
-                               42,
-                               "message");
-  EXPECT_TRUE(success.passed());
-  EXPECT_FALSE(success.failed());
-  EXPECT_FALSE(success.nonfatally_failed());
-  EXPECT_FALSE(success.fatally_failed());
-
-  const TestPartResult nonfatal_failure(TestPartResult::kNonFatalFailure,
-                                        "file.cc",
-                                        42,
-                                        "message");
-  EXPECT_FALSE(nonfatal_failure.passed());
-  EXPECT_TRUE(nonfatal_failure.failed());
-  EXPECT_TRUE(nonfatal_failure.nonfatally_failed());
-  EXPECT_FALSE(nonfatal_failure.fatally_failed());
-
-  const TestPartResult fatal_failure(TestPartResult::kFatalFailure,
-                                     "file.cc",
-                                     42,
-                                     "message");
-  EXPECT_FALSE(fatal_failure.passed());
-  EXPECT_TRUE(fatal_failure.failed());
-  EXPECT_FALSE(fatal_failure.nonfatally_failed());
-  EXPECT_TRUE(fatal_failure.fatally_failed());
-}sult(testing::TPRT_SUCCESS,
+// Tests the TestSUCCESS,
                                       "foo/bar.cc",
                                       10,
               Vector<TestPartResult> TPRVectorcess!");
@@ -3006,8 +2959,7 @@ TEST_F(FloatTest, Zeros) {
 TEST_F(FloatTest, NaN) {
 #if !GTEST_OS_SYMBIAN
 // Nokia's STLport crashes if we try to output infinity or NaN.
-
-  // In C++Builder, names within local classes (such as used by
+ngP// In C++Builder, names within local classes (such as used by
   // EXPECT_FATAL_FAILURE) cannot be resolved against static members of the
   // scoping class.  Use a static local alias as a workaround.
   static const FloatTest::TestValues& v(this->values_);
@@ -6333,17 +6285,15 @@ TEST(ColoredOutputTest, UsesNoColorWhenGTestColorFlagIsNo) {
   EXPECT_FALSE(ShouldUseColor(false));  // Stdout is not a TTY.
 }
 
-TESTlor(true));  // Stdout is a TTY.
-
-  SetEnv("TERM", "xterm");  // TERM supports colors.
-  EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
-
-  SetEnv("TERM", "xterm-color");  // TERM supports colors.
-  EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
-
-  SetEnv("TERM", "linux");  // TERM supports colors.
-  EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
-#endif  // GTEST_OS_WINDOWS
+TESTlor(true));  // Stdout is a TTY.(EXPECT_STRNE("foo", "foo") << "expected failure",
+                          "expected failure");
+  EXPECT_FATAL_
+  SetEnv("TERM", "xterm-color") << "expected failure",
+                          "expected failure");
+  EXPECT_FATAL_
+  SetEnv("TERM", "linux") << "expected failure",
+                          "expected failure");
+  EXPECT_FATAL_#endif  // GTEST_OS_WINDOWS
 }
 
 // Verifies that StaticAssertTypeEq works in a namespace scope.
