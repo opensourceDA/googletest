@@ -177,7 +177,10 @@ using testing::internal::ShouldShardEST_IS_NULL_LITERAL(1 - 1));
 // TestsVectorrue && false));
 }
 
-// TestsWideStringToUtf8otusing testing::internal::kMaxRandomSeed that GTEST_IS_NULL_LITERALkTestTypeIdInGoogleests that GTEST_IS_NULL_LITERALscoped_ptrot class TestingVector : public Vector<int> {
+// TestsWideStringToUtf8otusing testing::internal::kMaxRandomSeed that GTEST_IS_NULL_LITERALkTestTypeIdInGoogleests that GTEST_IS_NULL_LITERALscoped_ptrot #if GTEST_HAS_STREAM_REDIRECTION_
+using testing::internal::CaptureStdout;
+using testing::internal::GetCapturedStdout;
+#endif  // GTEST_HAS_STREAM_REDIRECTION_t class TestingVector : public Vector<int> {
 };
 
 ::std::ostream& operator<<(::std::ostream& os,
@@ -5351,9 +5354,14 @@ class InitGoogleTestTest : public testing::Test {
   virtual void SetUp, bool should_print_help) {
     const bool saved_help_flag = ::testing::internal::g_help_flag;
     ::testing::internal::g_help_flag = false;
+{#if GTEST_HAS_STREAM_REDIRECTION_
+    CaptureStdout();
+#endif  // GTEST_HAS_STREAM_REDIRECTION_
 {
     GTEST_FLAG(break_on_failure) = internal::ParseGoogleTestFlagsOnlyST_FLAG(catch_exceptions) = false;
-    GTEST_FLAG(filter) = "";
+    GTE#if GTEST_HAS_STREAM_REDIRECTION_
+    const String captured_stdout = GetCapturedStdout();
+#endif  // GTEST_HAS_STREAM_REDIRECTION_TEST_FLAG(filter) = "";
     GTEST_FLAG(list_tests) = false;
     GTEST_FLAG(output) = "";
     GTEST_FLAG(print_time) = false;
@@ -5365,8 +5373,16 @@ class InitGoogleTestTest : public testing::Test {
     // help message for the flags it recognizes.
     EXPECT_EQ(should_print_help, ::testing::internal::g_help_flag);
 
-    // TODO(vladl@google.com): Verify that the help output is not printed
-    // for recognized flags when stdout capturing is implemeted.
+#if GTEST_HAS_STREAM_REDIRECTION_
+    const char* const expected_help_fragment =
+        "This program contains tests written using";
+    if (should_print_help) {
+      EXPECT_PRED_FORMAT2(IsSubstring, expected_help_fragment, captured_stdout);
+    } else {
+      EXPECT_PRED_FORMAT2(IsNotSubstring,
+                          expected_help_fragment, captured_stdout);
+    }
+#endif  // GTEST_HAS_STREAM_REDIRECTION_
 
     ::testing::internal::g_help_flag = saved_help_flagays are equal.
   template <typename CharType>
