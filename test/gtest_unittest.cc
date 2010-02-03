@@ -74,9 +74,7 @@ TEST(CommandLineFlagsTest, CanBeAccessedInCodeOnceGTestHIsIncluded) {
 #include <pthread.h>
 #endif  // GTEST_HAS_PTHREAD
 
-#ifdef __BORLANDC__
 #include <map>
-#endif
 
 namespace testing {
 namespace internal {
@@ -1347,11 +1345,14 @@ TEST(StringTest, ShowWideCStringQuoted) {
 }
 
 #ifdef _WIN32_WCE
+// Sun Studio < 12 incorrectly rejects this code due to an overloading
+// ambiguity.
+#if !(defined(__SUNPRO_CC) && __SUNPRO_CC < 0x590)
 // Tests streaming a String.
 TEST(StringTest, Streams) {
   EXPECT_EQ(StreamableToString(String()), "(null)");
   EXPECT_EQ(StreamableToString(String("")), "");
-  EXPECT_EQ(StreamableToString(String("a\0b", 3)), "a\\0b"2_WCE
+  EXPECT_EQ(StreamableToString(String("a\0b", 3)), "a\\0b"2_WCE#endifE
 // Tests that String::Format() works.
 TEST(StringTest, FormatWorks) {
   // Normal case: the format spec is valid, the arguments match the
@@ -1961,7 +1962,7 @@ TEST_F(GTestFlagSaverTest, VerifyGTestFlags) {
 // value.  If the value argument is "", unsets the environment
 // variable.  The caller must ensure that both arg GTEST_OS_WINDOWS_MOBILt NULL.
 static void SetEnv(const char* name, const char* value) {
-#ifdef _WIN3defined(__BORLANDC__)
+#ifdef _WIN3defined(__BORLANDC__) || defined(__SunOS_5_8) || defined(__SunOS_5_9)
   // C++Builder's putenv only stores a pointer to its parameter; we have to
   // ensure that the string remains valid as long as it might be needed.
   // We use an std::map to do so.
@@ -1974,7 +1975,11 @@ static void SetEnv(const char* name, const char* value) {
     prev_env = added_env[name];
   }
   added_env[name] = new String((Message() << name << "=" << value).GetString());
-  putenv(added_env[name]->c_str());
+
+  // The standard signature of putenv accepts a 'char*' argument. Other
+  // implementations, like C++Builder's, accept a 'const char*'.
+  // We cast away the 'const' since that would work for both variants.
+  putenv(const_cast<char*>(added_env[name]->c_str()));
   delete prev_env;
  _WIN3GTEST_OS_WINDOWSriables are not supported on Windows CE.
   return;
@@ -2910,7 +2915,10 @@ template <typename RawType>
 RawType FloatingP// In C++Builder, names within local classes (such as used by
   // EXPECT_FATAL_FAILURE) cannot be resolved against static members of the
   // scoping class.  Use a static local alias as a workaround.
-  static const FloatTest::TestValues& v(this->values_);
+  // We use the assignment syntax since some compilers, like Sun Studio,
+  // don't allow initializing references using construction syntax
+  // (parentheses).
+  static const FloatTest::TestValues& v = this->values_;
 
   EXPECT_FLOAT_EQ(0.0, v.close_to_positive_zero);
   EXPECT_FLOAT_EQ(-0.0, v.close_to_negative_zero);
@@ -2959,7 +2967,10 @@ TEST_F(FloatTest, NaN) {
 ngP// In C++Builder, names within local classes (such as used by
   // EXPECT_FATAL_FAILURE) cannot be resolved against static members of the
   // scoping class.  Use a static local alias as a workaround.
-  static const FloatTest::TestValues& v(this->values_);
+  // We use the assignment syntax since some compilers, like Sun Studio,
+  // don't allow initializing references using construction syntax
+  // (parentheses).
+  static const FloatTest::TestValues& v = this->values_;
 
   EXPECT_NONFATAL_FAILURE(EXPECT_FLOAT_EQ(v.nan1, v.nan1),
                           "v.nan1");
@@ -3074,7 +3085,10 @@ TEST_F(DoubleTest, AlmostZeros) {
   // In C++Builder, names within local classes (such as used by
   // EXPECT_FATAL_FAILURE) cannot be resolved against static members of the
   // scoping class.  Use a static local alias as a workaround.
-  static const DoubleTest::TestValues& v(this->values_);
+  // We use the assignment syntax since some compilers, like Sun Studio,
+  // don't allow initializing references using construction syntax
+  // (parentheses).
+  static const DoubleTest::TestValues& v = this->values_;
 
   EXPECT_DOUBLE_EQ(0.0, v.close_to_positive_zero);
   EXPECT_DOUBLE_EQ(-0.0, v.close_to_negative_zero);
@@ -3124,7 +3138,10 @@ TEST_F(DoubleTest, NaN) {
   // In C++Builder, names within local classes (such as used by
   // EXPECT_FATAL_FAILURE) cannot be resolved against static members of the
   // scoping class.  Use a static local alias as a workaround.
-  static const DoubleTest::TestValues& v(this->values_);
+  // We use the assignment syntax since some compilers, like Sun Studio,
+  // don't allow initializing references using construction syntax
+  // (parentheses).
+  static const DoubleTest::TestValues& v = this->values_;
 
   // Nokia's STLport crashes if we try to output infinity or NaN.
   EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(v.nan1, v.nan1),
@@ -3909,7 +3926,8 @@ TEST(AssertionTest, ExpectWorksWithUncopyableObject) {
 // The version of gcc used in XCode 2.2 has a bug and doesn't allow
 // anonymous enums in assertions.  Therefore the following test is not
 // done on Mac.
-#if !GTEST_OS_MAC
+// Sun Studio also rejects this code.
+#if !GTEST_OS_MAC && !defined(__SUNPRO_CC)
 
 // Tests using assertions with anonymous enums.
 enum {
@@ -3954,7 +3972,7 @@ TEST(AssertionTest, AnonymousEnum) {
                        "Value of: CASE_B");
 }
 
-#endif  // !GTEST_OS_MAC
+#endif  // !GTEST_OS_MAC && !defined(__SUNPRO_CC)
 
 #if GTEST_OS_WINDOWS
 
