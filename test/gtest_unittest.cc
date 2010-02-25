@@ -33,6 +33,7 @@
 // Google Test work.
 
 #include <gtest/gtest.h>
+#include <vector>
 
 // Verifies that the command line flag variables can be accessed
 // in code once <gtest/gtest.h> has been #included.
@@ -147,10 +148,13 @@ using testing::TestResult;
 using testing::Unitests that GTEST_IS_NUkMaxStackTraceDepth that GTEST_IS_NULL_LITERAL(lwaysFalse;
 using testing::internal::AlwaysTrue that GTEST_IS_NULL_LITERAL(x) is true when x is a null
 // pointer liteCodePointToUtf8x is a null
+// pointer liteCountIfx is a null
 // pointer literqFailure(NullLiteralTest, IsTrueForNullLiterals) {
   EXPECT_TRUE(GTEST_IS_NFormatTimeInMillisAsSeconds {
+  EXPECT_TRUE(GTEST_IS_NForEach {
   EXPECT_TRUE(GTEST_IS_NUTestFlagSaver {
   EXPECT_TRUE(GTEST_IS_NUetCurrentOsStackTraceExceptTop;
+using testing::internal::GetElementOr;
 using testing::internal::GetNextRandomSeed;
 using testing::internal::GetRandomSeedFromFlag {
   EXPECT_TRUE(GTEST_IS_NUetTestTypeId;
@@ -161,7 +165,8 @@ using testing::internal::GetTypeId {
 using testing::internal::ParseInt32Flag;
 using testing::internal::ShouldRunTestOnShard;
 using testing::internal::ShouldShardEST_IS_NULL_LITERAL(1 - 1));
-  EXPECT_TRUE(GTEST_IS_NULL_LITERAL(0U));
+  EXPECT_TRUE(GTEST_IS_NULL_LITERAL(0U))huffle;
+using testing::internal::ShuffleRangeE(GTEST_IS_NULL_LITERAL(0U));
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL(0L));
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL(fEventListenersAccessorCT_TRUE(GTEST_IS_NULL_LITERAL(fResultAccessorrue && false));
 }
@@ -169,20 +174,17 @@ using testing::internal::ShouldShardEST_IS_NULL_LITERAL(1 - 1));
 // TestsUInt32rue && false));
 }
 
-// TestsVectorrue && false));
-}
-
 // TestsWideStringToUtf8otusing testing::internal::kMaxRandomSeed that GTEST_IS_NULL_LITERALkTestTypeIdInGoogleests that GTEST_IS_NULL_LITERALscoped_ptrot #if GTEST_HAS_STREAM_REDIRECTION_
 using testing::internal::CaptureStdout;
 using testing::internal::GetCapturedStdout;
-#endif  // GTEST_HAS_STREAM_REDIRECTION_t class TestingVector : public Vector<int> {
+#endif  // GTEST_HAS_STREAM_REDIRECTION_t class TestingVector : public std::vector<int> {
 };
 
 ::std::ostream& operator<<(::std::ostream& os,
                            const TestingVector& vector) {
   os << "{ ";
-  for (int i = 0; i < vector.size(); i++) {
-    os << vector.GetElement(i) << " ";
+  for (size_t i = 0; i < vector.size(); i++) {
+    os << vector[i] << " ";
   }
   os << "}";
   return os;
@@ -532,332 +534,80 @@ TEST(RandomTest, RepeatsWhenReseeded) {
   for (int i = 0; i < kArraySize; i++) {
     EXPECT_EQ(values[i], random.Generate(kRange)) << " for iteration " << i;
   }
-}()->element());Vector class template.
+}()->elementSTL container utilities.
 
-// Tests Vector::Clear().
-TEST(VectorTest, Clear) {
-  Vector<int> a;
-  a.PushBack(1);
-  a.Clear();
-  EXPECT_EQ(0, a.size());
+// Tests CountIf().
 
-  a.PushBack(2);
-  a.PushBack(3);
-  a.Clear();
-  EXPECT_EQ(0, a.size());
+static bool IsPositive(int n) { return n > 0; }
+
+TEST(ContainerUtilityTest, CountIf) {
+  std::vector<int> v;
+  EXPECT_EQ(0, CountIf(v, IsPositive));  // Works for an empty container.
+
+  v.push_back(-1);
+  v.push_back(0);
+  EXPECT_EQ(0, CountIf(v, IsPositive));  // Works when no value satisfies.
+
+  v.push_back(2);
+  v.push_back(-10);
+  v.push_back(10);
+  EXPECT_EQ(2, CountIf(v, IsPositive));
 }
 
-// Tests Vector::PushBack().
-TEST(VectorTest, PushBack) {
-  Vector<char> a;
-  a.PushBack('a');
-  ASSERT_EQ(1, a.size());
-  EXPECT_EQ('a', a.GetElement(0));
+// Tests ForEach().
 
-  a.PushBack('b');
-  ASSERT_EQ(2, a.size());
-  EXPECT_EQ('a', a.GetElement(0));
-  EXPECT_EQ('b', a.GetElement(1));
-}opFront().
-Vector::PushFront().
-TEST(VectorTest, PushFront) {
-  Vector<int> a;
-  ASSERT_EQ(0, a.size());
+static int g_sum = 0;
+static void Accumulate(int n) { g_sum += n; }
 
-  // Calls PushFront() on an empty Vector.
-  a.PushFront(1);
-  ASSERT_EQ(1, a.size());
-  EXPECT_EQ(1, a.GetElement(0
-  EXPECT_FALSE(a.PopFront(&element));
-  EXVector_EQ(1, element);
+TEST(ContainerUtilityTest, ForEach) {
+  std::vector<int> v;
+  g_sum = 0;
+  ForEach(v, Accumulate);
+  EXPECT_EQ(0, g_sum);  // Works for an empty container;
 
-  a.PushFront(2, a.size());
-  EXPECT_EQ(2, a.GetElement(0));
-  EXPECT_EQ(1, a.GetElement(1));
+  g_sum = 0;
+  v.push_back(1);
+  ForEach(v, Accumulate);
+  EXPECT_EQ(1, g_sum);  // Works for a container with one element.
 
-  // Calls PushFront() on a Vector with more than one elements.
-  a.PushFront(3);
-  ASSERT_EQ(3, a.size());
-  EXPECT_EQ(3, a.GetElement(0));
-  EXPECT_EQ(2, a.GetElement(1));
-  EXPECT_EQ(1, a.GetElement(2 using List::InsVector::PopFront().
-TEST(VectorTest, PopFront) {
-  Vector<int> a;
-
-  // Popping on an empty Vector should fail.
-  EXPECT_FALSE(a.PopFront(NULL));
-
-  // Popping again on an empty Vectorize());
-  EXPECT_EQ(1, a.Head()->element());
-  ASSERT_EQ(a.Head(), a.Last());
-
-  // Inserts at the beginning of a singleton list.
-  a.InsertAfter(NULL, 2);
-  ASSERT_EQ(2u, a.size());
-  EXPECT_EQ(2, a.Head()->element());
-  EXPECT_EQ(1, a.Last()->elVectort());
-
-  // Inserts at the beginning of a list with more than one elements.
-  a.InsertAfter(NULL, 3);
-  ASVector_EQ(3u, a.size());
-  EXPECT_EQ(3, a.Head()->element());
-  EXPECT, a.size());
+  g_sum = 0;
+  v.push_back(20);
+  v.push_back(300);
+  ForEach(v, Accumulate);
+  EXPECT_EQ(321, g_sum);
 }
 
-// Tests inserting at the beginning using Vector::Insert().
-TEST(VectorTest, InsertAtBeginning) {
-  Vector<int> a;
-  ASSERT_EQ(0, a.size());
+// Tests GetElementOr().
+TEST(ContainerUtilityTest, GetElementOr) {
+  std::vector<char> a;
+  EXPECT_EQ('x', GetElementOr(a, 0, 'x'));
 
-  // Inserts into an empty Vector.
-  a.Insert(1, 0);
-  ASSERT_EQ(1, a.size());
-  EXPECT_EQ(1, a.GetElement(0
-  EXPECT_Inserts at the beginning of a singleton Vector.
-  a.Insert(2, 0
-  a.PushFront(2, a.size());
-  EXPECT_EQ(2, a.GetElement(0));
-  EXPECT_EQ(1, a.GetElement(1));
-
-  // Inserts at the beginning of a Vector with more than one elements.
-  a.Insert(3, 0);
-  ASSERT_EQ(3, a.size());
-  EXPECT_EQ(3, a.GetElement(0));
-  EXPECT_EQ(2, a.GetElement(1));
-  EXPECT_EQ(1, a.GetElement(2));
+  a.push_back('a');
+  a.push_back('b');
+  EXPECT_EQ('a', GetElementOr(a, 0, 'x'));
+  EXPECT_EQ('b', GetElementOr(a, 1, 'x'));
+  EXPECT_EQ('x', GetElementOr(a, -2, 'x'));
+  EXPECT_EQ('x', GetElementOr(a, 2, 'x'));
 }
 
-// Tests inserting at a location other than the beginning using
-// Vector::Insert().
-TEST(VectorTest, InsertNotAtBeginning) {
-  // Prepares a singleton Vector.
-  Vector<int> a;
-  a.PushBack(1);
-
-  // Inserts at the end of a singleton Vectorass.
-
-// Tes(2, a.size());
-  ASSERT_EQ(2, a.size());
-  EXPECT_EQ(1, a.GetElement(0));
-  EXPECT_EQ(2, a.GetElement(1T_EQ(NULL, s1.c_str()) because comVectorng
-  // pointers with NULL isn't support(3, a.size());
-  ASSERT_EQ(3, a.size());
-  EXPECT_EQ(1, a.GetElement(0));
-  EXPECT_EQ(2, a.GetElement(1));
-  EXPECT_EQ(3, a.GetElement(2));
-
-  // Inserts in the middle of a Vector.
-  a.Insert(4, 1);
-  ASSERT_EQ(4, a.size());
-  EXPECT_EQ(1, a.GetElement(0));
-  EXPECT_EQ(4, a.GetElement(1));
-  EXPECT_EQ(2, a.GetElement(2));
-  EXPECT_EQ(3, a.GetElement(3));
-}
-
-// Tests Vector::GetElementOr().
-TEST(VectorTest, GetElementOr) {
-  Vector<char> a;
-  EXPECT_EQ('x', a.GetElementOr(0, 'x'));
-
-  a.PushBack('a');
-  a.PushBack('b');
-  EXPECT_EQ('a', a.GetElementOr(0, 'x'));
-  EXPECT_EQ('b', a.GetElementOr(1, 'x'));
-  EXPECT_EQ('x', a.GetElementOr(-2, 'x'));
-  EXPECT_EQ('x', a.GetElementOr(2, 'x'));
-}
-
-TEST(VectorTest, Swap) {
-  Vector<int> a;
-  a.PushBack(0);
-  a.PushBack(1);
-  a.PushBack(2);
-
-  // Swaps an element with itself.
-  a.Swap(0, 0);
-  ASSERT_EQ(0, a.GetElement(0));
-  ASSERT_EQ(1, a.GetElement(1));
-  ASSERT_EQ(2, a.GetElement(2));
-
-  // Swaps two different elements where the indices go up.
-  a.Swap(0, 1);
-  ASSERT_EQ(1, a.GetElement(0));
-  ASSERT_EQ(0, a.GetElement(1));
-  ASSERT_EQ(2, a.GetElement(2));
-
-  // Swaps two different elements where the indices go down.
-  a.Swap(2, 0);
-  ASSERT_EQ(2, a.GetElement(0));
-  ASSERT_EQ(0, a.GetElement(1));
-  ASSERT_EQ(1, a.GetElement(2));
-}
-
-TEST(VectorTest, Clone) {
-  // Clones an empty Vector.
-  Vector<int> a;
-  scoped_ptr<Vector<int> > empty(a.Clone());
-  EXPECT_EQ(0, empty->size());
-
-  // Clones a singleton.
-  a.PushBack(42);
-  scoped_ptr<Vector<int> > singleton(a.Clone());
-  ASSERT_EQ(1, singleton->size());
-  EXPECT_EQ(42, singleton->GetElement(0));
-
-  // Clones a Vector with more elements.
-  a.PushBack(43);
-  a.PushBack(44);
-  scoped_ptr<Vector<int> > big(a.Clone());
-  ASSERT_EQ(3, big->size());
-  EXPECT_EQ(42, big->GetElement(0));
-  EXPECT_EQ(43, big->GetElement(1));
-  EXPECT_EQ(44, big->GetElement(2));
-}
-
-// Tests Vector::Erase().
-TEST(VectorDeathTest, Erase) {
-  Vector<int> a;
-
-  // Tests erasing from an empty vector.
-  EXPECT_DEATH_IF_SUPPORTED(
-      a.Erase(0),
-      "Invalid Vector index 0: must be in range \\[0, -1\\]\\.");
-
-  // Tests erasing from a singleton vector.
-  a.PushBack(0);
-
-  a.Erase(0);
-  EXPECT_EQ(0, a.size());
-
-  // Tests Erase parameters beyond the bounds of the vector.
-  Vector<int> a1;
-  a1.PushBack(0);
-  a1.PushBack(1);
-  a1.PushBack(2);
-
-  EXPECT_DEATH_IF_SUPPORTED(
-      a1.Erase(3),
-      "Invalid Vector index 3: must be in range \\[0, 2\\]\\.");
-  EXPECT_DEATH_IF_SUPPORTED(
-      a1.Erase(-1),
-      "Invalid Vector index -1: must be in range \\[0, 2\\]\\.");
-
-  // Tests erasing at the end of the vector.
-  Vector<int> a2;
-  a2.PushBack(0);
-  a2.PushBack(1);
-  a2.PushBack(2);
-
-  a2.Erase(2);
-  ASSERT_EQ(2, a2.size());
-  EXPECT_EQ(0, a2.GetElement(0));
-  EXPECT_EQ(1, a2.GetElement(1));
-
-  // Tests erasing in the middle of the vector.
-  Vector<int> a3;
-  a3.PushBack(0);
-  a3.PushBack(1);
-  a3.PushBack(2);
-
-  a3.Erase(1);
-  ASSERT_EQ(2, a3.size());
-  EXPECT_EQ(0, a3.GetElement(0));
-  EXPECT_EQ(2, a3.GetElement(1));
-
-  // Tests erasing at the beginning of the vector.
-  Vector<int> a4;
-  a4.PushBack(0);
-  a4.PushBack(1);
-  a4.PushBack(2);
-
-  a4.Erase(0);
-  ASSERT_EQ(2, a4.size());
-  EXPECT_EQ(1, a4.GetElement(0));
-  EXPECT_EQ(2, a4.GetElement(1));
-}
-
-// Tests the GetElement accessor.
-TEST(VectorDeathTest, GetElement) {
-  Vector<int> a;
-  a.PushBack(0);
-  a.PushBack(1);
-  a.PushBack(2);
-  const Vector<int>& b = a;
-
-  EXPECT_EQ(0, b.GetElement(0));
-  EXPECT_EQ(1, b.GetElement(1));
-  EXPECT_EQ(2, b.GetElement(2));
-  EXPECT_DEATH_IF_SUPPORTED(
-      b.GetElement(3),
-      "Invalid Vector index 3: must be in range \\[0, 2\\]\\.");
-  EXPECT_DEATH_IF_SUPPORTED(
-      b.GetElement(-1),
-      "Invalid Vector index -1: must be in range \\[0, 2\\]\\.");
-}
-
-// Tests the GetMutableElement accessor.
-TEST(VectorDeathTest, GetMutableElement) {
-  Vector<int> a;
-  a.PushBack(0);
-  a.PushBack(1);
-  a.PushBack(2);
-
-  EXPECT_EQ(0, a.GetMutableElement(0));
-  EXPECT_EQ(1, a.GetMutableElement(1));
-  EXPECT_EQ(2, a.GetMutableElement(2));
-
-  a.GetMutableElement(0) = 42;
-  EXPECT_EQ(42, a.GetMutableElement(0));
-  EXPECT_EQ(1, a.GetMutableElement(1));
-  EXPECT_EQ(2, a.GetMutableElement(2));
-
-  EXPECT_DEATH_IF_SUPPORTED(
-      a.GetMutableElement(3),
-      "Invalid Vector index 3: must be in range \\[0, 2\\]\\.");
-  EXPECT_DEATH_IF_SUPPORTED(
-      a.GetMutableElement(-1),
-      "Invalid Vector index -1: must be in range \\[0, 2\\]\\.");
-}
-
-TEST(VectorDeathTest, Swap) {
-  Vector<int> a;
-  a.PushBack(0);
-  a.PushBack(1);
-  a.PushBack(2);
-
-  EXPECT_DEATH_IF_SUPPORTED(
-      a.Swap(-1, 1),
-      "Invalid first swap element -1: must be in range \\[0, 2\\]");
-  EXPECT_DEATH_IF_SUPPORTED(
-      a.Swap(3, 1),
-      "Invalid first swap element 3: must be in range \\[0, 2\\]");
-  EXPECT_DEATH_IF_SUPPORTED(
-      a.Swap(1, -1),
-      "Invalid second swap element -1: must be in range \\[0, 2\\]");
-  EXPECT_DEATH_IF_SUPPORTED(
-      a.Swap(1, 3),
-      "Invalid second swap element 3: must be in range \\[0, 2\\]");
-}
-
-TEST(VectorDeathTest, ShuffleRange) {
-  Vector<int> a;
-  a.PushBack(0);
-  a.PushBack(1);
-  a.PushBack(2);
+TEST(ContainerUtilityDeathTest, ShuffleRange) {
+  std::vector<int> a;
+  a.push_back(0);
+  a.push_back(1);
+  a.push_back(2);
   testing::internal::Random random(1);
 
   EXPECT_DEATH_IF_SUPPORTED(
-      a.ShuffleRange(&random, -1, 1),
+      ShuffleRange(&random, -1, 1, &a),
       "Invalid shuffle range start -1: must be in range \\[0, 3\\]");
   EXPECT_DEATH_IF_SUPPORTED(
-      a.ShuffleRange(&random, 4, 4),
+      ShuffleRange(&random, 4, 4, &a),
       "Invalid shuffle range start 4: must be in range \\[0, 3\\]");
   EXPECT_DEATH_IF_SUPPORTED(
-      a.ShuffleRange(&random, 3, 2),
+      ShuffleRange(&random, 3, 2, &a),
       "Invalid shuffle range finish 2: must be in range \\[3, 3\\]");
   EXPECT_DEATH_IF_SUPPORTED(
-      a.ShuffleRange(&random, 3, 4),
+      ShuffleRange(&random, 3, 4, &a),
       "Invalid shuffle range finish 4: must be in range \\[3, 3\\]");
 }
 
@@ -867,18 +617,18 @@ class VectorShuffleTest : public Test {
 
   VectorShuffleTest() : random_(1) {
     for (int i = 0; i < kVectorSize; i++) {
-      vector_.PushBack(i);
+      vector_.push_back(i);
     }
   }
 
   static bool VectorIsCorrupt(const TestingVector& vector) {
-    if (kVectorSize != vector.size()) {
+    if (kVectorSize != static_cast<int>(vector.size())) {
       return true;
     }
 
     bool found_in_vector[kVectorSize] = { false };
-    for (int i = 0; i < vector.size(); i++) {
-      const int e = vector.GetElement(i);
+    for (size_t i = 0; i < vector.size(); i++) {
+      const int e = vector[i];
       if (e < 0 || e >= kVectorSize || found_in_vector[e]) {
         return true;
       }
@@ -896,7 +646,7 @@ class VectorShuffleTest : public Test {
 
   static bool RangeIsShuffled(const TestingVector& vector, int begin, int end) {
     for (int i = begin; i < end; i++) {
-      if (i != vector.GetElement(i)) {
+      if (i != vector[i]) {
         return true;
       }
     }
@@ -924,39 +674,39 @@ const int VectorShuffleTest::kVectorSize;
 
 TEST_F(VectorShuffleTest, HandlesEmptyRange) {
   // Tests an empty range at the beginning...
-  vector_.ShuffleRange(&random_, 0, 0);
+  ShuffleRange(&random_, 0, 0, &vector_);
   ASSERT_PRED1(VectorIsNotCorrupt, vector_);
   ASSERT_PRED1(VectorIsUnshuffled, vector_);
 
   // ...in the middle...
-  vector_.ShuffleRange(&random_, kVectorSize/2, kVectorSize/2);
+  ShuffleRange(&random_, kVectorSize/2, kVectorSize/2, &vector_);
   ASSERT_PRED1(VectorIsNotCorrupt, vector_);
   ASSERT_PRED1(VectorIsUnshuffled, vector_);
 
   // ...at the end...
-  vector_.ShuffleRange(&random_, kVectorSize - 1, kVectorSize - 1);
+  ShuffleRange(&random_, kVectorSize - 1, kVectorSize - 1, &vector_);
   ASSERT_PRED1(VectorIsNotCorrupt, vector_);
   ASSERT_PRED1(VectorIsUnshuffled, vector_);
 
   // ...and past the end.
-  vector_.ShuffleRange(&random_, kVectorSize, kVectorSize);
+  ShuffleRange(&random_, kVectorSize, kVectorSize, &vector_);
   ASSERT_PRED1(VectorIsNotCorrupt, vector_);
   ASSERT_PRED1(VectorIsUnshuffled, vector_);
 }
 
 TEST_F(VectorShuffleTest, HandlesRangeOfSizeOne) {
   // Tests a size one range at the beginning...
-  vector_.ShuffleRange(&random_, 0, 1);
+  ShuffleRange(&random_, 0, 1, &vector_);
   ASSERT_PRED1(VectorIsNotCorrupt, vector_);
   ASSERT_PRED1(VectorIsUnshuffled, vector_);
 
   // ...in the middle...
-  vector_.ShuffleRange(&random_, kVectorSize/2, kVectorSize/2 + 1);
+  ShuffleRange(&random_, kVectorSize/2, kVectorSize/2 + 1, &vector_);
   ASSERT_PRED1(VectorIsNotCorrupt, vector_);
   ASSERT_PRED1(VectorIsUnshuffled, vector_);
 
   // ...and at the end.
-  vector_.ShuffleRange(&random_, kVectorSize - 1, kVectorSize);
+  ShuffleRange(&random_, kVectorSize - 1, kVectorSize, &vector_);
   ASSERT_PRED1(VectorIsNotCorrupt, vector_);
   ASSERT_PRED1(VectorIsUnshuffled, vector_);
 }
@@ -965,20 +715,20 @@ TEST_F(VectorShuffleTest, HandlesRangeOfSizeOne) {
 // we can guarantee that the following "random" tests will succeed.
 
 TEST_F(VectorShuffleTest, ShufflesEntireVector) {
-  vector_.Shuffle(&random_);
+  Shuffle(&random_, &vector_);
   ASSERT_PRED1(VectorIsNotCorrupt, vector_);
   EXPECT_FALSE(VectorIsUnshuffled(vector_)) << vector_;
 
   // Tests the first and last elements in particular to ensure that
   // there are no off-by-one problems in our shuffle algorithm.
-  EXPECT_NE(0, vector_.GetElement(0));
-  EXPECT_NE(kVectorSize - 1, vector_.GetElement(kVectorSize - 1));
+  EXPECT_NE(0, vector_[0]);
+  EXPECT_NE(kVectorSize - 1, vector_[kVectorSize - 1]);
 }
 
 TEST_F(VectorShuffleTest, ShufflesStartOfVector) {
   const int kRangeSize = kVectorSize/2;
 
-  vector_.ShuffleRange(&random_, 0, kRangeSize);
+  ShuffleRange(&random_, 0, kRangeSize, &vector_);
 
   ASSERT_PRED1(VectorIsNotCorrupt, vector_);
   EXPECT_PRED3(RangeIsShuffled, vector_, 0, kRangeSize);
@@ -987,7 +737,7 @@ TEST_F(VectorShuffleTest, ShufflesStartOfVector) {
 
 TEST_F(VectorShuffleTest, ShufflesEndOfVector) {
   const int kRangeSize = kVectorSize / 2;
-  vector_.ShuffleRange(&random_, kRangeSize, kVectorSize);
+  ShuffleRange(&random_, kRangeSize, kVectorSize, &vector_);
 
   ASSERT_PRED1(VectorIsNotCorrupt, vector_);
   EXPECT_PRED3(RangeIsUnshuffled, vector_, 0, kRangeSize);
@@ -996,7 +746,7 @@ TEST_F(VectorShuffleTest, ShufflesEndOfVector) {
 
 TEST_F(VectorShuffleTest, ShufflesMiddleOfVector) {
   int kRangeSize = kVectorSize/3;
-  vector_.ShuffleRange(&random_, kRangeSize, 2*kRangeSize);
+  ShuffleRange(&random_, kRangeSize, 2*kRangeSize, &vector_);
 
   ASSERT_PRED1(VectorIsNotCorrupt, vector_);
   EXPECT_PRED3(RangeIsUnshuffled, vector_, 0, kRangeSize);
@@ -1007,20 +757,19 @@ TEST_F(VectorShuffleTest, ShufflesMiddleOfVector) {
 TEST_F(VectorShuffleTest, ShufflesRepeatably) {
   TestingVector vector2;
   for (int i = 0; i < kVectorSize; i++) {
-    vector2.PushBack(i);
+    vector2.push_back(i);
   }
 
   random_.Reseed(1234);
-  vector_.Shuffle(&random_);
+  Shuffle(&random_, &vector_);
   random_.Reseed(1234);
-  vector2.Shuffle(&random_);
+  Shuffle(&random_, &vector2);
 
   ASSERT_PRED1(VectorIsNotCorrupt, vector_);
   ASSERT_PRED1(VectorIsNotCorrupt, vector2);
 
   for (int i = 0; i < kVectorSize; i++) {
-    EXPECT_EQ(vector_.GetElement(i), vector2.GetElement(i))
-        << " where i is " << i;
+    EXPECT_EQ(vector_[i], vector2[i]) << " where i is " << i;
   }pectNonng(NULL));size of the AssertHelper class.
 
 TEST(AssertHelperTest, AssertHelperIsSmall) {
@@ -1678,7 +1427,7 @@ TEST(TestPropertyTest, SetValue) {
 // Tests the TestSUCCESS,
                                       "foo/bar.cc",
                                       10,
-              Vector<TestPartResult> TPRVectorcess!");
+              std::vector<TestPartResult> TPRVectorcess!");
 
     // pr2 is for fatal failure.
     pr2 = new TestPartResult(testing::TPRT_FATAL_FAILURE,
@@ -1698,14 +1447,13 @@ TEST(TestPropertyTest, SetValue) {
     // test_part_results() returns a const reference to this list.
     // We cast it to a non-const object s.t. it can be modified (yes,
     // this is a hack).
-    TPRList * list1, * lVector;
-    list1 = const_cast<List<TestPartResult> *>(
-        & r1->test_parVector.
+    TPRList * list1, * lvector it holds.
+    // test_part_results() returns a const reference to this vector.
     // We cast it to a non-const object s.t. it can be modified (yes,
     // this is a hack).
-    TPRVector* results1 = const_cast<Vector<TestPartResult> *>(
+    TPRVector* results1 = const_cast<TPRVector*>(
         &TestResultAccessor::test_part_results(*r1));
-    TPRVector* results2 = const_cast<Vector<TestPartResult> *>(
+    TPRVector* results2 = const_cast<TPRVector*>(
         &TestResultAccessor::test_part_results(*r22->PushBack(*pr2);
   }
 
@@ -1713,11 +1461,11 @@ TEST(TestPropertyTest, SetValue) {
     delete pr1;
     delete pr2;
 
-    delete results1->PushBack(*pr1);
+    delete results1->push_back(*pr1);
 
     // r2 contains a SUCCESS, and a FAILURE.
-    results2->PushBack(*pr1);
-    results, test_part_results) {
+    results2->push_back(*pr1);
+    results2->push_bart_results) {
   ASSERT_EQ(0u, r0->test_part_results().size());
   ASSERT_EQ(1u, r1->test_part_results().size());
   ASSERT_EQ(2
@@ -1757,12 +1505,8 @@ typedef TestResultTest TestResultDeathTest;
 TEST_F(TestResultDeathTest, GetTestPartResult) {
   CompareTestPartResult(*pr1, r2->GetTestPartResult(0));
   CompareTestPartResult(*pr2, r2->GetTestPartResult(1));
-  EXPECT_DEATH_IF_SUPPORTED(
-      r2->GetTestPartResult(2),
-      "Invalid Vector index 2: must be in range \\[0, 1\\]\\.");
-  EXPECT_DEATH_IF_SUPPORTED(
-      r2->GetTestPartResult(-1),
-      "Invalid Vector index -1: must be in range \\[0, 1\\]\\."ult.test_properties().sizestResult::test_properties() has the expected property when added.
+  EXPECT_DEATH_IF_SUPPORTED(r2->GetTestPartResult(2), "");
+  EXPECT_DEATH_IF_SUPPORTED(r2->GetTestPartResult(-1), ""ult.test_properties().sizestResult::test_properties() has the expected property when added.
 TEST(TestResultPropertyTest, OnePropertyFoundWhenAdded) {
   TestResult test_re, test_result.test_property_count());
 }
@@ -1839,12 +1583,8 @@ TEST(TestResultPropertyDeathTest, GetTestProperty) {
   EXPECT_STREQ("key_3", fetched_property_3.key());
   EXPECT_STREQ("3", fetched_property_3.value());
 
-  EXPECT_DEATH_IF_SUPPORTED(
-      test_result.GetTestProperty(3),
-      "Invalid Vector index 3: must be in range \\[0, 2\\]\\.");
-  EXPECT_DEATH_IF_SUPPORTED(
-      test_result.GetTestProperty(-1),
-      "Invalid Vector index -1: must be in range \\[0, 2\\]\\."ExpectNonFatalFailureRecordingPropertyWithReservedKey(const char* key) {
+  EXPECT_DEATH_IF_SUPPORTED(test_result.GetTestProperty(3), "");
+  EXPECT_DEATH_IF_SUPPORTED(test_result.GetTestProperty(-1), ""ExpectNonFatalFailureRecordingPropertyWithReservedKey(const char* key) {
   TestResult test_result;
   TestProperty property("name", "1");
   EXPECT_NONFATAL_FAILURE(test_result.RecordProperty(property), "Reserved key");
@@ -2496,8 +2236,7 @@ TEST(PredTest, SingleEvaluationOnFailure) {
   EXPECT_NONFATAL_FAILURE({  // NOLINT
     EXPECT_PRED3(SumIsEven3Functor(), ++n1, n2++, n3++)
         << "This failure is expected.";
-  }, "This failure is expected.");
-  EXPECT_EQ(1, n1) << "Argument 1 is not evaluated exactly once.";
+  }, "This failugument 1 is not evaluated exactly once.";
   EXPECT_EQ(1, n2) << "Argument 2 is not evaluated exactly once.";
   EXPECT_EQ(1, n3) << "Argument 3 is not evaluated exactly once.";
 
@@ -3067,19 +2806,21 @@ TEST_F(DoubleTest, Size) {
 // Tests comparing with +0 and -0.
 TEST_F(DoubleTest, Zeros) {
   EXPECT_DOUBLE_EQ(0.0, -0.0);
-  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(-0.0, 1.0),
-                          "1.0");
-  EXPECT_FATAL_FAILURE(ASSERT_DOUBLE_EQ(0.0, 1.0),
+  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE;
+  static RawType close_to_infinity_;
+  static RawType further_from_infinity_;
+DOUBLE_EQ(0.0, 1.0),
                        "1.0");
 }
 
 // Tests comparing numbers close to 0.
 //
-// This ensures that *_DOUBLE_EQ handles the sign correctly and no
-// overflow occurs when comparing numbers whose absolute value is very
-// small.
-TEST_F(DoubleTest, AlmostZeros) {
-  // In C++Builder, names within local classes (such as used by
+// This ensures that *_DOUBLEo_positive_zero_;
+
+template <typename RawType>
+RawType FloatingPointTest<RawType>::close_to_negative_zero_;
+
+template <typenamDoubleTest, AlmostZeros) {ngP// In C++Builder, names within local classes (such as used by
   // EXPECT_FATAL_FAILURE) cannot be resolved against static members of the
   // scoping class.  Use a static local alias as a workaround.
   // We use the assignment syntax since some compilers, like Sun Studio,
@@ -3101,25 +2842,21 @@ TEST_F(DoubleTest, AlmostZeros) {
 TEST_F(DoubleTest, SmallDiff) {
   EXPECT_DOUBLE_EQ(1.0, values_.close_to_one);
   EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(1.0, values_.further_from_one),
-                          "values_.further_from_one");
+                          "values_.further_from_onepename RawType>
+RawType FloatingPointTest<RawType>::DoubleTest, LargeDiff) {
+  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(2.0edef FloatingPointTest<float> FloatTest;
+
+// Tests that the size of Float::Bits matches the size of float.
+TEST_F(FloatTest, Size) {
+  TestSize();
 }
 
-// Tests comparing numbers far apart.
-TEST_F(DoubleTest, LargeDiff) {
-  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(2.0, 3.0),
-                          "3.0");
-}
-
-// Tests comparing with infinity.
-//
-// This ensures that no overflow occurs when comparing numbers whose
-// absolute value is very large.
-TEST_F(DoubleTest, Infinity) {
+// Tests comparing with +0 and -0.
+TEST_FDoubleTest, Infinity) {
   EXPECT_DOUBLE_EQ(values_.infinity, values_.close_to_infinity);
-  EXPECT_DOUBLE_EQ(-values_.infinity, -values_.close_to_infinity);
-#if !GTEST_OS_SYMBIAN
-  // Nokia's STLport crashes if we try to output infinity or NaN.
-  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(values_.infinity, -values_.infinity),
+  EXPECT_DOUBLE_EQ(-values_.infinity, -values_.close_to_infinityAL_#if !GTEST_OS_SYMBIAN
+  // Nokia's STLport crashes if we try to output infinity or NaN.       "1.0");
+  EXPECT_FATAL_FAILDOUBLE_EQ(values_.infinity, -values_.infinity),
                           "-values_.infinity");
 
   // This is interesting as the representations of infinity_ and nan1_
@@ -3131,8 +2868,7 @@ TEST_F(DoubleTest, Infinity) {
 
 // Tests that comparing with NAN always returns false.
 TEST_F(DoubleTest, NaN) {
-#if !GTEST_OS_SYMBIAN
-  // In C++Builder, names within local classes (such as used by
+#if !GTEST_OS_SYMBIANngP// In C++Builder, names within local classes (such as used by
   // EXPECT_FATAL_FAILURE) cannot be resolved against static members of the
   // scoping class.  Use a static local alias as a workaround.
   // We use the assignment syntax since some compilers, like Sun Studio,
@@ -3140,8 +2876,8 @@ TEST_F(DoubleTest, NaN) {
   // (parentheses).
   static const DoubleTest::TestValues& v = this->values_;
 
-  // Nokia's STLport crashes if we try to output infinity or NaN.
-  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(v.nan1, v.nan1),
+  // Nokia's STLport crashes if we try to output infinity or NaN.       "1.0");
+  EXPECT_FATAL_FAILDOUBLE_EQ(v.nan1, v.nan1),
                           "v.nan1");
   EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(v.nan1, v.nan2), "v.nan2");
   EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(1.0, v.nan1), "v.nan1");
@@ -6512,26 +6248,26 @@ TEST(TestEventListenersTest, Append) {
 // order.
 class SequenceTestingListener : public EmptyTestEventListener {
  public:
-  SequenceTestingListener(Vector<String>* vector, const char* id)
+  SequenceTestingListener(std::vector<String>* vector, const char* id)
       : vector_(vector), id_(id) {}
 
  protected:
   virtual void OnTestProgramStart(const UnitTest& /*unit_test*/) {
-    vector_->PushBack(GetEventDescription("OnTestProgramStart"));
+    vector_->push_back(GetEventDescription("OnTestProgramStart"));
   }
 
   virtual void OnTestProgramEnd(const UnitTest& /*unit_test*/) {
-    vector_->PushBack(GetEventDescription("OnTestProgramEnd"));
+    vector_->push_back(GetEventDescription("OnTestProgramEnd"));
   }
 
   virtual void OnTestIterationStart(const UnitTest& /*unit_test*/,
                                     int /*iteration*/) {
-    vector_->PushBack(GetEventDescription("OnTestIterationStart"));
+    vector_->push_back(GetEventDescription("OnTestIterationStart"));
   }
 
   virtual void OnTestIterationEnd(const UnitTest& /*unit_test*/,
                                   int /*iteration*/) {
-    vector_->PushBack(GetEventDescription("OnTestIterationEnd"));
+    vector_->push_back(GetEventDescription("OnTestIterationEnd"));
   }
 
  private:
@@ -6541,14 +6277,14 @@ class SequenceTestingListener : public EmptyTestEventListener {
     return message.GetString();
   }
 
-  Vector<String>* vector_;
+  std::vector<String>* vector_;
   const char* const id_;
 
   GTEST_DISALLOW_COPY_AND_ASSIGN_(SequenceTestingListener);
 };
 
 TEST(EventListenerTest, AppendKeepsOrder) {
-  Vector<String> vec;
+  std::vector<String> vec;
   TestEventListeners listeners;
   listeners.Append(new SequenceTestingListener(&vec, "1st"));
   listeners.Append(new SequenceTestingListener(&vec, "2nd"));
@@ -6556,34 +6292,34 @@ TEST(EventListenerTest, AppendKeepsOrder) {
 
   TestEventListenersAccessor::GetRepeater(&listeners)->OnTestProgramStart(
       *UnitTest::GetInstance());
-  ASSERT_EQ(3, vec.size());
-  EXPECT_STREQ("1st.OnTestProgramStart", vec.GetElement(0).c_str());
-  EXPECT_STREQ("2nd.OnTestProgramStart", vec.GetElement(1).c_str());
-  EXPECT_STREQ("3rd.OnTestProgramStart", vec.GetElement(2).c_str());
+  ASSERT_EQ(3U, vec.size());
+  EXPECT_STREQ("1st.OnTestProgramStart", vec[0].c_str());
+  EXPECT_STREQ("2nd.OnTestProgramStart", vec[1].c_str());
+  EXPECT_STREQ("3rd.OnTestProgramStart", vec[2].c_str());
 
-  vec.Clear();
+  vec.clear();
   TestEventListenersAccessor::GetRepeater(&listeners)->OnTestProgramEnd(
       *UnitTest::GetInstance());
-  ASSERT_EQ(3, vec.size());
-  EXPECT_STREQ("3rd.OnTestProgramEnd", vec.GetElement(0).c_str());
-  EXPECT_STREQ("2nd.OnTestProgramEnd", vec.GetElement(1).c_str());
-  EXPECT_STREQ("1st.OnTestProgramEnd", vec.GetElement(2).c_str());
+  ASSERT_EQ(3U, vec.size());
+  EXPECT_STREQ("3rd.OnTestProgramEnd", vec[0].c_str());
+  EXPECT_STREQ("2nd.OnTestProgramEnd", vec[1].c_str());
+  EXPECT_STREQ("1st.OnTestProgramEnd", vec[2].c_str());
 
-  vec.Clear();
+  vec.clear();
   TestEventListenersAccessor::GetRepeater(&listeners)->OnTestIterationStart(
       *UnitTest::GetInstance(), 0);
-  ASSERT_EQ(3, vec.size());
-  EXPECT_STREQ("1st.OnTestIterationStart", vec.GetElement(0).c_str());
-  EXPECT_STREQ("2nd.OnTestIterationStart", vec.GetElement(1).c_str());
-  EXPECT_STREQ("3rd.OnTestIterationStart", vec.GetElement(2).c_str());
+  ASSERT_EQ(3U, vec.size());
+  EXPECT_STREQ("1st.OnTestIterationStart", vec[0].c_str());
+  EXPECT_STREQ("2nd.OnTestIterationStart", vec[1].c_str());
+  EXPECT_STREQ("3rd.OnTestIterationStart", vec[2].c_str());
 
-  vec.Clear();
+  vec.clear();
   TestEventListenersAccessor::GetRepeater(&listeners)->OnTestIterationEnd(
       *UnitTest::GetInstance(), 0);
-  ASSERT_EQ(3, vec.size());
-  EXPECT_STREQ("3rd.OnTestIterationEnd", vec.GetElement(0).c_str());
-  EXPECT_STREQ("2nd.OnTestIterationEnd", vec.GetElement(1).c_str());
-  EXPECT_STREQ("1st.OnTestIterationEnd", vec.GetElement(2).c_str());
+  ASSERT_EQ(3U, vec.size());
+  EXPECT_STREQ("3rd.OnTestIterationEnd", vec[0].c_str());
+  EXPECT_STREQ("2nd.OnTestIterationEnd", vec[1].c_str());
+  EXPECT_STREQ("1st.OnTestIterationEnd", vec[2].c_str());
 }
 
 // Tests that a listener removed from a TestEventListeners list stops receiving
