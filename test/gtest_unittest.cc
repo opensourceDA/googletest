@@ -71,10 +71,6 @@ TEST(CommandLineFlagsTest, CanBeAccessedInCodeOnceGTestHIsIncluded) {
 #include <stdlib.h>
 #include <time.h>
 
-#if GTEST_HAS_PTHREAD
-#include <pthread.h>
-#endif  // GTEST_HAS_PTHREAD
-
 #include <map>
 
 namespace testing {
@@ -177,7 +173,9 @@ using testing::internal::ShuffleRangeE(GTEST_IS_NULL_LITERAL(0U));
 // TestsWideStringToUtf8otusing testing::internal::kMaxRandomSeed that GTEST_IS_NULL_LITERALkTestTypeIdInGoogleests that GTEST_IS_NULL_LITERALscoped_ptrot #if GTEST_HAS_STREAM_REDIRECTION_
 using testing::internal::CaptureStdout;
 using testing::internal::GetCapturedStdout;
-#endif  // GTEST_HAS_STREAM_REDIRECTION_t class TestingVector : public std::vector<int> {
+#endif  // GTEST_HAS_STREAM_REDIRECTION_t #if GTEST_IS_THREADSAFE
+using testing::internal::ThreadWithParam;
+#endift class TestingVector : public std::vector<int> {
 };
 
 ::std::ostream& operator<<(::std::ostream& os,
@@ -1237,25 +1235,14 @@ class TestResultTest : public testing::Tes
   EXPECT_EQ(1, results.size());
 }
 
-#if GTEST_IS_THREADSAFE && GTEST_HAS_PTHREAD
+#if GTEST_IS_THREADSAFE
 
 class ScopedFakeTestPartResultReporterWithThreadsTest
   : public ScopedFakeTestPartResultReporterTest {
  protected:
   static void AddFailureInOtherThread(FailureMode failure) {
-    pthread_t tid;
-    pthread_create(&tid,
-                   NULL,
-                   ScopedFakeTestPartResultReporterWithThreadsTest::
-                       FailureThread,
-                   &failure);
-    pthread_join(tid, NULL);
-  }
- private:
-  static void* FailureThread(void* attr) {
-    FailureMode* failure = static_cast<FailureMode*>(attr);
-    AddFailure(*failure);
-    return NULL;
+    ThreadWithParam<FailureMode> thread(&AddFailure, failure, NULL);
+    thread.Join();
   }
 };
 
@@ -1282,7 +1269,7 @@ TEST_F(ScopedFakeTestPartResultReporterWithThreadsTest,
   EXPECT_TRUE(results.GetTestPartResult(3).fatally_failed());
 }
 
-#endif  // GTEST_IS_THREADSAFE && GTEST_HAS_PTHREAD
+#endif  // GTEST_IS_THREADSAFE
 
 // Tests EXPECT_FATAL_FAILURE{,ON_ALL_THREADS}.  Makes sure that they
 // work even if the failure is generated in a called function rather than
@@ -1393,7 +1380,7 @@ TEST_F(ExpectNonfatalFailureTest, AcceptsMacroThatExpandsToUnprotectedComma) {
   }, "");
 }
 
-#if GTEST_IS_THREADSAFE && GTEST_HAS_PTHREAD
+#if GTEST_IS_THREADSAFE
 
 typedef ScopedFakeTestPartResultReporterWithThreadsTest
     ExpectFailureWithThreadsTest;
@@ -1408,7 +1395,7 @@ TEST_F(ExpectFailureWithThreadsTest, ExpectNonFatalFailureOnAllThreads) {
       AddFailureInOtherThread(NONFATAL_FAILURE), "Expected non-fatal failure.");
 }
 
-#endif  // GTEST_IS_THREADSAFE && GTEST_HAS_PTHREADsult(testing::TPRT_Property class.
+#endif  // GTEST_IS_THREADSAFEsult(testing::TPRT_Property class.
 
 TEST(TestPropertyTest, ConstructorWorks) {
   const TestProperty property("key", "value");
