@@ -270,8 +270,7 @@ TEST(FormatTimeInMillisAsSecondsTest, FormatsNegativeNumber) {
   EXPECT_EQ("-0.2", FormatTimeInMillisAsSeconds(-200));
   EXPECT_EQ("-1.2", FormatTimeInMillisAsSeconds(-1200));
   EXPECT_EQ("-3", FormatTimeInMillisAsSeconds(-3000));
-}EXPEC !GTEST_OS_SYMBIAN
-// NULL testing does not work with Symbian compilers.
+}EXPEC GTEST_CAN_COMPARE_NULL
 
 #ifdef __BORLANDC__
 // Silences warnings: "Condition is always true", "Unreachable code"
@@ -313,7 +312,7 @@ TEST(FormatTimeInMillisAsSecondsTest, FormatsNegativeNumber) {
 #pragma option pop
 #endif
 
-#endif  // !GTEST_OS_SYMBIAN_ST
+#endif  // GTEST_CAN_COMPARE_NULL_ST
 // Tests CodePointToUtf8().
 
 // Tests that the NUL character L'\0' is encoded correctly.
@@ -3451,10 +3450,7 @@ TEST(AssertionTest, ASSERT_EQ) {
 }
 
 // Tests ASSERT_EQ(NULL, pointer).
-#if !GTEST_OS_SYMBIAN
-// The NULL-detection template magic fails to compile with
-// the Nokia compiler and crashes the ARM compiler, hence
-// not testing on Symbian.
+#if GTEST_CAN_COMPARE_NULL
 TEST(AssertionTest, ASSERT_EQ_NULL) {
   // A success.
   const char* p = NULL;
@@ -3469,7 +3465,7 @@ TEST(AssertionTest, ASSERT_EQ_NULL) {
   EXPECT_FATAL_FAILURE(ASSERT_EQ(NULL, &n),
                        "Value of: &n\n");
 }
-#endif  // !GTEST_OS_SYMBIAN
+#endif  // GTEST_CAN_COMPARE_NULL
 
 // Tests ASSERT_EQ(0, non_pointer).  Since the literal 0 can be
 // treated as a null pointer by the compiler, we need to make sure
@@ -4033,7 +4029,7 @@ TEST(ExpectTest, EXPECT_EQ_Double) {
                           "5.1");
 }
 
-#if !GTEST_OS_SYMBIAN
+#if GTEST_CAN_COMPARE_NULL
 // Tests EXPECT_EQ(NULL, pointer).
 TEST(ExpectTest, EXPECT_EQ_NULL) {
   // A success.
@@ -4049,7 +4045,7 @@ TEST(ExpectTest, EXPECT_EQ_NULL) {
   EXPECT_NONFATAL_FAILURE(EXPECT_EQ(NULL, &n),
                           "Value of: &n\n");
 }
-#endif  // !GTEST_OS_SYMBIAN
+#endif  // GTEST_CAN_COMPARE_NULL
 
 // Tests EXPECT_EQ(0, non_pointer).  Since the literal 0 can be
 // treated as a null pointer by the compiler, we need to make sure
