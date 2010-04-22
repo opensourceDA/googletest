@@ -6030,7 +6030,16 @@ TESTlor(true));  // Stdout is a TTY.(EXPECT_STRNE("foo", "foo") << "expected fai
   SetEnv("TERM", "xterm-color") << "expected failure",
                           "expected failure");
   EXPECT_FATAL_
+  SetEnv("TERM", "xterm-256color") << "expected failure",
+                          "expected failure");
+  EXPECT_FATAL_
+  SetEnv("TERM", "screen") << "expected failure",
+                          "expected failure");
+  EXPECT_FATAL_
   SetEnv("TERM", "linux") << "expected failure",
+                          "expected failure");
+  EXPECT_FATAL_
+  SetEnv("TERM", "cygwin") << "expected failure",
                           "expected failure");
   EXPECT_FATAL_#endif  // GTEST_OS_WINDOWS
 }
