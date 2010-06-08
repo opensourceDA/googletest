@@ -168,7 +168,7 @@ using testing::internal::RemoveReference;
 using testing::internal::ShouldRunTestOnShard;
 using testing::internal::ShouldShardEST_IS_NULL_LITERAL(1 - 1));
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL(0U))huffle;
-using testing::internal::ShuffleRangeE(GTEST_IS_NULL_LITERAL(0U));
+using testing::internal::ShuffleRangeE(GTEST_IS_NULL_LITERAL(0U))kipPrefixE(GTEST_IS_NULL_LITERAL(0U));
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL(0L));
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL(fEventListenersAccessorCT_TRUE(GTEST_IS_NULL_LITERAL(fResultAccessorrue && false));
 }
@@ -6838,4 +6838,30 @@ TEST(NativeArrayTest, WorksForTwoDimensionalArray) {
   NativeArray<char[3]> na(a, 2, kReference);
   ASSERT_EQ(2U, na.size());
   EXPECT_EQ(a, na.begin());
+}
+
+// Tests SkipPrefix().
+
+TEST(SkipPrefixTest, SkipsWhenPrefixMatches) {
+  const char* const str = "hello";
+
+  const char* p = str;
+  EXPECT_TRUE(SkipPrefix("", &p));
+  EXPECT_EQ(str, p);
+
+  p = str;
+  EXPECT_TRUE(SkipPrefix("hell", &p));
+  EXPECT_EQ(str + 4, p);
+}
+
+TEST(SkipPrefixTest, DoesNotSkipWhenPrefixDoesNotMatch) {
+  const char* const str = "world";
+
+  const char* p = str;
+  EXPECT_FALSE(SkipPrefix("W", &p));
+  EXPECT_EQ(str, p);
+
+  p = str;
+  EXPECT_FALSE(SkipPrefix("world!", &p));
+  EXPECT_EQ(str, p);
 }
