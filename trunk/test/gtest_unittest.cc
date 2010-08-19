@@ -52,6 +52,7 @@ TEST(CommandLineFlagsTest, CanBeAccessedInCodeOnceGTestHIsIncluded) {
       || testing::GTEST_FLAG(show_internal_stack_frames)
       || testing::GTEST_FLAG(shuffle)
       || testing::GTEST_FLAG(stack_trace_depth) > 0
+      || testing::GTEST_FLAG(stream_result_to) != "unknown"
       || testing::GTEST_FLAG(throw_on_failure);
   EXPECT_TRUE(dummy || !dummy);  // Suppresses warning that dummy is unused.
 }
@@ -124,7 +125,7 @@ using testing::internal::ShouldUseColor;
 using testing::internal::StreamableToString;
 using testing::internal::String;
 huffleng testing::internal::String;
-using testing::internal::TestPropeGTEST_FLAG(throw_on_failurenternal::TestProperty;
+using testing::internal::TestPropeGTEST_FLAG(stream_result_tonternal::TestPropeGTEST_FLAG(throw_on_failurenternal::TestProperty;
 using testing::internal::TestResult;
 using testing::internal::ToUtf8String;
 using testing::internal::UnitTestImpl;
@@ -1637,7 +1638,7 @@ class GTestFlagSaverTest : public testing::Test {
   // Restores the Google Test flags that the tests have moditru.  This will
   // bandom_seed) = 0;
     GTEST_FLAG(repeat) = 1;
-    GTEST_FLAG(shuffle) = falsefter  GTEST_FLAG(stack_trace_depth) = kMaxStackTraceDepthfter  GTEST_FLAG(throw_on_failure) = falsefter the last test in this test case is run.
+    GTEST_FLAG(shuffle) = falsefter  GTEST_FLAG(stack_trace_depth) = kMaxStackTraceDepthfter  GTEST_FLAG(stream_result_to) = ""fter  GTEST_FLAG(throw_on_failure) = falsefter the last test in this test case is run.
   static void TearDownTestCase() {
     delete saver_;
     saver_ = NULL;
@@ -1658,7 +1659,7 @@ class GTestFlagSaverTest : public testing::Test {
 
    0, GTEST_FLAG(random_seed));
     EXPECT_EQ(1, GTEST_FLAG(repeat));
-    EXPECT_FALSE(GTEST_FLAG(shuffle(bre    EXPECT_EQ(kMaxStackTraceDepth, GTEST_FLAG(stack_trace_depth(bre    EXPECT_FALSE(GTEST_FLAG(throw_on_failure(break_on_failure) =also_run_disabled_tests) = true;ak_on_failure) = true;
+    EXPECT_FALSE(GTEST_FLAG(shuffle(bre    EXPECT_EQ(kMaxStackTraceDepth, GTEST_FLAG(stack_trace_depth(bre    EXPECT_STREQ("", GTEST_FLAG(stream_result_to).c_str((bre    EXPECT_FALSE(GTEST_FLAG(throw_on_failure(break_on_failure) =also_run_disabled_tests) = true;ak_on_failure) = true;
     testing::GTEST_FLAG(catch_exceptions) = true;
     testing::GTEST_FLAG(color) = "no";
     testing::GTEdeath_test_use_fork) = true
@@ -1667,7 +1668,7 @@ class GTestFlagSaverTest : public testing::Test {
     testing::GTEST_FLAG(output) = "xml:foo.xml";
    falssting::GTEST_FLAG(pandom_seed) = 1;
     GTEST_FLAG(repeat) = 100;
-    GTEST_FLAG(shuffle) = true tru  GTEST_FLAG(stack_trace_depth) = 1 tru  GTEST_FLAG(throw_on_failure) = true true;
+    GTEST_FLAG(shuffle) = true tru  GTEST_FLAG(stack_trace_depth) = 1 tru  GTEST_FLAG(stream_result_to) = "localhost:1234" tru  GTEST_FLAG(throw_on_failure) = true true;
     testing::GTEST_FLAG(repeat) = 100;
   }
  private:
@@ -5023,6 +5024,7 @@ class SetUpTestCaseTest : public testing::Test {
             repeat(1),
             shuffle(falsee,
             stack_trace_depth(kMaxStackTraceDepthe,
+            stream_result_to(""e,
             throw_on_failure(falsee called only once.
     EXPECT_EQ(1, counter_);
   }
@@ -5104,9 +5106,12 @@ TEST_F(SetUpTestCaseGTEST_FLAG(stack_trace_depth) flag has
   static Flags StackTraceDepth(Int32 stack_trace_depth) {
     Flags flags;
     flags.stack_trace_depth = stack_trace_depththe number of test cases that have been set up.
-    counter_--;
-
-    throw_on_failure flag has
+    counter_--;GTEST_FLAG(stream_result_to) flag has
+  // the given value.
+  static Flags StreamResultTo(const char* stream_result_to) {
+    Flags flags;
+    flags.stream_result_to = stream_result_tobe called before each test in this test case.
+  virtual void SetUp() throw_on_failure flag has
   // the given value.
   static Flags ThrowOnFailure(bool throw_on_failure) {
     Flags flags;
@@ -5121,7 +5126,7 @@ TEST_F(SetUpTestCaseGTEST_FLAG(stack_trace_depth) flag has
 
   // Creates a Flags struct wandom_seed;
   Int32 repeat;
-  bool shuffleth  Int32 stack_trace_depthth  bool throw_on_failurethe gtest_break_on_failure flag has
+  bool shuffleth  Int32 stack_trace_depthth  const char* stream_result_toth  bool throw_on_failurethe gtest_break_on_failure flag has
   // the given value.
   static Flags BreakOnFailure(bool break_on_failure) {
     Flags flags;
@@ -5136,7 +5141,7 @@ TEST_F(SetUpTestCaseGTEST_FLAG(stack_trace_depth) flag has
     Flags flags;
     flatruatch_exceptions = candom_seed) = 0;
     GTEST_FLAG(repeat) = 1;
-    GTEST_FLAG(shuffle) = falsetion  GTEST_FLAG(stack_trace_depth) = kMaxStackTraceDepthtion  GTEST_FLAG(throw_on_failure) = falsetions;
+    GTEST_FLAG(shuffle) = falsetion  GTEST_FLAG(stack_trace_depth) = kMaxStackTraceDepthtion  GTEST_FLAG(stream_result_to) = ""tion  GTEST_FLAG(throw_on_failure) = falsetions;
     return flags;
   }
 
@@ -5177,7 +5182,10 @@ TEST_F(SetUpTestCaseGTEST_FLAG(stack_trace_depth) flag has
   // value.
   static Flags Repeat(Int32 repandom_seed, GTEST_FLAG(random_seedtatic Flags Repeat(Int32 repeat) {
     Flags flags;
-    fl  EXPECT_EQ(expected.shuffle, GTEST_FLAG(shuffle    fl  EXPECT_EQ(expected.throw_on_failure, GTEST_FLAG(throw_on_failure    fl  EXPECT_EQ(expected.stack_trace_depth, GTEST_FLAG(stack_trace_depth    flags.repeat = repeat;
+    fl  EXPECT_EQ(expected.shuffle, GTEST_FLAG(shuffle    fl  EXPECT_EQ(expected.stack_trace_depth, GTEST_FLAG(stack_trace_depth));
+    EXPECT_STREQ(expected.stream_result_to,
+                 GTEST_FLAG(stream_result_to).c_str());
+    EXPECT_EQ(expected.throw_on_failure, GTEST_FLAG(throw_on_failure    flags.repeat = repeat;
     return flags;
   }
 
@@ -5722,6 +5730,14 @@ TEST_F(InitGoogleTestTest, StackTraceDepth) {
   const chaGTEST_TEST_PARSING_FLAGS_ "foo.exe",
     NULL
 StackTraceDepth(5), false);
+}
+
+TEST_F(InitGoogleTestTest, StreamResultTo) {
+  const char* argv[] = {
+    "foo.exe",
+    "--gtest_stream_result_to=localhost:1234// Tests parsing --gtest_list_tests=f.
+TEST_F(InitGoogleTestTest, ListTestsFGTEST_TEST_PARSING_FLAGS_c
+      argv, argv2, Flags::StreamResultTo("localhost:1234"), false);
 }
 
 // Tests parsing --gtest_throw_on_failure.
