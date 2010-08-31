@@ -179,14 +179,14 @@ using testing::internal::ShuffleRangeE(GTEST_IS_NULL_LITERAL(0U))kipPrefixE(GTES
 
 // TestsWideStringToUtf8otusing testing::internal::kCopy;
 using testing::internal::kMaxRandomSeed;
-using testing::internal::kReference that GTEST_IS_NULL_LITERALkTestTypeIdInGoogleests that GTEST_IS_NULL_LITERALscoped_ptrot #if GTEST_HAS_STREAM_REDIRECTION_
+using testing::internal::kReference that GTEST_IS_NULL_LITERALkTestTypeIdInGoogleests that GTEST_IS_NULL_LITERALscoped_ptrot #if GTEST_HAS_STREAM_REDIRECTION
 using testing::internal::CaptureStdout;
 using testing::internal::GetCapturedStdout;
-#endif  // GTEST_HAS_STREAM_REDIRECTION_t #if GTEST_IS_THREADSAFE
+#endif
+
+#if GTEST_IS_THREADSAFE
 using testing::internal::ThreadWithParam;
-#endift #if GTEST_HAS_PROTOBUF_
-using ::testing::internal::TestMessage;
-#endif  // GTEST_HAS_PROTOBUF_t class TestingVector : public std::vector<int> {
+#endift class TestingVector : public std::vector<int> {
 };
 
 ::std::ostream& operator<<(::std::ostream& os,
@@ -5206,14 +5206,14 @@ class InitGoogleTestTest : public testing::Test {
   virtual void SetUp, bool should_print_help) {
     const bool saved_help_flag = ::testing::internal::g_help_flag;
     ::testing::internal::g_help_flag = false;
-{#if GTEST_HAS_STREAM_REDIRECTION_
+{#if GTEST_HAS_STREAM_REDIRECTION
     CaptureStdout();
-#endif  // GTEST_HAS_STREAM_REDIRECTION_
+#endif
 {
     GTEST_FLAG(break_on_failure) = internal::ParseGoogleTestFlagsOnlyST_FLAG(catch_exceptions) = false;
-    GTE#if GTEST_HAS_STREAM_REDIRECTION_
+    GTE#if GTEST_HAS_STREAM_REDIRECTION
     const String captured_stdout = GetCapturedStdout();
-#endif  // GTEST_HAS_STREAM_REDIRECTION_TEST_FLAG(filter) = "";
+#endifTEST_FLAG(filter) = "";
     GTEST_FLAG(list_tests) = false;
     GTEST_FLAG(output) = "";
     GTEST_FLAG(print_time) = false;
@@ -5225,7 +5225,7 @@ class InitGoogleTestTest : public testing::Test {
     // help message for the flags it recognizes.
     EXPECT_EQ(should_print_help, ::testing::internal::g_help_flag);
 
-#if GTEST_HAS_STREAM_REDIRECTION_
+#if GTEST_HAS_STREAM_REDIRECTION
     const char* const expected_help_fragment =
         "This program contains tests written using";
     if (should_print_help) {
@@ -5234,7 +5234,7 @@ class InitGoogleTestTest : public testing::Test {
       EXPECT_PRED_FORMAT2(IsNotSubstring,
                           expected_help_fragment, captured_stdout);
     }
-#endif  // GTEST_HAS_STREAM_REDIRECTION_
+#endif  // GTEST_HAS_STREAM_REDIRECTION
 
     ::testing::internal::g_help_flag = saved_help_flagays are equal.
   template <typename CharType>
@@ -6632,13 +6632,10 @@ TEST(IsAProtocolMessageTest, ValueIsCompileTimeConstant) {
 }
 
 // Tests that IsAProtocolMessage<T>::value is true when T is
-// ProtocolMessage or a sub-class of it.
+// proto2::Message or a sub-class of it.
 TEST(IsAProtocolMessageTest, ValueIsTrueWhenTypeIsAProtocolMessage) {
   EXPECT_TRUE(IsAProtocolMessage< ::proto2::Message>::value);
   EXPECT_TRUE(IsAProtocolMessage<ProtocolMessage>::value);
-#if GTEST_HAS_PROTOBUF_
-  EXPECT_TRUE(IsAProtocolMessage<const TestMessage>::value);
-#endif  // GTEST_HAS_PROTOBUF_
 }
 
 // Tests that IsAProtocolMessage<T>::value is false when T is neither
