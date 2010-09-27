@@ -1291,6 +1291,17 @@ TEST_F(ExpectFatalFailureTest, CatchesFatalFaliure) {
   EXPECT_FATAL_FAILURE(AddFatalFailure(), "Expected fatal failure.");
 }
 
+#if GTEST_HAS_GLOBAL_STRING
+TEST_F(ExpectFatalFailureTest, AcceptsStringObject) {
+  EXPECT_FATAL_FAILURE(AddFatalFailure(), ::string("Expected fatal failure."));
+}
+#endif
+
+TEST_F(ExpectFatalFailureTest, AcceptsStdStringObject) {
+  EXPECT_FATAL_FAILURE(AddFatalFailure(),
+                       ::std::string("Expected fatal failure."));
+}
+
 TEST_F(ExpectFatalFailureTest, CatchesFatalFailureOnAllThreads) {
   // We have another test below to verify that the macro catches fatal
   // failures generated on another thread.
@@ -1366,6 +1377,18 @@ typedef ScopedFakeTestPartResultReporterTest ExpectNonfatalFailureTest;
 TEST_F(ExpectNonfatalFailureTest, CatchesNonfatalFailure) {
   EXPECT_NONFATAL_FAILURE(AddNonfatalFailure(),
                           "Expected non-fatal failure.");
+}
+
+#if GTEST_HAS_GLOBAL_STRING
+TEST_F(ExpectNonfatalFailureTest, AcceptsStringObject) {
+  EXPECT_NONFATAL_FAILURE(AddNonfatalFailure(),
+                          ::string("Expected non-fatal failure."));
+}
+#endif
+
+TEST_F(ExpectNonfatalFailureTest, AcceptsStdStringObject) {
+  EXPECT_NONFATAL_FAILURE(AddNonfatalFailure(),
+                          ::std::string("Expected non-fatal failure."));
 }
 
 TEST_F(ExpectNonfatalFailureTest, CatchesNonfatalFailureOnAllThreads) {
@@ -2873,8 +2896,8 @@ TEST_F(DoubleTest, NaN) {
   // (parentheses).
   static const DoubleTest::TestValues& v = this->values_;
 
-  // Nokia's STLport crashes if we try to output infinity or NaN.       "1.0");
-  EXPECT_FATAL_FAILDOUBLE_EQ(v.nan1, v.nan1),
+  // Nokia's STLport crashes if we try to output infinity or NaN.
+  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(v.nan1, v.nan1),
                           "v.nan1");
   EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(v.nan1, v.nan2), "v.nan2");
   EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(1.0, v.nan1), "v.nan1");
