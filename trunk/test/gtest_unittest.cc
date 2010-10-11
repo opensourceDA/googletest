@@ -347,15 +347,20 @@ TEST(CodePointToUtf8Test, CanEncode8To11Bits) {
   char buffer[32];
   // 000 1101 0011 => 110-00011 10-010011
   EXPECT_STREQ("\xC3\x93", CodePointToUtf8(L'\xD3', bufferthus
-// are skipped on Windows, Cygwin, and Symbian, where a wchar_t is
-//CodePointToUtf8(L'\x576', bufferUnicode code-points that have 17 to 21 bits are encoded
+// are skipped on Windows, Cygwin, and Symbi// Some compilers (e.g., GCC on MinGW) cannot handle non-ASCII codepoints
+  // in wide strings and wide chars. In order to accomodate them, we have to
+  // introduce such character constants as integers.
+  EXPECT_STREQ("\xD5\xB6",
+               CodePointToUtf8(static_cast<wchar_t>(0x576), bufferUnicode code-points that have 17 to 21 bits are encoded
 // as 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx.
 TEST(ToUtf8StringCodePointToUtf8Test, CanEncode12To16Bits) {
   char buffer[32]; 0000 1000 1101 0011 => 11110-000 10-010000 10-100011 10-010011
-  EXPECT_STREQ("\xF0\x90\xCodePointToUtf8(L'\x8D3', bufferD3').c_str());
+  EXPECT_STREQ("\xF0\x90\
+               CodePointToUtf8(static_cast<wchar_t>(0x8D3), bufferD3').c_str());
 
   // 1 0111 1000 0110 0011 0100 => 11110-101 10-111000 10-011000 10-110100
-  ECodePointToUtf8(L'\xC74D', buffer));
+  
+               CodePointToUtf8(static_cast<wchar_t>(0xC74D), buffer));
 }
 
 #if !GTEST_WIDE_STRING_USES_UTF16_expected result.
@@ -410,18 +415,19 @@ TEST(WideStringToUtf8Test, CanEncodeAscii) {
 
 // Tests in this group require a wchWideStringToUtf8(L"\xD3", 1).c_str());
   EXPECT_STREQ("\xC3\x93", WideStringToUtf8(L"\xD3", -1ts, and thus
-// are skipped on Windows, Cygwin, and Symbian, where a wchar_t is
-//WideStringToUtf8(L"\x576", 1).c_str());
-  EXPECT_STREQ("\xD5\xB6", WideStringToUtf8(L"\x576", -1ts that Unicode code-points that have 17 to 21 bits are encoded
+// are skipped on Windows, Cygwin, and Symbiconst wchar_t s[] = { 0x576, '\0' };
+  EXPECT_STREQ("\xD5\xB6", WideStringToUtf8(s, 1).c_str());
+  EXPECT_STREQ("\xD5\xB6", WideStringToUtf8(s, -1ts that Unicode code-points that have 17 to 21 bits are encoded
 // as 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx.
 TEST(ToUtf8StringWideStringToUtf8ode17To21Bits) {
-  // 0 0001 0000 1000 1101 0011 => 11110-000 10-010000 10-100011 10-010011
-  EXPECT_STREQ("\xF0\x90\xWideStringToUtf8(L"\x8D3", 1).c_str());
-  EXPECT_STREQ("\xE0\xA3\x93", WideStringToUtf8(L"\x8D3", -1(L'\x108D3').c_str());
+  // 0 0001 0000 1000 1101 0011 => 11110-000 10-010000 10-100011 10-0100const wchar_t s1[] = { 0x8D3, '\0' };
+  EXPECT_STREQ("\xE0\xA3\x93", WideStringToUtf8(s1, 1).c_str());
+  EXPECT_STREQ("\xE0\xA3\x93", WideStringToUtf8(s1, -1).c_str());
 
-  // 1 0111 1000 0110 0011 0100 => 11110-101 10-111000 10-011000 10-110100
-  EWideStringToUtf8(L"\xC74D", 1).c_str());
-  EXPECT_STREQ("\xEC\x9D\x8D", WideStringToUtf8(L"\xC74D", -1).c_str());
+  // 1100 0111 0100 1101 => 1110-1100 10-011101 10-001101
+  const wchar_t s2[] = { 0xC74D, '\0' };
+  EXPECT_STREQ("\xEC\x9D\x8D", WideStringToUtf8(s2, 1).c_str());
+  EXPECT_STREQ("\xEC\x9D\x8D", WideStringToUtf8(s2, -1).c_str());
 }
 
 // Tests that the conversion stops when the function encounters \0 character.
@@ -434,7 +440,6 @@ TEST(WideStringToUtf8Test, StopsOnNulCharacter) {
 TEST(WideStringToUtf8Test, StopsWhenLengthLimitReached) {
   EXPECT_STREQ("ABC", WideStringToUtf8(L"ABCDEF", 3).c_str());
 }
-
 
 #if !GTEST_WIDE_STRING_USES_UTF16_BCD').c_str());
 }
@@ -467,25 +472,27 @@ TEST(WideStringToUtf8Test, PushFront) {
 // Tests that surrogate pairs are encoded correctly on the systems using
 // UTF-16 encoding in the wide strings.
 TEST(WideStringToUtf8Test, CanEncodeValidUtf16SUrrogatePairs) {
-  EXPECT_STREQ("\xF0\x90\x90\x80",
-               WideStringToUtf8(L"\xD801\xDC00", -1).c_str());
+  const wchar_t s[] = { 0xD801, 0xDC00, '\0' };
+  EXPECT_STREQ("\xF0\x90\x90\x80", WideStringToUtf8(s, -1).c_str());
 }
 
 // Tests that encoding an invalid UTF-16 surrogate pair
 // generates the expected result.
 TEST(WideStringToUtf8Test, CanEncodeInvalidUtf16SurrogatePair) {
   // Leading surrogate is at the end of the string.
-  EXPECT_STREQ("\xED\xA0\x80", WideStringToUtf8(L"\xD800", -1).c_str());
+  const wchar_t s1[] = { 0xD800, '\0' };
+  EXPECT_STREQ("\xED\xA0\x80", WideStringToUtf8(s1, -1).c_str());
   // Leading surrogate is not followed by the trailing surrogate.
-  EXPECT_STREQ("\xED\xA0\x80$", WideStringToUtf8(L"\xD800$", -1).c_str());
+  const wchar_t s2[] = { 0xD800, 'M', '\0' };
+  EXPECT_STREQ("\xED\xA0\x80M", WideStringToUtf8(s2, -1).c_str());
   // Trailing surrogate appearas without a leading surrogate.
-  EXPECT_STREQ("\xED\xB0\x80PQR", WideStringToUtf8(L"\xDC00PQR", -1).c_str());
+  const wchar_t s3[] = { 0xDC00, 'P', 'Q', 'R', '\0' };
+  EXPECT_STREQ("\xED\xB0\x80PQR", WideStringToUtf8(s3, -1).c_str());
 }
-#endif  // !GTEST_WIDE_STRING_USES_UTF16_
-
-// Tests that codepoint concatenation works correctly.
+#endif  // !GTEST_WIDE_STRING_USES_UTF16_()->element()at codepoint concatenation works correctly.
 #if !GTEST_WIDE_STRING_USES_UTF16_
 TEST(WideStringToUtf8Test, ConcatenatesCodepointsCorrectly) {
+  const wchar_t s[] = { 0x108634, 0xC74D, '\n', 0x576, 0x8D3, 0x108634, '\0'};
   EXPECT_STREQ(
       "\xF4\x88\x98\xB4"
           "\xEC\x9D\x8D"
@@ -493,13 +500,14 @@ TEST(WideStringToUtf8Test, ConcatenatesCodepointsCorrectly) {
           "\xD5\xB6"
           "\xE0\xA3\x93"
           "\xF4\x88\x98\xB4",
-      WideStringToUtf8(L"\x108634\xC74D\n\x576\x8D3\x108634", -1).c_str());
+      WideStringToUtf8(s, -1).c_str());
 }
 #else
 TEST(WideStringToUtf8Test, ConcatenatesCodepointsCorrectly) {
+  const wchar_t s[] = { 0xC74D, '\n', 0x576, 0x8D3, '\0'};
   EXPECT_STREQ(
       "\xEC\x9D\x8D" "\n" "\xD5\xB6" "\xE0\xA3\x93",
-      WideStringToUtf8(L"\xC74D\n\x576\x8D3", -1).c_str());
+      WideStringToUtf8(s, -1).c_str());
 }
 #endif  // !GTEST_WIDE_STRING_USES_UTF16_()->element());Random class.
 
@@ -2888,7 +2896,8 @@ TEST_FDoubleTest, Infinity) {
 
 // Tests that comparing with NAN always returns false.
 TEST_F(DoubleTest, NaN) {
-#if !GTEST_OS_SYMBIANngP// In C++Builder, names within local classes (such as used by
+#if !GTEST_OS_SYMBIAN
+  // In C++Builder, names within local classes (such as used by
   // EXPECT_FATAL_FAILURE) cannot be resolved against static members of the
   // scoping class.  Use a static local alias as a workaround.
   // We use the assignment syntax since some compilers, like Sun Studio,
@@ -4408,8 +4417,8 @@ TEST(EqAssertionTest, WideChar) {
   wchar = L'b';
   EXPECT_NONFATAL_FAILURE(EXPECT_EQ(L'a', wchar),
                           "wchar");
-  wchar = L'\x8119';
-  EXPECT_FATAL_FAILURE(ASSERT_EQ(L'\x8120', wchar),
+  wchar = 0x8119;
+  EXPECT_FATAL_FAILURE(ASSERT_EQ(static_cast<wchar_t>(0x8120), wchar),
                        "Value of: wchar");
 }
 
@@ -4447,20 +4456,22 @@ TEST(EqAssertionTest, StdString) {
 
 // Tests using ::std::wstring values in {EXPECT|ASSERT}_EQ.
 TEST(EqAssertionTest, StdWideString) {
-  // Compares an std::wstring to a const wchar_t* that has identical
-  // content.
-  EXPECT_EQ(::std::wstring(L"Test\x8119"), L"Test\x8119");
-
   // Compares two identical std::wstrings.
   const ::std::wstring wstr1(L"A * in the middle");
   const ::std::wstring wstr2(wstr1);
   ASSERT_EQ(wstr1, wstr2);
 
+  // Compares an std::wstring to a const wchar_t* that has identical
+  // content.
+  const wchar_t kTestX8119[] = { 'T', 'e', 's', 't', 0x8119, '\0' };
+  EXPECT_EQ(::std::wstring(kTestX8119), kTestX8119);
+
   // Compares an std::wstring to a const wchar_t* that has different
   // content.
+  const wchar_t kTestX8120[] = { 'T', 'e', 's', 't', 0x8120, '\0' };
   EXPECT_NONFATAL_FAILURE({  // NOLINT
-    EXPECT_EQ(::std::wstring(L"Test\x8119"), L"Test\x8120");
-  }, "L\"Test\\x8120\"");
+    EXPECT_EQ(::std::wstring(kTestX8119), kTestX8120);
+  }, "kTestX8120");
 
   // Compares two std::wstrings that have different contents, one of
   // which having a NUL character in the middle.
@@ -4512,18 +4523,20 @@ TEST(EqAssertionTest, GlobalString) {
 
 // Tests using ::wstring values in {EXPECT|ASSERT}_EQ.
 TEST(EqAssertionTest, GlobalWideString) {
-  // Compares a const wchar_t* to a ::wstring that has identical content.
-  ASSERT_EQ(L"Test\x8119", ::wstring(L"Test\x8119"));
-
   // Compares two identical ::wstrings.
   static const ::wstring wstr1(L"A * in the middle");
   static const ::wstring wstr2(wstr1);
   EXPECT_EQ(wstr1, wstr2);
 
+  // Compares a const wchar_t* to a ::wstring that has identical content.
+  const wchar_t kTestX8119[] = { 'T', 'e', 's', 't', 0x8119, '\0' };
+  ASSERT_EQ(kTestX8119, ::wstring(kTestX8119));
+
   // Compares a const wchar_t* to a ::wstring that has different
   // content.
+  const wchar_t kTestX8120[] = { 'T', 'e', 's', 't', 0x8120, '\0' };
   EXPECT_NONFATAL_FAILURE({  // NOLINT
-    EXPECT_EQ(L"Test\x8120", ::wstring(L"Test\x8119"));
+    EXPECT_EQ(kTestX8120, ::wstring(kTestX8119));
   }, "Test\\x8119");
 
   // Compares a wchar_t* to a ::wstring that has different content.
