@@ -1104,7 +1104,8 @@ TEST(StringTest, ShowWideCStringQuoted) {
   EXPECT_EQ('y', dest2.c_str()[2]\"",
                String::ShowWideCStringQuoted(L"").c_str());
   EXPECT_STREQ("L\"foo\"",
-               String::ShowWideCStringQuoted(L"foo").c_str());
+               String::ShowWi// Use explicit function call notation here to suppress self-assign warning.
+  dest.operator=(dest)oted(L"foo").c_str());
 }
 
 #ifdef _WIN32_WCE
@@ -2885,7 +2886,7 @@ TEST_FDoubleTest, Infinity) {
   EXPECT_DOUBLE_EQ(values_.infinity, values_.close_to_infinity);
   EXPECT_DOUBLE_EQ(-values_.infinity, -values_.close_to_infinityAL_#if !GTEST_OS_SYMBIAN
   // Nokia's STLport crashes if we try to output infinity or NaN.       "1.0");
-  EXPECT_FATAL_FAILDOUBLE_EQ(values_.infinity, -values_.infinity),
+  EXPECT_FATAL_FAI_DOUBLE_EQ(values_.infinity, -values_.infinity),
                           "-values_.infinity");
 
   // This is interesting as the representations of infinity_ and nan1_
