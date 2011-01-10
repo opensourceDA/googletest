@@ -298,13 +298,11 @@ TEST(FormatTimeInMillisAsSecondsTest, FormatsNegativeNumber) {
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL_(0));
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL_(0U));
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL_(0L));
-  EXPECT_TRUE(GTEST_IS_NULL_LITERAL_(false));
 #ifndef __BORLANDC__
   // Some compilers may fail to detect some null pointer literals;
   // as long as users of the framework don't use such literals, this
   // is harmless.
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL_(1 - 1));
-  EXPECT_TRUE(GTEST_IS_NULL_LITERAL_(true && false));
 #endif
 }
 
@@ -3616,7 +3614,8 @@ TEST(AssertionTest, ASSERT_ANY_THROW) {
 // compile.
 TEST(AssertionTest, AssertPrecedence) {
   ASSERT_EQ(1 < 2, true);
-  ASSERT_EQ(true && false, false);
+  bool false_value = false;
+  ASSERT_EQ(true && false_value, false);
 }
 
 // A subroutine used by the following test.
@@ -4105,7 +4104,7 @@ TEST(ExpectTest, EXPECT_EQ_Double) {
 TEST(ExpectTest, EXPECT_EQ_NULL) {
   // A success.
   const char* p = NULL;
-  // Some older GCC versions may issue a spurious waring in this or the next
+  // Some older GCC versions may issue a spurious warning in this or the next
   // assertion statement. This warning should not be suppressed with
   // static_cast since the test verifies the ability to use bare NULL as the
   // expected parameter to the macro.
@@ -4375,8 +4374,10 @@ TEST(MacroTest, SUCCEED) {
 // Tests using bool values in {EXPECT|ASSERT}_EQ.
 TEST(EqAssertionTest, Bool) {
   EXPECT_EQ(true,  true);
-  EXPECT_FATAL_FAILURE(ASSERT_EQ(false, true),
-                       "Value of: true");
+  EXPECT_FATAL_FAILURE({
+      bool false_value = false;
+      ASSERT_EQ(false_value, true);
+    }, "Value of: true");
 }
 
 // Tests using int values in {EXPECT|ASSERT}_EQ.
@@ -6215,8 +6216,9 @@ TESTlor(true));  // Stdout is a TTY.(EXPECT_STRNE("foo", "foo") << "expected fai
 
 // Verifies that StaticAssertTypeEq works in a namespace scope.
 
-static bool dummy1 = StaticAssertTypeEq<bool, bool>();
-static bool dummy2 = StaticAssertTypeEq<const int, const int>();
+static bool dummy1 GTEST_ATTRIBUTE_UNUSED_ = StaticAssertTypeEq<bool, bool>();
+static bool dummy2 GTEST_ATTRIBUTE_UNUSED_ =
+    StaticAssertTypeEq<const int, const int>();
 
 // Verifies that StaticAssertTypeEq works in a class.
 
