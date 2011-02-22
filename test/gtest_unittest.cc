@@ -284,10 +284,10 @@ TEST(FormatTimeInMillisAsSecondsTest, FormatsNegativeNumber) {
   EXPECT_EQ("-3", FormatTimeInMillisAsSeconds(-3000));
 }EXPEC GTEST_CAN_COMPARE_NULL
 
-#ifdef __BORLANDC__
+# ifdef __BORLANDC__
 // Silences warnings: "Condition is always true", "Unreachable code"
-#pragma option push -w-ccc -w-rch
-#endif
+#  pragma option push -w-ccc -w-rch
+# endif
 
 // Tests that GTEST_IS_NULL_LITERAL_ITERAL('a'));
   EXPECT_FALSE(GTEST_IS_NULL_LITERAL(static_cast<void*>(NULL)));
@@ -298,12 +298,15 @@ TEST(FormatTimeInMillisAsSecondsTest, FormatsNegativeNumber) {
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL_(0));
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL_(0U));
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL_(0L));
-#ifndef __BORLANDC__
+
+# ifndef __BORLANDC__
+
   // Some compilers may fail to detect some null pointer literals;
   // as long as users of the framework don't use such literals, this
   // is harmless.
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL_(1 - 1));
-#endif
+
+# endif
 }
 
 // Tests that GTEST_IS_NULL_LITERAL_, ToUtf8String(L'Z').c_str());
@@ -317,10 +320,10 @@ TEST(FormatTimeInMillisAsSecondsTest, FormatsNegativeNumber) {
   EXPECT_FALSE(GTEST_IS_NULL_LITERAL_(static_cast<void*>(NULL)));
 }
 
-#ifdef __BORLANDC__
+# ifdef __BORLANDC__
 // Restores warnings after previous "#pragma option push" suppressed them.
-#pragma option pop
-#endif
+#  pragma option pop
+# endif
 
 #endif  // GTEST_CAN_COMPARE_NULL_ST
 // Tests CodePointToUtf8().
@@ -1159,7 +1162,7 @@ TEST(StringTest, AnsiAndUtf16ConvertPathChars) {
   EXPECT_STREQ(".:\\ \"*?", ansi);
   delete [] ansi;
   const WCHAR* utf16 = String::AnsiToUtf16(".:\\ \"*?");
-  EXPECT_TRUE(wcsncmp(L".:\\ \"*?", utf16,  GTEST_OS_WINDOWS_MOBILelete [] utf16;
+  EXPECT_TRUE(wcsncmp(L".:\\ \"*?", utf16 ,  GTEST_OS_WINDOWS_MOBILelete [] utf16;
 }
 #endif  // _WIN32_WCE
 
@@ -1182,7 +1185,7 @@ TEST(TestPropertyTest, ReplaceStrEQ(0, wcsncmp(L"str", utf16, 3)("key", "1");
 // Tests the TestPartResult class.
 
 // The test fixture for testing TestPartResult.
-class TestPartResultTest : public testing::TEQ(0, wcsncmp(L".:\\ \"*?", utf16, 3)      : r1_(testing::TPRT_SUCCESS,
+class TestPartResultTest : public testing::TEQ(0, wcsncmp(L".:\\ \"*?", utf16, 3)      : r1_(testing::TPRT _SUCCESS,
 GTEST_OS_WINDOWS_MOBIL   "foo/bar.cc",
             10,
             "Success!"),
@@ -1319,7 +1322,7 @@ TEST_F(ExpectFatalFailureTest, CatchesFatalFailureOnAllThreads) {
 
 #ifdef __BORLANDC__
 // Silences warnings: "Condition is always true"
-#pragma option push -w-ccc
+# pragma option push -w-ccc
 #endif
 
 // Tests that EXPECT_FATAL_FAILURE() can be used in a non-void
@@ -1347,7 +1350,7 @@ void DoesNotAbortHelper(bool* aborted) {
 
 #ifdef __BORLANDC__
 // Restores warnings after previous "#pragma option push" suppressed them.
-#pragma option pop
+# pragma option pop
 #endif
 
 TEST_F(ExpectFatalFailureTest, DoesNotAbort) {
@@ -3419,7 +3422,7 @@ TEST(AssertionTest, AppendUserMessage) {
 
 #ifdef __BORLANDC__
 // Silences warnings: "Condition is always true", "Unreachable code"
-#pragma option push -w-ccc -w-rch
+# pragma option push -w-ccc -w-rch
 #endif
 
 // Tests ASSERT_TRUE.
@@ -3474,7 +3477,7 @@ TEST(AssertionTest, AssertFalseWithAssertionResult) {
 
 #ifdef __BORLANDC__
 // Restores warnings after previous "#pragma option push" supressed them
-#pragma option pop
+# pragma option pop
 #endif
 
 // Tests using ASSERT_EQ on double values.  The purpose is to make
@@ -3577,13 +3580,14 @@ void ThrowNothing() {}
 TEST(AssertionTest, ASSERT_THROW) {
   ASSERT_THROW(ThrowAnInteger(), int);
 
-#ifndef __BORLANDC__
+# ifndef __BORLANDC__
+
   // ICE's in C++Builder 2007 and 2009.
   EXPECT_FATAL_FAILURE(
       ASSERT_THROW(ThrowAnInteger(), bool),
       "Expected: ThrowAnInteger() throws an exception of type bool.\n"
       "  Actual: it throws a different type.");
-#endif
+# endif
 
   EXPECT_FATAL_FAILURE(
       ASSERT_THROW(ThrowNothing(), bool),
@@ -3711,7 +3715,9 @@ TEST(AssertionTest, NamedEnum) {
 // Tests using assertions with anonymous enums.
 enum {
   kCaseA = -1,
-#if GTEST_OS_LINUX
+
+# if GTEST_OS_LINUX
+
   // We want to test the case where the size of the anonymous enum is
   // larger than sizeof(int), to make sure our implementation of the
   // assertions doesn't truncate the enums.  However, MSVC
@@ -3722,16 +3728,22 @@ enum {
   // int size.  We want to test whether this will confuse the
   // assertions.
   kCaseB = testing::internal::kMaxBiggestInt,
-#else
+
+# else
+
   kCaseB = INT_MAX,
-#endif  // GTEST_OS_LINUX
+
+# endif  // GTEST_OS_LINUX
+
   kCaseC = 42,
 };
 
 TEST(AssertionTest, AnonymousEnum) {
-#if GTEST_OS_LINUX
+# if GTEST_OS_LINUX
+
   EXPECT_EQ(static_cast<int>(kCaseA), static_cast<int>(kCaseB));
-#endif  // GTEST_OS_LINUX
+
+# endif  // GTEST_OS_LINUX
 
   EXPECT_EQ(kCaseA, kCaseA);
   EXPECT_NE(kCaseA, kCaseB);
@@ -3810,12 +3822,14 @@ TEST(HRESULTAssertionTest, EXPECT_HRESULT_FAILED) {
 TEST(HRESULTAssertionTest, ASSERT_HRESULT_FAILED) {
   ASSERT_HRESULT_FAILED(E_UNEXPECTED);
 
-#ifndef __BORLANDC__
+# ifndef __BORLANDC__
+
   // ICE's in C++Builder 2007 and 2009.
   EXPECT_FATAL_FAILURE(ASSERT_HRESULT_FAILED(OkHRESULTSuccess()),
     "Expected: (OkHRESULTSuccess()) fails.\n"
     "  Actual: 0x00000000");
-#endif
+# endif
+
   EXPECT_FATAL_FAILURE(ASSERT_HRESULT_FAILED(FalseHRESULTSuccess()),
     "Expected: (FalseHRESULTSuccess()) fails.\n"
     "  Actual: 0x00000001");
@@ -3832,12 +3846,13 @@ TEST(HRESULTAssertionTest, Streaming) {
       EXPECT_HRESULT_SUCCEEDED(E_UNEXPECTED) << "expected failure",
       "expected failure");
 
-#ifndef __BORLANDC__
+# ifndef __BORLANDC__
+
   // ICE's in C++Builder 2007 and 2009.
   EXPECT_FATAL_FAILURE(
       ASSERT_HRESULT_SUCCEEDED(E_UNEXPECTED) << "expected failure",
       "expected failure");
-#endif
+# endif
 
   EXPECT_NONFATAL_FAILURE(
       EXPECT_HRESULT_FAILED(S_OK) << "expected failure",
@@ -3852,7 +3867,7 @@ TEST(HRESULTAssertionTest, Streaming) {
 
 #ifdef __BORLANDC__
 // Silences warnings: "Condition is always true", "Unreachable code"
-#pragma option push -w-ccc -w-rch
+# pragma option push -w-ccc -w-rch
 #endif
 
 // Tests that the assertion macros behave like single statements.
@@ -4073,7 +4088,7 @@ TEST(ExpectTest, ExpectFalseWithAssertionResult) {
 
 #ifdef __BORLANDC__
 // Restores warnings after previous "#pragma option push" supressed them
-#pragma option pop
+# pragma option pop
 #endif
 
 // Tests EXPECT_EQ.
@@ -5283,7 +5298,7 @@ class InitGoogleTestTest : public testing::Test {
 
     ::testing::internal::g_help_flag = saved_help_flagays are equal.
   template <typename CharType>
-  static void AssertStringArrayEq(size_t size1, CharType** array1,
+  static void AssertStringArrayEq(size_t size1, CharType** aarray1,
  GTEST_TEST_PARSING_FLAGS_               size_t s, should_print_helpize2, CharType** array2) {
     ASSERT_EQ(size1, size2) << " Array sizes different.";
 
@@ -5988,7 +6003,7 @@ TEST_F(CurrentTestInfoTest, WorksForSecondTestInATestCase) {
 namespace my_namespace {
 nam#ifdef __BORLANDC__
 // Silences warnings: "Condition is always true", "Unreachable code"
-#pragma option push -w-ccc -w-rch
+# pragma option push -w-ccc -w-rch
 #endifamespace testing {
 
 // Makes sure that TEST knows to use ::testing::Test instead of
@@ -6013,7 +6028,7 @@ TEST(NestedTestingNamespaceTest, Success) {
 TEST(NestedTestingNamespaceTest, Failure) {
   EXPECT_FATAL_FAILURE(FAIL() <#ifdef __BORLANDC__
 // Restores warnings after previous "#pragma option push" supressed them
-#pragma option pop
+# pragma option pop
 #endif << "This failure is expected.",
                        "This failure is expected.");
 }
