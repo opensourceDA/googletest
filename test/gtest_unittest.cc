@@ -1367,8 +1367,8 @@ static int global_var = 0;
 #define GTEST_USE_UNPROTECTED_COMMA_ global_var++, global_var++
 
 TEST_F(ExpectFatalFailureTest, AcceptsMacroThatExpandsToUnprotectedComma) {
-#if !defined(__BORLANDC__) || __BORLANDC__ >= 0x600
-  // ICE's in C++Builder 2007.
+#ifndef __BORLANDC__
+  // ICE's in C++Builder.
   EXPECT_FATAL_FAILURE({
     GTEST_USE_UNPROTECTED_COMMA_;
     AddFatalFailure();
@@ -3435,8 +3435,8 @@ TEST(AssertionTest, ASSERT_TRUE) {
 // Tests ASSERT_TRUE(predicate) for predicates returning AssertionResult.
 TEST(AssertionTest, AssertTrueWithAssertionResult) {
   ASSERT_TRUE(ResultIsEven(2));
-#if !defined(__BORLANDC__) || __BORLANDC__ >= 0x600
-  // ICE's in C++Builder 2007.
+#ifndef __BORLANDC__
+  // ICE's in C++Builder.
   EXPECT_FATAL_FAILURE(ASSERT_TRUE(ResultIsEven(3)),
                        "Value of: ResultIsEven(3)\n"
                        "  Actual: false (3 is odd)\n"
@@ -3461,8 +3461,8 @@ TEST(AssertionTest, ASSERT_FALSE) {
 // Tests ASSERT_FALSE(predicate) for predicates returning AssertionResult.
 TEST(AssertionTest, AssertFalseWithAssertionResult) {
   ASSERT_FALSE(ResultIsEven(3));
-#if !defined(__BORLANDC__) || __BORLANDC__ >= 0x600
-  // ICE's in C++Builder 2007.
+#ifndef __BORLANDC__
+  // ICE's in C++Builder.
   EXPECT_FATAL_FAILURE(ASSERT_FALSE(ResultIsEven(2)),
                        "Value of: ResultIsEven(2)\n"
                        "  Actual: true (2 is even)\n"
@@ -3762,10 +3762,16 @@ TEST(AssertionTest, AnonymousEnum) {
   ASSERT_LE(kCaseA, kCaseB);
   ASSERT_GT(kCaseB, kCaseA);
   ASSERT_GE(kCaseA, kCaseA);
+
+# ifndef __BORLANDC__
+
+  // ICE's in C++Builder.
   EXPECT_FATAL_FAILURE(ASSERT_EQ(kCaseA, kCaseB),
                        "Value of: kCaseB");
   EXPECT_FATAL_FAILURE(ASSERT_EQ(kCaseA, kCaseC),
                        "Actual: 42");
+# endif
+
   EXPECT_FATAL_FAILURE(ASSERT_EQ(kCaseA, kCaseC),
                        "Which is: -1");
 }
@@ -4676,10 +4682,13 @@ TEST(ComparisonAssertionTest, AcceptsUnprintableArgs) {
 
   // Code tested by EXPECT_FATAL_FAILURE cannot reference local
   // variables, so we have to write UnprintableChar('x') instead of x.
+#ifndef __BORLANDC__
+  // ICE's in C++Builder.
   EXPECT_FATAL_FAILURE(ASSERT_NE(UnprintableChar('x'), UnprintableChar('x')),
                        "1-byte object <78>");
   EXPECT_FATAL_FAILURE(ASSERT_LE(UnprintableChar('y'), UnprintableChar('x')),
                        "1-byte object <78>");
+#endif
   EXPECT_FATAL_FAILURE(ASSERT_LE(UnprintableChar('y'), UnprintableChar('x')),
                        "1-byte object <79>");
   EXPECT_FATAL_FAILURE(ASSERT_GE(UnprintableChar('x'), UnprintableChar('y')),
@@ -6957,8 +6966,10 @@ TEST(CopyArrayTest, WorksForDegeneratedArrays) {
 TEST(CopyArrayTest, WorksForOneDimensionalArrays) {
   const char a[3] = "hi";
   int b[3];
+#ifndef __BORLANDC__  // C++Builder cannot compile some array size deductions.
   CopyArray(a, &b);
   EXPECT_TRUE(ArrayEq(a, b));
+#endif
 
   int c[3];
   CopyArray(a, 3, c);
@@ -6968,8 +6979,10 @@ TEST(CopyArrayTest, WorksForOneDimensionalArrays) {
 TEST(CopyArrayTest, WorksForTwoDimensionalArrays) {
   const int a[2][3] = { { 0, 1, 2 }, { 3, 4, 5 } };
   int b[2][3];
+#ifndef __BORLANDC__  // C++Builder cannot compile some array size deductions.
   CopyArray(a, &b);
   EXPECT_TRUE(ArrayEq(a, b));
+#endif
 
   int c[2][3];
   CopyArray(a, 2, c);
