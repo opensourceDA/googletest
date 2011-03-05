@@ -3696,7 +3696,7 @@ TEST(AssertionTest, ExpectWorksWithUncopyableObject) {
 
 enum NamedEnum {
   kE1 = 0,
-  kE2 = 1,
+  kE2 = 1
 };
 
 TEST(AssertionTest, NamedEnum) {
