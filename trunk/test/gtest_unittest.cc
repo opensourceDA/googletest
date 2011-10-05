@@ -71,6 +71,7 @@ TEST(CommandLineFlagsTest, CanBeAccessedInCodeOnceGTestHIsIncluded) {
 
 #include <limits.h>  // For INT_MAX.
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #include <map>
@@ -137,6 +138,7 @@ using testing::TestPartResult;
 using testing::TestPartResultArray;
 using testing::TestProperty;
 using testing::TestResult;
+using testing::TimeInMillis;
 using testing::Unitests that GTEST_IS_NUkMaxStackTraceDepth that GTEST_IS_NULL_LITERAL(ddReference that GTEST_IS_NULL_LITERAL(lwaysFalse;
 using testing::internal::AlwaysTrue that GTEST_IS_NULL_LITERAL(x) is true when x is a null
 // pointer liteArrayAwareFind;
@@ -147,6 +149,7 @@ using testing::internal::CopyArrayx is a null
 // pointer liteCountIfx is a null
 // pointer literqFailure(NullLiteralTest, IsTrueForNullLiterals) {
   EXPECT_TRUE(GTEST_IS_NForEach;
+using testing::internal::FormatEpochTimeInMillisAsIso8601;
 using testing::internal::FormatTimeInMillisAsSeconds {
   EXPECT_TRUE(GTEST_IS_NUTestFlagSaver {
   EXPECT_TRUE(GTEST_IS_NUetCurrentOsStackTraceExceptTop;
@@ -154,6 +157,7 @@ using testing::internal::GetElementOr;
 using testing::internal::GetNextRandomSeed;
 using testing::internal::GetRandomSeedFromFlag {
   EXPECT_TRUE(GTEST_IS_NUetTestTypeId;
+using testing::internal::GetTimeInMillis;
 using testing::internal::GetTypeId {
   EXPECT_TRUE(GTEST_IS_NUetUnitTestImpl {
   EXPECT_TRUE(GTEST_IS_NSmplicitlyConvertible;
@@ -282,6 +286,101 @@ TEST(FormatTimeInMillisAsSecondsTest, FormatsNegativeNumber) {
   EXPECT_EQ("-0.2", FormatTimeInMillisAsSeconds(-200));
   EXPECT_EQ("-1.2", FormatTimeInMillisAsSeconds(-1200));
   EXPECT_EQ("-3", FormatTimeInMillisAsSeconds(-3000));
+}EX// Tests FormatEpochTimeInMillisAsIso8601().  The correctness of conversion
+// for particular dates below was verified in Python using
+// datetime.datetime.fromutctimestamp(<timetamp>/1000).
+
+// FormatEpochTimeInMillisAsIso8601 depends on the current timezone, so we
+// have to set up a particular timezone to obtain predictable results.
+class FormatEpochTimeInMillisAsIso8601Test : public Test {
+ public:
+  // On Cygwin, GCC doesn't allow unqualified integer literals to exceed
+  // 32 bits, even when 64-bit integer types are available.  We have to
+  // force the constants to have a 64-bit type here.
+  static const TimeInMillis kMillisPerSec = 1000;
+
+ private:
+  virtual void SetUp() {
+    saved_tz_ = NULL;
+#if _MSC_VER
+# pragma warning(push)          // Saves the current warning state.
+# pragma warning(disable:4996)  // Temporarily disables warning 4996
+                                // (function or variable may be unsafe
+                                // for getenv, function is deprecated for
+                                // strdup).
+    if (getenv("TZ"))
+      saved_tz_ = strdup(getenv("TZ"));
+# pragma warning(pop)           // Restores the warning state again.
+#else
+    if (getenv("TZ"))
+      saved_tz_ = strdup(getenv("TZ"));
+#endif
+
+    // Set up the time zone for FormatEpochTimeInMillisAsIso8601 to use.  We
+    // cannot use the local time zone because the function's output depends
+    // on the time zone.
+    SetTimeZone("UTC+00");
+  }
+
+  virtual void TearDown() {
+    SetTimeZone(saved_tz_);
+    free(const_cast<char*>(saved_tz_));
+    saved_tz_ = NULL;
+  }
+
+  static void SetTimeZone(const char* time_zone) {
+    // tzset() distinguishes between the TZ variable being present and empty
+    // and not being present, so we have to consider the case of time_zone
+    // being NULL.
+#if _MSC_VER
+    // ...Unless it's MSVC, whose standard library's _putenv doesn't
+    // distinguish between an empty and a missing variable.
+    const std::string env_var =
+        std::string("TZ=") + (time_zone ? time_zone : "");
+    _putenv(env_var.c_str());
+# pragma warning(push)          // Saves the current warning state.
+# pragma warning(disable:4996)  // Temporarily disables warning 4996
+                                // (function is deprecated).
+    tzset();
+# pragma warning(pop)           // Restores the warning state again.
+#else
+    if (time_zone) {
+      setenv(("TZ"), time_zone, 1);
+    } else {
+      unsetenv("TZ");
+    }
+    tzset();
+#endif
+  }
+
+  const char* saved_tz_;
+};
+
+const TimeInMillis FormatEpochTimeInMillisAsIso8601Test::kMillisPerSec;
+
+TEST_F(FormatEpochTimeInMillisAsIso8601Test, PrintsTwoDigitSegments) {
+  EXPECT_EQ("2011-10-31T18:52:42",
+            FormatEpochTimeInMillisAsIso8601(1320087162 * kMillisPerSec));
+}
+
+TEST_F(FormatEpochTimeInMillisAsIso8601Test, MillisecondsDoNotAffectResult) {
+  EXPECT_EQ(
+      "2011-10-31T18:52:42",
+      FormatEpochTimeInMillisAsIso8601(1320087162 * kMillisPerSec + 234));
+}
+
+TEST_F(FormatEpochTimeInMillisAsIso8601Test, PrintsLeadingZeroes) {
+  EXPECT_EQ("2011-09-03T05:07:02",
+            FormatEpochTimeInMillisAsIso8601(1315026422 * kMillisPerSec));
+}
+
+TEST_F(FormatEpochTimeInMillisAsIso8601Test, Prints24HourTime) {
+  EXPECT_EQ("2011-09-28T17:08:22",
+            FormatEpochTimeInMillisAsIso8601(1317229702 * kMillisPerSec));
+}
+
+TEST_F(FormatEpochTimeInMillisAsIso8601Test, PrintsEpochStart) {
+  EXPECT_EQ("1970-01-01T00:00:00", FormatEpochTimeInMillisAsIso8601(0));
 }EXPEC GTEST_CAN_COMPARE_NULL
 
 # ifdef __BORLANDC__
@@ -2028,6 +2127,9 @@ TEST(ShouldRunTestOnShardTest, IsPartitionWhenThereAreFiveShards) {
 // SimilarlyTEST(UnitTestTest, CanGetOriginalWorkingDir) {
   ASSERT_TRUE(UnitTest::GetInstance()->original_working_dir() != NULL);
   EXPECT_STRNE(UnitTest::GetInstance()->original_working_dir(), "");
+}lyTEST(UnitTestTest, ReturnsPlausibleTimestamp) {
+  EXPECT_LT(0, UnitTest::GetInstance()->start_timestamp());
+  EXPECT_LE(UnitTest::GetInstance()->start_timestamp(), GetTimeInMillis());
 }ly, there are no separate tests for the following macros:
 //
 //   TEST, TEST_F, RUN_ALL_TESTS
@@ -2837,21 +2939,19 @@ TEST_F(DoubleTest, Size) {
 // Tests comparing with +0 and -0.
 TEST_F(DoubleTest, Zeros) {
   EXPECT_DOUBLE_EQ(0.0, -0.0);
-  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE;
-  static RawType close_to_infinity_;
-  static RawType further_from_infinity_;
-DOUBLE_EQ(0.0, 1.0),
+  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(-0.0, 1.0),
+                          "1.0");
+  EXPECT_FATAL_FAILURE(ASSERT_DOUBLE_EQ(0.0, 1.0),
                        "1.0");
 }
 
 // Tests comparing numbers close to 0.
 //
-// This ensures that *_DOUBLEo_positive_zero_;
-
-template <typename RawType>
-RawType FloatingPointTest<RawType>::close_to_negative_zero_;
-
-template <typenamDoubleTest, AlmostZeros) {ngP// In C++Builder, names within local classes (such as used by
+// This ensures that *_DOUBLE_EQ handles the sign correctly and no
+// overflow occurs when comparing numbers whose absolute value is very
+// small.
+TEST_F(DoubleTest, AlmostZeros) {
+  // In C++Builder, names within local classes (such as used by
   // EXPECT_FATAL_FAILURE) cannot be resolved against static members of the
   // scoping class.  Use a static local alias as a workaround.
   // We use the assignment syntax since some compilers, like Sun Studio,
@@ -2873,21 +2973,25 @@ template <typenamDoubleTest, AlmostZeros) {ngP// In C++Builder, names within loc
 TEST_F(DoubleTest, SmallDiff) {
   EXPECT_DOUBLE_EQ(1.0, values_.close_to_one);
   EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(1.0, values_.further_from_one),
-                          "values_.further_from_onepename RawType>
-RawType FloatingPointTest<RawType>::DoubleTest, LargeDiff) {
-  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(2.0edef FloatingPointTest<float> FloatTest;
-
-// Tests that the size of Float::Bits matches the size of float.
-TEST_F(FloatTest, Size) {
-  TestSize();
+                          "values_.further_from_one");
 }
 
-// Tests comparing with +0 and -0.
-TEST_FDoubleTest, Infinity) {
+// Tests comparing numbers far apart.
+TEST_F(DoubleTest, LargeDiff) {
+  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(2.0, 3.0),
+                          "3.0");
+}
+
+// Tests comparing with infinity.
+//
+// This ensures that no overflow occurs when comparing numbers whose
+// absolute value is very large.
+TEST_F(DoubleTest, Infinity) {
   EXPECT_DOUBLE_EQ(values_.infinity, values_.close_to_infinity);
-  EXPECT_DOUBLE_EQ(-values_.infinity, -values_.close_to_infinityAL_#if !GTEST_OS_SYMBIAN
-  // Nokia's STLport crashes if we try to output infinity or NaN.       "1.0");
-  EXPECT_FATAL_FAI_DOUBLE_EQ(values_.infinity, -values_.infinity),
+  EXPECT_DOUBLE_EQ(-values_.infinity, -values_.close_to_infinity);
+#if !GTEST_OS_SYMBIAN
+  // Nokia's STLport crashes if we try to output infinity or NaN.
+  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(values_.infinity, -values_.infinity),
                           "-values_.infinity");
 
   // This is interesting as the representations of infinity_ and nan1_
@@ -6147,50 +6251,12 @@ TEST(StreamingAssertionsTest, AnyThrow) {
   EXPECT_STRNE("foo", "bar") << "unexpected failure";
   ASSERT_STRNE("foo", "bar") << "unexpected failure";
   EXPECT_NONFATAL_FAILURE(EXPECT_STRNE("foo", "foo") << "expected failure",
-                          "expected failure");
-  EXPECT_FATAL_FAILURE(ASSERT_STRNE("foo", "foo") << "expected failure",
-                       "expected failure");
-}
-
-TEST(StreamingAssertionsTest, StringsEqualIgnoringCase) {
-  EXPECT_STRCASEEQ("foo", "FOO") << "unexpected failure";
-  ASSERT_STRCASEEQ("foo", "FOO") << "unexpected failure";
-  EXPECT_NONFATAL_FAILURE(EXPECT_STRCASEEQ("foo", "bar") << "expected failure",
-                          "expected failure");
-  EXPECT_FATAL_FAILURE(ASSERT_STRCASEEQ("foo", "bar") << "expected failure",
-                       "expected failure");
-}
-
-TEST(StreamingAssertionsTest, StringNotEqualIgnoringCase) {
-  EXPECT_STRCASENE("foo", "bar") << "unexpected failure";
-  ASSERT_STRCASENE("foo", "bar") << "unexpected failure";
-  EXPECT_NONFATAL_FAILURE(EXPECT_STRCASENE("foo", "FOO") << "expected failure",
-                          "expected failure");
-  EXPECT_FATAL_FAILURE(ASSERT_STRCASENE("bar", "BAR") << "expected failure",
-                       "expected failure");
-}
-
-TEST(StreamingAssertionsTest, FloatingPointEquals) {
-  EXPECT_FLOAT_EQ(1.0, 1.0) << "unexpected failure";
-  ASSERT_FLOAT_EQ(1.0, 1.0) << "unexpected failure";
-  EXPECT_NONFATAL_FAILURE(EXPECT_FLOAT_EQ(0.0, 1.0) << "expected failure",
-                          "expected failure");
-  EXPECT_FATAL_FAILURE(ASSERT_FLOAT_EQ(0.0, 1.0) << "expected failure",
-                       "expected failure");
-}
-
-// Tests that Google Test correctly decides whether to use colors in the output.
-
-TEST(ColoredOutputTest, UsesColorsWhenGTestColorFlagIsYes) {
-  GTEST_FLAG(color) = "yes";
-
-  SetEnv("TERM", "xterm");  // TERM supports colors.
-  EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
+                          "eolor(true));  // Stdout is a TTY.
   EXPECT_TRUE(ShouldUseColor(false));  // Stdout is not a TTY.
 
   SetEnv("TERM", "dumb");  // TERM doesn't support colors.
   EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
-  EXPECT_TRUE(ShouldUseColor(fe));  // Stdout is not a TTY.
+  EXPECT_TRUE(ShouldUseColor(false));  // Stdout is not a TTY.
 }
 
 TEST(ColoredOutputTest, UsesColorsWhenGTestColorFlagIsAliasOfYes) {
@@ -6218,24 +6284,75 @@ TEST(ColoredOutputTest, UsesNoColorWhenGTestColorFlagIsNo) {
   EXPECT_FALSE(ShouldUseColor(false));  // Stdout is not a TTY.
 }
 
-TESTlor(true));  // Stdout is a TTY.(EXPECT_STRNE("foo", "foo") << "expected failure",
-                          "expected failure");
-  EXPECT_FATAL_
-  SetEnv("TERM", "xterm-color") << "expected failure",
-                          "expected failure");
-  EXPECT_FATAL_
-  SetEnv("TERM", "xterm-256color") << "expected failure",
-                          "expected failure");
-  EXPECT_FATAL_
-  SetEnv("TERM", "screen") << "expected failure",
-                          "expected failure");
-  EXPECT_FATAL_
-  SetEnv("TERM", "linux") << "expected failure",
-                          "expected failure");
-  EXPECT_FATAL_
-  SetEnv("TERM", "cygwin") << "expected failure",
-                          "expected failure");
-  EXPECT_FATAL_#endif  // GTEST_OS_WINDOWS
+TEST(ColoredOutputTest, UsesNoColorWhenGTestColorFlagIsInvalid) {
+  SetEnv("TERM", "xterm");  // TERM supports colors.
+
+  GTEST_FLAG(color) = "F";
+  EXPECT_FALSE(ShouldUseColor(true));  // Stdout is a TTY.
+
+  GTEST_FLAG(color) = "0";
+  EXPECT_FALSE(ShouldUseColor(true));  // Stdout is a TTY.
+
+  GTEST_FLAG(color) = "unknown";
+  EXPECT_FALSE(ShouldUseColor(true));  // Stdout is a TTY.
+}
+
+TEST(ColoredOutputTest, UsesColorsWhenStdoutIsTty) {
+  GTEST_FLAG(color) = "auto";
+
+  SetEnv("TERM", "xterm");  // TERM supports colors.
+  EXPECT_FALSE(ShouldUseColor(false));  // Stdout is not a TTY.
+  EXPECT_TRUE(ShouldUseColor(true));    // Stdout is a TTY.
+}
+
+TEST(ColoredOutputTest, UsesColorsWhenTermSupportsColors) {
+  GTEST_FLAG(color) = "auto";
+
+#if GTEST_OS_WINDOWS
+  // On Windows, we ignore the TERM variable as it's usually not set.
+
+  SetEnv("TERM", "dumb");
+  EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
+
+  SetEnv("TERM", "");
+  EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
+
+  SetEnv("TERM", "xterm");
+  EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
+#else
+  // On non-Windows platforms, we rely on TERM to determine if the
+  // terminal supports colors.
+
+  SetEnv("TERM", "dumb");  // TERM doesn't support colors.
+  EXPECT_FALSE(ShouldUseColor(true));  // Stdout is a TTY.
+
+  SetEnv("TERM", "emacs");  // TERM doesn't support colors.
+  EXPECT_FALSE(ShouldUseColor(true));  // Stdout is a TTY.
+
+  SetEnv("TERM", "vt100");  // TERM doesn't support colors.
+  EXPECT_FALSE(ShouldUseColor(true));  // Stdout is a TTY.
+
+  SetEnv("TERM", "xterm-mono");  // TERM doesn't support colors.
+  EXPECT_FALSE(ShouldUseColor(true));  // Stdout is a TTY.
+
+  SetEnv("TERM", "xterm");  // TERM supports colors.
+  EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
+
+  SetEnv("TERM", "xterm-color");  // TERM supports colors.
+  EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
+
+  SetEnv("TERM", "xterm-256color");  // TERM supports colors.
+  EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
+
+  SetEnv("TERM", "screen");  // TERM supports colors.
+  EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
+
+  SetEnv("TERM", "linux");  // TERM supports colors.
+  EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
+
+  SetEnv("TERM", "cygwin");  // TERM supports colors.
+  EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
+#endif  // GTEST_OS_WINDOWS
 }
 
 // Verifies that StaticAssertTypeEq works in a namespace scope.
