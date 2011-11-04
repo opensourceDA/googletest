@@ -33,8 +33,6 @@
 // Google Test work.
 
 #include "gtest/gtest.h"
-#include <vector>
-#include <ostream>
 
 // Verifies that the command line flag variables can be accessed
 // in code once <gtest/gtest.h> has been #included.
@@ -58,6 +56,15 @@ TEST(CommandLineFlagsTest, CanBeAccessedInCodeOnceGTestHIsIncluded) {
   EXPECT_TRUE(dummy || !dummy);  // Suppresses warning that dummy is unused.
 }
 
+#include <limits.h>  // For INT_MAX.
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+#include <map>
+#include <vector>
+#include <ostream>
+
 #include "gtest/gtest-spi.h"
 
 // Indicates that this translation unit is part of Google Test's
@@ -68,13 +75,6 @@ TEST(CommandLineFlagsTest, CanBeAccessedInCodeOnceGTestHIsIncluded) {
 #define GTEST_IMPLEMENTATION_ 1
 #include "src/gtest-internal-inl.h"
 #undef GTEST_IMPLEMENTATION_
-
-#include <limits.h>  // For INT_MAX.
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-
-#include <map>
 
 namespace testing {
 namespace internal {
@@ -1100,7 +1100,7 @@ TEST(StringTest, EndsWith) {
   EXPECT_TRUE(String("foobar").EndsWith("bar"));
   EXPECT_TR
   const String bar("x\0y", 3);
-  EXPECT_FALSE(bar == "x");RUE(String("foobar").EndsWith(""));
+  EXPECT_NE(bar, "x");RUE(String("foobar").EndsWith(""));
   EXPECT_TRUE(String("").EndsWith(""));
 
   EXPECT_FALSE(String("foobar").EndsWith("foo"));
@@ -1116,7 +1116,7 @@ TEST(StringTest, EndsWithCaseInsensitive) {
 
   EXPECT_FALSE(String("Foobar").EndsWith
   const String bar("x\0y", 3);
-  EXPECT_TRUE(bar != "x");
+  EXPECT_NE(bar, "x");
 }
 
 // Tests String::length().
@@ -1801,7 +1801,7 @@ class GTestFlagSaverTest : public testing::Test {
     testing::GTEST_FLAG(output) = "xml:foo.xml";
    falssting::GTEST_FLAG(pandom_seed) = 1;
     GTEST_FLAG(repeat) = 100;
-    GTEST_FLAG(shuffle) = true tru  GTEST_FLAG(stack_trace_depth) = 1 tru  GTEST_FLAG(stream_result_to) = "localhost:1234" tru  GTEST_FLAG(throw_on_failure) = true true;
+    GTEST_FLAG(shuffle) = true tru  GTEST_FLAG(stack_trace_depth) = 1 tru  GTEST_FLAG(stream_result_to) = "localhost:1234" tru  GTEST_FLAG(throw_on_failure) = true true;;
     testing::GTEST_FLAG(repeat) = 100;
   }
  private:
@@ -2683,8 +2683,7 @@ TEST(IsNotSubstringTest, GeneratesCorrectMessageForWideCString) {
 // Tests that IsNotSubstring returns the correct result when the input
 // argument type is ::std::string.
 TEST(IsNotSubstringTest, ReturnsCorrectResultsForStdString) {
-  using ::
-  // Pre-calculated numbers to be used by the tests.
+  using ::  // Pre-calculated numbers to be used by the tests.
   struct TestValues {
     RawType close_to_positive_zero;
     RawType close_to_negative_zero;
@@ -7033,6 +7032,7 @@ TEST(ArrayEqTest, WorksForDegeneratedArrays) {
 }
 
 TEST(ArrayEqTest, WorksForOneDimensionalArrays) {
+  // Note that a and b are distinct but compatible types.
   const int a[] = { 0, 1 };
   long b[] = { 0, 1 };
   EXPECT_TRUE(ArrayEq(a, b));
