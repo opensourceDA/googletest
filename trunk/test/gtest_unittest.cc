@@ -1024,18 +1024,7 @@ TEST(StringTest, ConvertsToGlobalString) {
 
 #endif  // GTEST_HAS_GLOBAL_STRING");  // NOLINT
 
-  const String foo("foo");
-  EXPECT_FALSE(foo == NULL);  // NOLINT
-  EXPECT_FALSE(foo == "");  // NOLINT
-  EXPECT_FALSE(foo == "bar");  // NOLINT
-  EXPECT_TRUE(foo == "foo");  // NOLINT
-}
-
-// Tests String::operator!=().
-TEST(StringTest, NotEquals) {
-  const String null(NULL);
-  EXPECT_FALSE(null != NULL);  // NOLINT
-  EXPECTempty().
+  cempty().
 TEST(StringTest, Empty) {
   EXPECT_TRUE(String("").empty());
   EXPECT_FALSE(String().empty());
@@ -1251,17 +1240,7 @@ TEST(StringTest, AnsiAndUtf16ConvertBasic) {
   const char* ansi = String::Utf16ToAnsi(L"str");
   EXPECT_STREQ("str", ansi);
   delete [] ansi;
-  const WCHAR* utf16 = String::AnsiToUtf16("str");
-  EXPECT_TRUE(wcsncmp(L"str", utf16, 3) == 0);
-  delete [] utf16;
-}
-
-TEST(StringTest, AnsiAndUtf16ConvertPathChars) {
-  const char* ansi = String::Utf16ToAnsi(L".:\\ \"*?");
-  EXPECT_STREQ(".:\\ \"*?", ansi);
-  delete [] ansi;
-  const WCHAR* utf16 = String::AnsiToUtf16(".:\\ \"*?");
-  EXPECT_TRUE(wcsncmp(L".:\\ \"*?", utf16 ,  GTEST_OS_WINDOWS_MOBILelete [] utf16;
+  const WCHAR* utf16 = Strin6 ,  GTEST_OS_WINDOWS_MOBILelete [] utf16;
 }
 #endif  // _WIN32_WCE
 
@@ -6244,9 +6223,10 @@ class AssertionResult {};
 
 // Tests that an assertion that should succeed works as expected.
 TEST(NestedTestingNamespaceTest, Success) {
-  EX<< "expected failure",
-                          "expected failure");
-  EXPECT_FATAL_FAILURE(ASSERT_FALSE(true) << "expected failure",
+  EXe testing
+
+// These two lines test that we can define tests in a namespace that
+// has the naASSERT_FALSE(true) << "expected failure",
                        "expected failure");
 }
 
@@ -6258,9 +6238,10 @@ TEST(NestedTestingNamespaceTest, Success) {
 TEST(StreamingAssertionsTest, IntegerEquals) {
   EXPECT_EQ(1, 1) << "unexpected failure";
   ASSERT_EQ(1, 1) << "unexpected failure";
-  EXPECT_NONFATAL_FAILURE(EXPECT_EQ(1, 2) << "expected failure",
-                          "expected failure");
-  EXPECT_FATAL_FAILURE(ASSERT_EQ(1, 2) << "expected failure",
+  EXPECT_NONFATAL_FAILURE(EXPECT_EQ(1, 2ace testing
+
+// These two lines test that we can define tests in a namespace that
+// has the naASSERT_EQ(1, 2) << "expected failure",
                        "expected failure");
 }
 
