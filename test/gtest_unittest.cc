@@ -895,258 +895,18 @@ TEST(AssertHelperTest, AssertHelperIsSmall) {
   EXPECT_LE(sizeof(testing::internal::AssertHelper), sizeof(void*));
 }
 
-// Tests the String class.EQ("", String::ShowCString(""));
-  EXPECT_STREQ("foo", String::ShowCString("foo"));
-}
-
-// Tests String::ShowCStringQuoted().
-TEST(StringTest, ShowCStringQuoted) {
-  EXPECT_STREQ("(null)",
-               String::ShowCStringQuoted(NULLEQ(0U, s1.length());uoted(NULL).c_str());
-  EXPECT_STREQ("\"\"",
-               String::ShowCStringQuoted("").c_str());
-  EXPECT_SEQ(2U, s2.length())
-  EXPECT_STREQ("\"foo\"",
-               String::ShowCStringQuoted("foo").c_str());
-}
-
-// Tests String::operator==()EQ(3U, s3.length());
-  EXPECT_STREQ("hel", s3.c_str());
-
-  // The empty String should be created when String is constructed with
-  // a NULL pointer and length 0.
-  EXPECT_EQ(0U, String(NULL, 0).length());
-  EXPECT_FALSE(String(NULL, 0).c_str() == NULL);
-
-  // Constructs a String that contains '\0'.
-  String s4("a\0bcd", 4);
-  EXPECT_EQ(4U, s4.length());
-  EXPECT_EQ('a', s4.c_str()[0]);
-  EXPECT_EQ('\0', s4.c_str()[1]);
-  EXPECT_EQ('b', s4.c_str()[2]);
-  EXPECT_EQ('c', s4.c_str()[3]);
-
-  // Copy ctor where the source is NULL.
-  const String null_str;
-  String s5 = null_str;
-  EXPECT_TRUE(s5.c_str() == NULL);
-
-  // Copy ctor where the source isn't NULL.
-  String s6 = s3;
-  EXPECT_EQ(3U, s6.length());
-  EXPECT_STREQ("hel", s6.c_str());
-
-  // Copy ctor where the source contains '\0'.
-  String s7 = s4;
-  EXPECT_EQ(4U, s7.length());
-  EXPECT_EQ('a', s7.c_str()[0]);
-  EXPECT_EQ('\0', s7.c_str()[1]);
-  EXPECT_EQ('b', s7.c_str()[2]);
-  EXPECT_EQ('c', s7.c_str()[3]NT
-  ETEST(StringTest, ConvertsFromStdString) {
-  // An empty std::string.
-  const std::string src1("");
-  const String dest1 = src1;
-  EXPECT_EQ(0U, dest1.length());
-  EXPECT_STREQ("", dest1.c_str());
-
-  // A normal std::string.
-  const std::string src2("Hi");
-  const String dest2 = src2;
-  EXPECT_EQ(2U, dest2.length());
-  EXPECT_STREQ("Hi", dest2.c_str());
-
-  // An std::string with an embedded NUL character.
-  const char src3[] = "a\0b";
-  const String dest3 = std::string(src3, sizeof(src3));
-  EXPECT_EQ(sizeof(src3), dest3.length());
-  EXPECT_EQ('a', dest3.c_str()[0]);
-  EXPECT_EQ('\0', dest3.c_str()[1]);
-  EXPECT_EQ('b', dest3.c_str()[2]);
-}
-
-TEST(StringTest, ConvertsToStdString) {
-  // An empty String.
-  const String src1("");
-  const std::string dest1 = src1;
-  EXPECT_EQ("", dest1);
-
-  // A normal String.
-  const String src2("Hi");
-  const std::string dest2 = src2;
-  EXPECT_EQ("Hi", dest2);
-
-  // A String containing a '\0'.
-  const String src3("x\0y", 3);
-  const std::string dest3 = src3;
-  EXPECT_EQ(std::string("x\0y", 3), dest3);
-}
-
-#if GTEST_HAS_GLOBAL_STRING
-
-TEST(StringTest, ConvertsFromGlobalString) {
-  // An empty ::string.
-  const ::string src1("");
-  const String dest1 = src1;
-  EXPECT_EQ(0U, dest1.length());
-  EXPECT_STREQ("", dest1.c_str());
-
-  // A normal ::string.
-  const ::string src2("Hi");
-  const String dest2 = src2;
-  EXPECT_EQ(2U, dest2.length());
-  EXPECT_STREQ("Hi", dest2.c_str());
-
-  // An ::string with an embedded NUL character.
-  const char src3[] = "x\0y";
-  const String dest3 = ::string(src3, sizeof(src3));
-  EXPECT_EQ(sizeof(src3), dest3.length());
-  EXPECT_EQ('x', dest3.c_str()[0]);
-  EXPECT_EQ('\0', dest3.c_str()[1]);
-  EXPECT_EQ('y', dest3.c_str()[2]);
-}
-
-TEST(StringTest, ConvertsToGlobalString) {
-  // An empty String.
-  const String src1("");
-  const ::string dest1 = src1;
-  EXPECT_EQ("", dest1);
-
-  // A normal String.
-  const String src2("Hi");
-  const ::string dest2 = src2;
-  EXPECT_EQ("Hi", dest2);
-
-  const String src3("x\0y", 3);
-  const ::string dest3 = src3;
-  EXPECT_EQ(::string("x\0y", 3), dest3);
-}
-
-#endif  // GTEST_HAS_GLOBAL_STRING");  // NOLINT
-
-  cempty().
-TEST(StringTest, Empty) {
-  EXPECT_TRUE(String("").empty());
-  EXPECT_FALSE(String().empty());
-  EXPECT_FALSE(String(NULL).empty());
-  EXPECT_FALSE(String("a").empty());
-  EXPECT_FALSE(String("\0", 1).empty());
-}
-
-// Tests String::Compare().
-TEST(StringTest, Compare) {
-  // NULL vs NULL.
-  EXPECT_EQ(0, String().Compare(String()));
-
-  // NULL vs non-NULL.
-  EXPECT_EQ(-1, String().Compare(String("")));
-
-  // Non-NULL vs NULL.
-  EXPECT_EQ(1, String("").Compare(String()));
-
-  // The following covers non-NULL vs non-NULL.
-
-  // "" vs "".
-  EXPECT_EQ(0, String("").Compare(String("")));
-
-  // "" vs non-"".
-  EXPECT_EQ(-1, String("").Compare(String("\0", 1)));
-  EXPECT_EQ(-1, String("").Compare(" "));
-
-  // Non-"" vs "".
-  EXPECT_EQ(1, String("a").Compare(String("")));
-
-  // The following covers non-"" vs non-"".
-
-  // Same length and equal.
-  EXPECT_EQ(0, String("a").Compare(String("a")));
-
-  // Same length and different.
-  EXPECT_EQ(-1, String("a\0b", 3).Compare(String("a\0c", 3)));
-  EXPECT_EQ(1, String("b").Compare(String("a")));
-
-  // Different lengths.
-  EXPECT_EQ(-1, String("a").Compare(String("ab")));
-  EXPECT_EQ(-1, String("a").Compare(String("a\0", 2)));
-  EXPECT_EQ(1, String("abc").Compare(String("aacd")LL);  // NOLINT
-  EXPECT_TRUE(null != "");  // NOLINT
-  EXPECT_TRUE(null != "bar");  // NOLINT
-
-  const String empty("");
-  EXPECT_TRUE(empty != NULL);  // NOLINT
-  EXPECT_FALSE(empty != "");  // NOLINT
-  EXPECT_TRUE(empty != "bar");  // NOLINT
-
-  const String foo("foo");
-  EXPECT_TRUE(foo != NULL);  // NOLINT
-  EXPECT_TRUE(foo != "");  // NOLINT
-  EXPECT_TRUE(foo != "bar");  // NOLINT
-  EXPECT_FALSE(foo != "foo");  // NOLINT
-}
-
-// Tests String::EndsWith().
-TEST(StringTest, EndsWith) {
-  EXPECT_TRUE(String("foobar").EndsWith("bar"));
-  EXPECT_TR
-  const String bar("x\0y", 3);
-  EXPECT_NE(bar, "x");RUE(String("foobar").EndsWith(""));
-  EXPECT_TRUE(String("").EndsWith(""));
-
-  EXPECT_FALSE(String("foobar").EndsWith("foo"));
-  EXPECT_FALSE(String("").EndsWith("foo"));
-}
-
-// Tests String::EndsWithCaseInsensitive().
-TEST(StringTest, EndsWithCaseInsensitive) {
-  EXPECT_TRUE(String("foobar").EndsWithCaseInsensitive("BAR"));
-  EXPECT_TRUE(String("foobaR").EndsWithCaseInsensitive("bar"));
-  EXPECT_TRUE(String("foobar").EndsWithCaseInsensitive(""));
-  EXPECT_TRUE(String("").EndsWithCaseInsensitive(""));
-
-  EXPECT_FALSE(String("Foobar").EndsWith
-  const String bar("x\0y", 3);
-  EXPECT_NE(bar, "x");
-}
-
-// Tests String::length().
-TEST(StringTest, Length) {
-  EXPECT_EQ(0U, String().length());
-  EXPECT_EQ(0U, String("").length());
-  EXPECT_EQ(2U, String("ab").length());
-  EXPECT_EQ(3U, String("a\0b", 3).length());hCaseInsensitive("foo"));
-  EXPECT_FALSE(String("foobar").EndsWithCaseInsensitive("Foo"));
-  EXPECT_FALSE(String("").EndsWithCaseInsensitive("foo"));
-}
-
-// Tests that NULL can be assigned to a String.
-TEST(StringTest, CanBeAssignedNULL) {
-  const String src(NULL);
-  String dest;
-
-  dest = src;
-  EXPECT_STREQ(NULL, dest.c_str());
+// Tests STREQ(NULL, dest.c_str());
 }
 
 // Tests that the empty string "" can be assigned to a String.
-TEST(StringTest, CanBeAssignedEmpty) {
-  const String src("");
-  String dest;
+TEST(S::EndsWithCaseInsensitive("foobar", "BAR"));
+  EXPECT_TRUE(String::EndsWithCaseInsensitive("foobaR", "bar"));
+  EXPECT_TRUE(String::EndsWithCaseInsensitive("foobar", ""));
+  EXPECT_TRUE(String::EndsWithCaseInsensitive("", ""));
 
-  dest = src;
-  EXPECT_STREQ("", dest.c_str());
-}
-
-// Tests that a non-empty string can be assigned to a String.
-TEST(StringTest, CanBeAssignedNonEmpty) {
-  const String src("hello");
-  String dest;
-
-  dest = src;
-  EXPECT_STREQ("hello", dest.c_str());
-}
-
-// Tests that a String can be assigned to itself.
-TEST(StringTest, CanBeAssignedSelf) {
+  EXPECT_FALSE(String::EndsWithCaseInsensitive("Foobar", "foo"));
+  EXPECT_FALSE(String::EndsWithCaseInsensitive("foobar", "Foo"));
+  EXPECT_FALSE(String::EndsWithCaseInsensitive("", gnedSelf) {
   SC++Builder's preprocessor is buggy; it fails to expand macros that
 // appear in macro parameters after wide char literals.  Provide an alias
 // for NULL as a workaround.
@@ -1161,52 +921,7 @@ TEST(StringTest, CaseInsensitiveWideCStringEquals) {
   EXPECT_TRUE(String::CaseInsensitiveWideCStringEquals(L"foobar", L"foobar"));
   EXPECT_TRUE(String::CaseInsensitiveWideCStringEquals(L"foobar", L"FOOBAR"));
   EXPECT_TRUE(String::CaseInsensitiveWideCStringEquals(L"FOOBAR", L"foobarSelf) {
-  String dest("hello");
-
-  dest = dest;
-  EXPECT_STREQ("hello", dest.c_str());
-}
-
-#ifdef GTEST_OS_WINDOWS
-
-// Tests String::ShowWideCString().
-TEST(StringTest, ShowWideCString) {
-  EXPECT_STREQ("(null)",
-               String::ShowWideCString(NULL).c_str());
-  EXPECT_STREQ("", String::ShowWideCString(L"").c_str());
-  EXPECT_STREQ("foo", String::ShowWideCString(L"foo").c_str());
-}
-
-// Tests String::ShowWideCStringQuoted().
-TEST(StringTest, ShowWideCStringQuoted) {
-  EXPECT_STREQ("(null)",
-               String::ShowWi  dest = src;
-  EXPECT_EQ(5U, dest.length());
-  EXPECT_STREQ("hello", dest.c_str());
-
-  const String src2("x\0y", 3);
-  String dest2;
-  dest2 = src2;
-  EXPECT_EQ(3U, dest2.length());
-  EXPECT_EQ('x', dest2.c_str()[0]);
-  EXPECT_EQ('\0', dest2.c_str()[1]);
-  EXPECT_EQ('y', dest2.c_str()[2]\"",
-               String::ShowWideCStringQuoted(L"").c_str());
-  EXPECT_STREQ("L\"foo\"",
-               String::ShowWi// Use explicit function call notation here to suppress self-assign warning.
-  dest.operator=(dest)oted(L"foo").c_str());
-}
-
-#ifdef _WIN32_WCE
-// Sun Studio < 12 incorrectly rejects this code due to an overloading
-// ambiguity.
-#if !(defined(__SUNPRO_CC) && __SUNPRO_CC < 0x590)
-// Tests streaming a String.
-TEST(StringTest, Streams) {
-  EXPECT_EQ(StreamableToString(String()), "(null)");
-  EXPECT_EQ(StreamableToString(String("")), "");
-  EXPECT_EQ(StreamableToString(String("a\0b", 3)), "a\\0b"2_WCE#endifE
-// Tests that String::Format() works.
+  String dest(String::Format() works.
 TEST(StringTest, FormatWorks) {
   // Normal case: the format spec is valid, the arguments match the
   // spec, and the result is < 4095 characters.
@@ -1217,19 +932,19 @@ TEST(StringTest, FormatWorks) {
   const size_t kSize = sizeof(buffer);
   memset(buffer, 'a', kSize - 1);
   buffer[kSize - 1] = '\0';
-  EXPECT_STREQ(buffer, String::Format("%s", buffer).c_str());
+  EXPECT_EQ(buffer, String::Format("%s", buffer));
 
   // The result needs to be 4096 characters, exceeding Format()'s limit.
-  EXPECT_STREQ("<formatting error or buffer exceeded>",
-               String::Format("x%s", buffer).c_str());
+  EXPECT_EQ("<formatting error or buffer exceeded>",
+            String::Format("x%s", buffer));
 
 #if GTEST_OS_LINUX && !GTEST_OS_LINUX_ANDROID
   // On Linux, invalid format spec should lead to an error message.
   // In other environment (e.g. MSVC on Windows), String::Format() may
   // simply ignore a bad format spec, so this assertion is run on
   // Linux only.
-  EXPECT_STREQ("<formatting error or buffer exceeded>",
-               String::Format("%").c_str());
+  EXPECT_EQ("<formatting error or buffer exceeded>",
+            String::Format("%"));
 #endifWCE
 TEStringTest, AnsiAndUtf16Null) {
   EXPECT_EQ(NULL, String::AnsiToUtf16(NULL));
@@ -1812,15 +1527,16 @@ static void SetEnv(const char* name, const char* value) {
   // C++Builder's putenv only stores a pointer to its parameter; we have to
   // ensure that the string remains valid as long as it might be needed.
   // We use an std::map to do so.
-  static std::map<String, String*> added_env;
+  static std::map<std::string, std::string*> added_env;
 
   // Because putenv stores a pointer to the string buffer, we can't delete the
   // previous string (if present) until after it's replaced.
-  String *prev_env = NULL;
+  std::string *prev_env = NULL;
   if (added_env.find(name) != added_env.end()) {
     prev_env = added_env[name];
   }
-  added_env[name] = new String((Message() << name << "=" << value).GetString());
+  added_env[name] = new std::string(
+      (Message() << name << "=" << value).GetString());
 
   // The standard signature of putenv accepts a 'char*' argument. Other
   // implementations, like C++Builder's, accept a 'const char*'.
@@ -2916,12 +2632,10 @@ TEST_F(FloatTest, FloatLEFails) {
 typedef FloatingPointTest<double> DoubleTest;
 
 // Tests that the size of Double::Bits matches the size of double.
-TEST_F(DoubleTest, Size) {
-  TestSize();
-}
+TEST_F(Doubleto_negative_zero_;
+  static RawType further_from_negative_zero_;
 
-// Tests comparing with +0 and -0.
-TEST_F(DoubleTest, Zeros) {
+  statiDoubleTest, Zeros) {
   EXPECT_DOUBLE_EQ(0.0, -0.0);
   EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(-0.0, 1.0),
                           "1.0");
@@ -2931,11 +2645,13 @@ TEST_F(DoubleTest, Zeros) {
 
 // Tests comparing numbers close to 0.
 //
-// This ensures that *_DOUBLE_EQ handles the sign correctly and no
-// overflow occurs when comparing numbers whose absolute value is very
-// small.
-TEST_F(DoubleTest, AlmostZeros) {
-  // In C++Builder, names within local classes (such as used by
+// This ensures that *_DOUBLEo_positive_zero_;
+
+template <typename RawType>
+RawType FloatingPointTest<RawType>::close_to_negative_zero_;
+
+template <typenamDoubleType>
+RawType FloatingP// In C++Builder, names within local classes (such as used by
   // EXPECT_FATAL_FAILURE) cannot be resolved against static members of the
   // scoping class.  Use a static local alias as a workaround.
   // We use the assignment syntax since some compilers, like Sun Studio,
@@ -2957,25 +2673,21 @@ TEST_F(DoubleTest, AlmostZeros) {
 TEST_F(DoubleTest, SmallDiff) {
   EXPECT_DOUBLE_EQ(1.0, values_.close_to_one);
   EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(1.0, values_.further_from_one),
-                          "values_.further_from_one");
+                          "values_.further_from_onepename RawType>
+RawType FloatingPointTest<RawType>::DoubleTest, LargeDiff) {
+  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(2.0edef FloatingPointTest<float> FloatTest;
+
+// Tests that the size of Float::Bits matches the size of float.
+TEST_F(FloatTest, Size) {
+  TestSize();
 }
 
-// Tests comparing numbers far apart.
-TEST_F(DoubleTest, LargeDiff) {
-  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(2.0, 3.0),
-                          "3.0");
-}
-
-// Tests comparing with infinity.
-//
-// This ensures that no overflow occurs when comparing numbers whose
-// absolute value is very large.
-TEST_F(DoubleTest, Infinity) {
+// Tests comparing with +0 and -0.
+TEST_FDoubleTest, Infinity) {
   EXPECT_DOUBLE_EQ(values_.infinity, values_.close_to_infinity);
-  EXPECT_DOUBLE_EQ(-values_.infinity, -values_.close_to_infinity);
-#if !GTEST_OS_SYMBIAN
-  // Nokia's STLport crashes if we try to output infinity or NaN.
-  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(values_.infinity, -values_.infinity),
+  EXPECT_DOUBLE_EQ(-values_.infinity, -values_.close_to_infinityAL_#if !GTEST_OS_SYMBIAN
+  // Nokia's STLport crashes if we try to output infinity or NaN.       "1.0");
+  EXPECT_FATAL_FAILDOUBLE_EQ(values_.infinity, -values_.infinity),
                           "-values_.infinity");
 
   // This is interesting as the representations of infinity_ and nan1_
@@ -2987,8 +2699,7 @@ TEST_F(DoubleTest, Infinity) {
 
 // Tests that comparing with NAN always returns false.
 TEST_F(DoubleTest, NaN) {
-#if !GTEST_OS_SYMBIAN
-  // In C++Builder, names within local classes (such as used by
+#if !GTEST_OS_SYMBIANngP// In C++Builder, names within local classes (such as used by
   // EXPECT_FATAL_FAILURE) cannot be resolved against static members of the
   // scoping class.  Use a static local alias as a workaround.
   // We use the assignment syntax since some compilers, like Sun Studio,
@@ -2996,8 +2707,8 @@ TEST_F(DoubleTest, NaN) {
   // (parentheses).
   static const DoubleTest::TestValues& v = this->values_;
 
-  // Nokia's STLport crashes if we try to output infinity or NaN.
-  EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(v.nan1, v.nan1),
+  // Nokia's STLport crashes if we try to output infinity or NaN.       "1.0");
+  EXPECT_FATAL_FAILDOUBLE_EQ(v.nan1, v.nan1),
                           "v.nan1");
   EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(v.nan1, v.nan2), "v.nan2");
   EXPECT_NONFATAL_FAILURE(EXPECT_DOUBLE_EQ(1.0, v.nan1), "v.nan1");
@@ -3447,8 +3158,8 @@ TEST_F(NoFatalFailureTest, MessageIsStreamable) {
 
 // Tests EqFailure(), used for implementing *EQ* assertions.
 TEST(AssertionTest, EqFailure) {
-  const String foo_val("5"), bar_val("6");
-  const String msg1(
+  const std::string foo_val("5"), bar_val("6");
+  const std::string msg1(
       EqFailure("foo", "bar", foo_val, bar_val, false)
       .failure_message());
   EXPECT_STREQ(
@@ -3458,7 +3169,7 @@ TEST(AssertionTest, EqFailure) {
       "Which is: 5",
       msg1.c_str());
 
-  const String msg2(
+  const std::string msg2(
       EqFailure("foo", "6", foo_val, bar_val, false)
       .failure_message());
   EXPECT_STREQ(
@@ -3467,7 +3178,7 @@ TEST(AssertionTest, EqFailure) {
       "Which is: 5",
       msg2.c_str());
 
-  const String msg3(
+  const std::string msg3(
       EqFailure("5", "bar", foo_val, bar_val, false)
       .failure_message());
   EXPECT_STREQ(
@@ -3476,16 +3187,16 @@ TEST(AssertionTest, EqFailure) {
       "Expected: 5",
       msg3.c_str());
 
-  const String msg4(
+  const std::string msg4(
       EqFailure("5", "6", foo_val, bar_val, false).failure_message());
   EXPECT_STREQ(
       "Value of: 6\n"
       "Expected: 5",
       msg4.c_str());
 
-  const String msg5(
+  const std::string msg5(
       EqFailure("foo", "bar",
-                String("\"x\""), String("\"y\""),
+                std::string("\"x\""), std::string("\"y\""),
                 true).failure_message());
   EXPECT_STREQ(
       "Value of: bar\n"
@@ -3497,7 +3208,7 @@ TEST(AssertionTest, EqFailure) {
 
 // Tests AppendUserMessage(), used for implementing the *EQ* macros.
 TEST(AssertionTest, AppendUserMessage) {
-  const String foo("foo");
+  const std::string foo("foo");
 
   Message msg;
   EXPECT_STREQ("foo",
@@ -4078,7 +3789,7 @@ TEST(AssertionSyntaxTest, WorksWithSwitch) {
 #if GTEST_HAS_EXCEPTIONS
 
 void ThrowAString() {
-    throw "String";
+    throw "std::string";
 }
 
 // Test that the exception assertion macros compile and work with const
@@ -5474,7 +5185,7 @@ class InitGoogleTestTest : public testing::Test {
 {
     GTEST_FLAG(break_on_failure) = internal::ParseGoogleTestFlagsOnlyST_FLAG(catch_exceptions) = false;
     GTE#if GTEST_HAS_STREAM_REDIRECTION
-    const String captured_stdout = GetCapturedStdout();
+    const std::string captured_stdout = GetCapturedStdout();
 #endifTEST_FLAG(filter) = "";
     GTEST_FLAG(list_tests) = false;
     GTEST_FLAG(output) = "";
@@ -6248,54 +5959,60 @@ TEST(StreamingAssertionsTest, IntegerEquals) {
 TEST(StreamingAssertionsTest, IntegerLessThan) {
   EXPECT_LT(1, 2) << "unexpected failure";
   ASSERT_LT(1, 2) << "unexpected failure";
-  EXPECT_NONFATAL_FAILURE(EXPECT_LT(2, 1) << "expected failure",
-                          "expected failure");
-  EXPECT_FATAL_FAILURE(ASSERT_LT(2, 1) << "expected failure",
+  EXPECT_NONFATAL_FAILURE(EXPECT_LT(2, 1EXe testing
+
+// These two lines test that we can define tests in a namespace that
+// has the naASSERT_LT(2, 1) << "expected failure",
                        "expected failure");
 }
 
 TEST(StreamingAssertionsTest, StringsEqual) {
   EXPECT_STREQ("foo", "foo") << "unexpected failure";
   ASSERT_STREQ("foo", "foo") << "unexpected failure";
-  EXPECT_NONFATAL_FAILURE(EXPECT_STREQ("foo", "bar") << "expected failure",
-                          "expected failure");
-  EXPECT_FATAL_FAILURE(ASSERT_STREQ("foo", "bar") << "expected failure",
+  EXPECT_NONFATAL_FAILURE(EXPECT_STREQ("foo", "bar"EXe testing
+
+// These two lines test that we can define tests in a namespace that
+// has the naASSERT_STREQ("foo", "bar") << "expected failure",
                        "expected failure");
 }
 
 TEST(StreamingAssertionsTest, StringsNotEqual) {
   EXPECT_STRNE("foo", "bar") << "unexpected failure";
   ASSERT_STRNE("foo", "bar") << "unexpected failure";
-  EXPECT_NONFATAL_FAILURE(EXPECT_STRNE("foo", "foo") << "expected failure",
-                          "expected failure");
-  EXPECT_FATAL_FAILURE(ASSERT_STRNE("foo", "foo") << "expected failure",
+  EXPECT_NONFATAL_FAILURE(EXPECT_STRNE("foo", "foo"EXe testing
+
+// These two lines test that we can define tests in a namespace that
+// has the naASSERT_STRNE("foo", "foo") << "expected failure",
                        "expected failure");
 }
 
 TEST(StreamingAssertionsTest, StringsEqualIgnoringCase) {
   EXPECT_STRCASEEQ("foo", "FOO") << "unexpected failure";
   ASSERT_STRCASEEQ("foo", "FOO") << "unexpected failure";
-  EXPECT_NONFATAL_FAILURE(EXPECT_STRCASEEQ("foo", "bar") << "expected failure",
-                          "expected failure");
-  EXPECT_FATAL_FAILURE(ASSERT_STRCASEEQ("foo", "bar") << "expected failure",
+  EXPECT_NONFATAL_FAILURE(EXPECT_STRCASEEQ("foo", "bar"EXe testing
+
+// These two lines test that we can define tests in a namespace that
+// has the naASSERT_STRCASEEQ("foo", "bar") << "expected failure",
                        "expected failure");
 }
 
 TEST(StreamingAssertionsTest, StringNotEqualIgnoringCase) {
   EXPECT_STRCASENE("foo", "bar") << "unexpected failure";
   ASSERT_STRCASENE("foo", "bar") << "unexpected failure";
-  EXPECT_NONFATAL_FAILURE(EXPECT_STRCASENE("foo", "FOO") << "expected failure",
-                          "expected failure");
-  EXPECT_FATAL_FAILURE(ASSERT_STRCASENE("bar", "BAR") << "expected failure",
+  EXPECT_NONFATAL_FAILURE(EXPECT_STRCASENE("foo", "FOO"EXe testing
+
+// These two lines test that we can define tests in a namespace that
+// has the naASSERT_STRCASENE("bar", "BAR") << "expected failure",
                        "expected failure");
 }
 
 TEST(StreamingAssertionsTest, FloatingPointEquals) {
   EXPECT_FLOAT_EQ(1.0, 1.0) << "unexpected failure";
   ASSERT_FLOAT_EQ(1.0, 1.0) << "unexpected failure";
-  EXPECT_NONFATAL_FAILURE(EXPECT_FLOAT_EQ(0.0, 1.0) << "expected failure",
-                          "expected failure");
-  EXPECT_FATAL_FAILURE(ASSERT_FLOAT_EQ(0.0, 1.0) << "expected failure",
+  EXPECT_NONFATAL_FAILURE(EXPECT_FLOAT_EQ(0.0, 1.0EXe testing
+
+// These two lines test that we can define tests in a namespace that
+// has the naASSERT_FLOAT_EQ(0.0, 1.0) << "expected failure",
                        "expected failure");
 }
 
@@ -6638,7 +6355,7 @@ TEST(TestEventListenersTest, Append) {
 // order.
 class SequenceTestingListener : public EmptyTestEventListener {
  public:
-  SequenceTestingListener(std::vector<String>* vector, const char* id)
+  SequenceTestingListener(std::vector<std::string>* vector, const char* id)
       : vector_(vector), id_(id) {}
 
  protected:
@@ -6661,20 +6378,20 @@ class SequenceTestingListener : public EmptyTestEventListener {
   }
 
  private:
-  String GetEventDescription(const char* method) {
+  std::string GetEventDescription(const char* method) {
     Message message;
     message << id_ << "." << method;
     return message.GetString();
   }
 
-  std::vector<String>* vector_;
+  std::vector<std::string>* vector_;
   const char* const id_;
 
   GTEST_DISALLOW_COPY_AND_ASSIGN_(SequenceTestingListener);
 };
 
 TEST(EventListenerTest, AppendKeepsOrder) {
-  std::vector<String> vec;
+  std::vector<std::string> vec;
   TestEventListeners listeners;
   listeners.Append(new SequenceTestingListener(&vec, "1st"));
   listeners.Append(new SequenceTestingListener(&vec, "2nd"));
@@ -7060,7 +6777,7 @@ TEST(GTestReferenceToConstTest, Works) {
   TestGTestReferenceToConst<const char&, char>();
   TestGTestReferenceToConst<const int&, const int>();
   TestGTestReferenceToConst<const double&, double>();
-  TestGTestReferenceToConst<const String&, const String&>();
+  TestGTestReferenceToConst<const std::string&, const std::string&>();
 }
 
 // Tests that ImplicitlyConvertible<T1, T2>::value is a compile-time constant.
