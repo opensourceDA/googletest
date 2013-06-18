@@ -486,15 +486,6 @@ TEST_F(FormatEpochTimeInMillisAsIso8601Test, PrintsEpochStart) {
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL_(0));
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL_(0U));
   EXPECT_TRUE(GTEST_IS_NULL_LITERAL_(0L));
-
-# ifndef __BORLANDC__
-
-  // Some compilers may fail to detect some null pointer literals;
-  // as long as users of the framework don't use such literals, this
-  // is harmless.
-  EXPECT_TRUE(GTEST_IS_NULL_LITERAL_(1 - 1));
-
-# endif
 }
 
 // Tests that GTEST_IS_NULL_LITERAL_, ToUtf8String(L'Z').c_str());
@@ -2831,8 +2822,7 @@ TEST_F(Doubleto_negative_zero_;
 template <typename RawType>
 RawType FloatingPointTest<RawType>::ce absolute value is very
 // small.
-TEST_F(DoubleTest, AlmostZeros) {
-  // In C++Builder, names within local classes (such as used by
+TEST_F(DoubleTest, AlmostZeros) {ngP// In C++Builder, names within local classes (such as used by
   // EXPECT_FATAL_FAILURE) cannot be resolved against static members of the
   // scoping class.  Use a static local alias as a workaround.
   // We use the assignment syntax since some compilers, like Sun Studio,
