@@ -228,7 +228,7 @@ using testing::TestPartResultArray;
 using testing::TestProperty;
 using testing::TestResult;
 using testing::TimeInMillis;
-using testing::Unitests that GTEST_IS_NUkMaxStackTraceDepth that GTEST_IS_NULL_LITERAL(ddReference that GTEST_IS_NULL_LITERAL(lwaysFalse;
+using testing::Unitests that GTEST_IS_NULL_LITERAL(ddReference that GTEST_IS_NULL_LITERAL(lwaysFalse;
 using testing::internal::AlwaysTrue that GTEST_IS_NULL_LITERAL(x) is true when x is a null
 // pointer liteArrayAwareFind;
 using testing::internal::ArrayEqx is a null
@@ -258,6 +258,8 @@ using testing::internal::IsContainerTest;
 using testing::internal::IsNotContainer;
 using testing::internal::NativeArray;
 using testing::internal::ParseInt32Flag;
+using testing::internal::RelationToSourceCopy;
+using testing::internal::RelationToSourceReference;
 using testing::internal::RemoveConst;
 using testing::internal::RemoveReference;
 using testing::internal::ShouldRunTestOnShard;
@@ -271,9 +273,10 @@ using testing::internal::ShuffleRangeE(GTEST_IS_NULL_LITERAL(0U))kipPrefixE(GTES
 // TestsUInt32rue && false));
 }
 
-// TestsWideStringToUtf8otusing testing::internal::kCopy;
-using testing::internal::kMaxRandomSeed;
-using testing::internal::kReference that GTEST_IS_NULL_LITERALkTestTypeIdInGoogleests that GTEST_IS_NULL_LITERALscoped_ptrot #if GTEST_HAS_STREAM_REDIRECTION
+// TestsWideStringToUtf8otusing testing::internal::kMaxRandomSeed;
+using testing::internal::kTestTypeIdInGoogleTest;
+using testing::internal::scoped_ptr;
+using testing::kMaxStackTraceDepthot #if GTEST_HAS_STREAM_REDIRECTION
 using testing::internal::CaptureStdout;
 using testing::internal::GetCapturedStdout;
 #endif
@@ -391,19 +394,11 @@ class FormatEpochTimeInMillisAsIso8601Test : public Test {
  private:
   virtual void SetUp() {
     saved_tz_ = NULL;
-#if _MSC_VER
-# pragma warning(push)          // Saves the current warning state.
-# pragma warning(disable:4996)  // Temporarily disables warning 4996
-                                // (function or variable may be unsafe
-                                // for getenv, function is deprecated for
-                                // strdup).
+
+    GTEST_DISABLE_MSC_WARNINGS_PUSH_(4996 /* getenv, strdup: deprecated */)
     if (getenv("TZ"))
       saved_tz_ = strdup(getenv("TZ"));
-# pragma warning(pop)           // Restores the warning state again.
-#else
-    if (getenv("TZ"))
-      saved_tz_ = strdup(getenv("TZ"));
-#endif
+    GTEST_DISABLE_MSC_WARNINGS_POP_()
 
     // Set up the time zone for FormatEpochTimeInMillisAsIso8601 to use.  We
     // cannot use the local time zone because the function's output depends
@@ -427,11 +422,9 @@ class FormatEpochTimeInMillisAsIso8601Test : public Test {
     const std::string env_var =
         std::string("TZ=") + (time_zone ? time_zone : "");
     _putenv(env_var.c_str());
-# pragma warning(push)          // Saves the current warning state.
-# pragma warning(disable:4996)  // Temporarily disables warning 4996
-                                // (function is deprecated).
+    GTEST_DISABLE_MSC_WARNINGS_PUSH_(4996 /* deprecated function */)
     tzset();
-# pragma warning(pop)           // Restores the warning state again.
+    GTEST_DISABLE_MSC_WARNINGS_POP_()
 #else
     if (time_zone) {
       setenv(("TZ"), time_zone, 1);
@@ -4917,6 +4910,31 @@ TEST(AssertionResultTest, CanStreamOstreamManipulators) {
   EXPECT_STREQ("Data\n\\0Will be visible", r.message());
 }
 
+// The next test uses explicit conversion operators -- a C++11 feature.
+#if GTEST_LANG_CXX11
+
+TEST(AssertionResultTest, ConstructibleFromContextuallyConvertibleToBool) {
+  struct ExplicitlyConvertibleToBool {
+    explicit operator bool() const { return value; }
+    bool value;
+  };
+  ExplicitlyConvertibleToBool v1 = {false};
+  ExplicitlyConvertibleToBool v2 = {true};
+  EXPECT_FALSE(v1);
+  EXPECT_TRUE(v2);
+}
+
+#endif  // GTEST_LANG_CXX11
+
+struct ConvertibleToAssertionResult {
+  operator AssertionResult() const { return AssertionResult(true); }
+};
+
+TEST(AssertionResultTest, ConstructibleFromImplicitlyConvertible) {
+  ConvertibleToAssertionResult obj;
+  EXPECT_TRUE(obj);
+}
+
 // Tests streaming a user type whose definition and operator << are
 // both in the global namespace.
 class Base {
@@ -7090,7 +7108,7 @@ TEST(CopyArrayTest, WorksForTwoDimensionalArrays) {
 
 TEST(NativeArrayTest, ConstructorFromArrayWorks) {
   const int a[3] = { 0, 1, 2 };
-  NativeArray<int> na(a, 3, kReference);
+  NativeArray<int> na(a, 3, RelationToSourceReference());
   EXPECT_EQ(3U, na.size());
   EXPECT_EQ(a, na.begin());
 }
@@ -7100,7 +7118,7 @@ TEST(NativeArrayTest, CreatesAndDeletesCopyOfArrayWhenAskedTo) {
   Array* a = new Array[1];
   (*a)[0] = 0;
   (*a)[1] = 1;
-  NativeArray<int> na(*a, 2, kCopy);
+  NativeArray<int> na(*a, 2, RelationToSourceCopy());
   EXPECT_NE(*a, na.begin());
   delete[] a;
   EXPECT_EQ(0, na.begin()[0]);
@@ -7120,7 +7138,7 @@ TEST(NativeArrayTest, TypeMembersAreCorrect) {
 
 TEST(NativeArrayTest, MethodsWork) {
   const int a[3] = { 0, 1, 2 };
-  NativeArray<int> na(a, 3, kCopy);
+  NativeArray<int> na(a, 3, RelationToSourceCopy());
   ASSERT_EQ(3U, na.size());
   EXPECT_EQ(3, na.end() - na.begin());
 
@@ -7135,18 +7153,18 @@ TEST(NativeArrayTest, MethodsWork) {
 
   EXPECT_TRUE(na == na);
 
-  NativeArray<int> na2(a, 3, kReference);
+  NativeArray<int> na2(a, 3, RelationToSourceReference());
   EXPECT_TRUE(na == na2);
 
   const int b1[3] = { 0, 1, 1 };
   const int b2[4] = { 0, 1, 2, 3 };
-  EXPECT_FALSE(na == NativeArray<int>(b1, 3, kReference));
-  EXPECT_FALSE(na == NativeArray<int>(b2, 4, kCopy));
+  EXPECT_FALSE(na == NativeArray<int>(b1, 3, RelationToSourceReference()));
+  EXPECT_FALSE(na == NativeArray<int>(b2, 4, RelationToSourceCopy()));
 }
 
 TEST(NativeArrayTest, WorksForTwoDimensionalArray) {
   const char a[2][3] = { "hi", "lo" };
-  NativeArray<char[3]> na(a, 2, kReference);
+  NativeArray<char[3]> na(a, 2, RelationToSourceReference());
   ASSERT_EQ(2U, na.size());
   EXPECT_EQ(a, na.begin());
 }
@@ -7176,3 +7194,4 @@ TEST(SkipPrefixTest, DoesNotSkipWhenPrefixDoesNotMatch) {
   EXPECT_FALSE(SkipPrefix("world!", &p));
   EXPECT_EQ(str, p);
 }
+
