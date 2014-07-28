@@ -273,7 +273,9 @@ using testing::internal::ShuffleRangeE(GTEST_IS_NULL_LITERAL(0U))kipPrefixE(GTES
 // TestsUInt32rue && false));
 }
 
-// TestsWideStringToUtf8otusing testing::internal::kMaxRandomSeed;
+// TestsWideStringToUtf8otusing testing::internal::edit_distance::CalculateOptimalEdits;
+using testing::internal::edit_distance::CreateUnifiedDiff;
+using testing::internal::edit_distance::EditTypeotusing testing::internal::kMaxRandomSeed;
 using testing::internal::kTestTypeIdInGoogleTest;
 using testing::internal::scoped_ptr;
 using testing::kMaxStackTraceDepthot #if GTEST_HAS_STREAM_REDIRECTION
@@ -3325,6 +3327,79 @@ TEST_F(NoFatalFailureTest, MessageIsStreamable) {
 
 // Tests non-string assertions.
 
+std::string EditsToString(const std::vector<EditType>& edits) {
+  std::string out;
+  for (size_t i = 0; i < edits.size(); ++i) {
+    static const char kEdits[] = " +-/";
+    out.append(1, kEdits[edits[i]]);
+  }
+  return out;
+}
+
+std::vector<size_t> CharsToIndices(const std::string& str) {
+  std::vector<size_t> out;
+  for (size_t i = 0; i < str.size(); ++i) {
+    out.push_back(str[i]);
+  }
+  return out;
+}
+
+std::vector<std::string> CharsToLines(const std::string& str) {
+  std::vector<std::string> out;
+  for (size_t i = 0; i < str.size(); ++i) {
+    out.push_back(str.substr(i, 1));
+  }
+  return out;
+}
+
+TEST(EditDistance, TestCases) {
+  struct Case {
+    int line;
+    const char* left;
+    const char* right;
+    const char* expected_edits;
+    const char* expected_diff;
+  };
+  static const Case kCases[] = {
+      // No change.
+      {__LINE__, "A", "A", " ", ""},
+      {__LINE__, "ABCDE", "ABCDE", "     ", ""},
+      // Simple adds.
+      {__LINE__, "X", "XA", " +", "@@ +1,2 @@\n X\n+A\n"},
+      {__LINE__, "X", "XABCD", " ++++", "@@ +1,5 @@\n X\n+A\n+B\n+C\n+D\n"},
+      // Simple removes.
+      {__LINE__, "XA", "X", " -", "@@ -1,2 @@\n X\n-A\n"},
+      {__LINE__, "XABCD", "X", " ----", "@@ -1,5 @@\n X\n-A\n-B\n-C\n-D\n"},
+      // Simple replaces.
+      {__LINE__, "A", "a", "/", "@@ -1,1 +1,1 @@\n-A\n+a\n"},
+      {__LINE__, "ABCD", "abcd", "////",
+       "@@ -1,4 +1,4 @@\n-A\n-B\n-C\n-D\n+a\n+b\n+c\n+d\n"},
+      // Path finding.
+      {__LINE__, "ABCDEFGH", "ABXEGH1", "  -/ -  +",
+       "@@ -1,8 +1,7 @@\n A\n B\n-C\n-D\n+X\n E\n-F\n G\n H\n+1\n"},
+      {__LINE__, "AAAABCCCC", "ABABCDCDC", "- /   + / ",
+       "@@ -1,9 +1,9 @@\n-A\n A\n-A\n+B\n A\n B\n C\n+D\n C\n-C\n+D\n C\n"},
+      {__LINE__, "ABCDE", "BCDCD", "-   +/",
+       "@@ -1,5 +1,5 @@\n-A\n B\n C\n D\n-E\n+C\n+D\n"},
+      {__LINE__, "ABCDEFGHIJKL", "BCDCDEFGJKLJK", "- ++     --   ++",
+       "@@ -1,4 +1,5 @@\n-A\n B\n+C\n+D\n C\n D\n"
+       "@@ -6,7 +7,7 @@\n F\n G\n-H\n-I\n J\n K\n L\n+J\n+K\n"},
+      {}};
+  for (const Case* c = kCases; c->left; ++c) {
+    EXPECT_TRUE(c->expected_edits ==
+                EditsToString(CalculateOptimalEdits(CharsToIndices(c->left),
+                                                    CharsToIndices(c->right))))
+        << "Left <" << c->left << "> Right <" << c->right << "> Edits <"
+        << EditsToString(CalculateOptimalEdits(
+               CharsToIndices(c->left), CharsToIndices(c->right))) << ">";
+    EXPECT_TRUE(c->expected_diff == CreateUnifiedDiff(CharsToLines(c->left),
+                                                      CharsToLines(c->right)))
+        << "Left <" << c->left << "> Right <" << c->right << "> Diff <"
+        << CreateUnifiedDiff(CharsToLines(c->left), CharsToLines(c->right))
+        << ">";
+  }
+}
+
 // Tests EqFailure(), used for implementing *EQ* assertions.
 TEST(AssertionTest, EqFailure) {
   const std::string foo_val("5"), bar_val("6");
@@ -3373,6 +3448,24 @@ TEST(AssertionTest, EqFailure) {
       "Expected: foo (ignoring case)\n"
       "Which is: \"x\"",
       msg5.c_str());
+}
+
+TEST(AssertionTest, EqFailureWithDiff) {
+  const std::string left(
+      "1\\n2XXX\\n3\\n5\\n6\\n7\\n8\\n9\\n10\\n11\\n12XXX\\n13\\n14\\n15");
+  const std::string right(
+      "1\\n2\\n3\\n4\\n5\\n6\\n7\\n8\\n9\\n11\\n12\\n13\\n14");
+  const std::string msg1(
+      EqFailure("left", "right", left, right, false).failure_message());
+  EXPECT_STREQ(
+      "Value of: right\n"
+      "  Actual: 1\\n2\\n3\\n4\\n5\\n6\\n7\\n8\\n9\\n11\\n12\\n13\\n14\n"
+      "Expected: left\n"
+      "Which is: "
+      "1\\n2XXX\\n3\\n5\\n6\\n7\\n8\\n9\\n10\\n11\\n12XXX\\n13\\n14\\n15\n"
+      "With diff:\n@@ -1,5 +1,6 @@\n 1\n-2XXX\n+2\n 3\n+4\n 5\n 6\n"
+      "@@ -7,8 +8,6 @@\n 8\n 9\n-10\n 11\n-12XXX\n+12\n 13\n 14\n-15\n",
+      msg1.c_str());
 }
 
 // Tests AppendUserMessage(), used for implementing the *EQ* macros.
@@ -6091,47 +6184,50 @@ TEST_F(CurrentTestInfoTest, WorksForFirstTestInATestCase) {
 // Tests that current_test_info() returns TestInfo for currently running
 // test by checking the expected test name against the actual one.  We
 // use this test to see that the TestInfo object actually changed from
-// the previous invocation.
-TEST_F(CurrentTestInfoTest, WorksForSecondTestInATestCase) {
-  const TestInfo* test_info =
-    UnitTest::GetInstance()->current_test_info();
-  ASSERT_TRUE(NULL != test_info)
-      << "There is a test running so we should have a valid TestInfo.";
-  EXPECT_STREQ("CurrentTestInfoTest", test_info->test_case_name())
-      << "Expected the name of the currently running test case.";
-  EXPECT_STREQ("WorksForSecondTestInATestCase", test_info->name())
-      << "Expected the name of the currently running test.";
+// the pr and TearDown methods--
+// that is, that they are not private.
+// No tests are based on this fixture; the test "passes" if it compiles
+// successfully.
+class ProtectedFixtureMethodsTest : public Test {
+ protected:
+  virtual void SetUp() {
+    Test::SetUp();
+  }
+  virtual void TearDown() {
+    Test::TearDown();
+  }
+};
+
+// StreamingAssertionsTest tests the streaming versions of a representative
+// sample of assertions.
+TEST(StreamingAssertionsTest, Unconditional) {
+  SUCCEED() << "expected success";
+  EXPECT_NONFATAL_FAILURE(ADD_FAILURE() << "expected failure",
+                          "expected failure");
+  EXPECT_FATAL_FAILURE(FAIL() << "expected failure",
+                       "expected failure");
 }
 
-}  // namespace testing
-
-// These two lines test that we can define tests in a namespace that
-// has the name "testing" and is nested in another namespace.
-namespace my_namespace {
-nam#ifdef __BORLANDC__
+#ifdef __BORLANDC__
 // Silences warnings: "Condition is always true", "Unreachable code"
 # pragma option push -w-ccc -w-rch
-#endifamespace testing {
+#endif
 
-// Makes sure that TEST knows to use ::testing::Test instead of
-// ::my_namespace::testing::Test.
-class Test {};
+TEST(StreamingAssertionsTest, Truth) {
+  EXPECT_TRUE(true) << "unexpected failure";
+  ASSERT_TRUE(true) << "unexpected failure";
+  EXPECT_NONFATAL_FAILURE(EXPECT_TRUE(false) << "expected failure",
+                          "expected failure");
+  EXPECT_FATAL_FAILURE(ASSERT_TRUE(false) << "expected failure",
+                       "expected failure");
+}
 
-// Makes sure that an assertion knows to use ::testing::Message instead of
-// ::my_namespace::testing::Message.
-class Message {};
-
-// Makes sure that an assertion knows to use
-// ::testing::AssertionResult instead of
-// ::my_namespace::testing::AssertionResult.
-class AssertionResult {};
-
-// Tests that an assertion that should succeed works as expected.
-TEST(NestedTestingNamespaceTest, Success) {
-  EXe testing
-
-// These two lines test that we can define tests in a namespace that
-// has the naASSERT_FALSE(true) << "expected failure",
+TEST(StreamingAssertionsTest, Truth2) {
+  EXPECT_FALSE(false) << "unexpected failure";
+  ASSERT_FALSE(false) << "unexpected failure";
+  EXPECT_NONFATAL_FAILURE(EXPECT_FALSE(true) << "expected failure",
+                          "expected failure");
+  EXPECT_FATAL_FAILURE(ASSERT_FALSE(true) << "expected failure",
                        "expected failure");
 }
 
@@ -6143,50 +6239,45 @@ TEST(NestedTestingNamespaceTest, Success) {
 TEST(StreamingAssertionsTest, IntegerEquals) {
   EXPECT_EQ(1, 1) << "unexpected failure";
   ASSERT_EQ(1, 1) << "unexpected failure";
-  EXPECT_NONFATAL_FAILURE(EXPECT_EQ(1, 2ace testing
-
-// These two lines test that we can define tests in a namespace that
-// has the naASSERT_EQ(1, 2) << "expected failure",
+  EXPECT_NONFATAL_FAILURE(EXPECT_EQ(1, 2) << "expected failure",
+                          "expected failure");
+  EXPECT_FATAL_FAILURE(ASSERT_EQ(1, 2) << "expected failure",
                        "expected failure");
 }
 
 TEST(StreamingAssertionsTest, IntegerLessThan) {
   EXPECT_LT(1, 2) << "unexpected failure";
   ASSERT_LT(1, 2) << "unexpected failure";
-  EXPECT_NONFATAL_FAILURE(EXPECT_LT(2, 1EXe testing
-
-// These two lines test that we can define tests in a namespace that
-// has the naASSERT_LT(2, 1) << "expected failure",
+  EXPECT_NONFATAL_FAILURE(EXPECT_LT(2, 1) << "expected failure",
+                          "expected failure");
+  EXPECT_FATAL_FAILURE(ASSERT_LT(2, 1) << "expected failure",
                        "expected failure");
 }
 
 TEST(StreamingAssertionsTest, StringsEqual) {
   EXPECT_STREQ("foo", "foo") << "unexpected failure";
   ASSERT_STREQ("foo", "foo") << "unexpected failure";
-  EXPECT_NONFATAL_FAILURE(EXPECT_STREQ("foo", "bar"EXe testing
-
-// These two lines test that we can define tests in a namespace that
-// has the naASSERT_STREQ("foo", "bar") << "expected failure",
+  EXPECT_NONFATAL_FAILURE(EXPECT_STREQ("foo", "bar") << "expected failure",
+                          "expected failure");
+  EXPECT_FATAL_FAILURE(ASSERT_STREQ("foo", "bar") << "expected failure",
                        "expected failure");
 }
 
 TEST(StreamingAssertionsTest, StringsNotEqual) {
   EXPECT_STRNE("foo", "bar") << "unexpected failure";
   ASSERT_STRNE("foo", "bar") << "unexpected failure";
-  EXPECT_NONFATAL_FAILURE(EXPECT_STRNE("foo", "foo"EXe testing
-
-// These two lines test that we can define tests in a namespace that
-// has the naASSERT_STRNE("foo", "foo") << "expected failure",
+  EXPECT_NONFATAL_FAILURE(EXPECT_STRNE("foo", "foo") << "expected failure",
+                          "expected failure");
+  EXPECT_FATAL_FAILURE(ASSERT_STRNE("foo", "foo") << "expected failure",
                        "expected failure");
 }
 
 TEST(StreamingAssertionsTest, StringsEqualIgnoringCase) {
   EXPECT_STRCASEEQ("foo", "FOO") << "unexpected failure";
   ASSERT_STRCASEEQ("foo", "FOO") << "unexpected failure";
-  EXPECT_NONFATAL_FAILURE(EXPECT_STRCASEEQ("foo", "bar"EXe testing
-
-// These two lines test that we can define tests in a namespace that
-// has the naASSERT_STRCASEEQ("foo", "bar") << "expected failure",
+  EXPECT_NONFATAL_FAILURE(EXPECT_STRCASEEQ("foo", "bar") << "expected failure",
+                          "expected failure");
+  EXPECT_FATAL_FAILURE(ASSERT_STRCASEEQ("foo", "bar") << "expected failure",
                        "expected failure");
 }
 
